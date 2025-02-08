@@ -1,0 +1,74 @@
+
+docker-compose exec app bash
+docker-compose up 
+docker-compose down
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+sudo chmod -R 777 /home/minhajulislam/Project/e-commerce-web-app
+
+# Change ownership to your user
+sudo chown -R $USER:$USER /home/minhajulislam/Project/e-commerce-web-app
+
+# Set appropriate permissions (755 for directories, 644 for files)
+find /home/minhajulislam/Project/e-commerce-web-app -type d -exec chmod 755 {} \;
+find /home/minhajulislam/Project/e-commerce-web-app -type f -exec chmod 644 {} \;
+
+
+sudo chmod -R 775 /home/minhajulislam/Project/e-commerce-web-app/storage
+sudo chmod -R 775 /home/minhajulislam/Project/e-commerce-web-app/bootstrap/cache
+
+
+sudo chmod -R 777 /home .

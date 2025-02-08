@@ -1,0 +1,62 @@
+name: Deploy Laravel Application to Production Server
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v3
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: 8.3
+
+    - name: Install Composer Dependencies
+      run: composer install --optimize-autoloader --no-dev --no-progress --no-interaction --prefer-dist
+
+    - name: Install Node
+      uses: actions/setup-node@v3
+      with:
+        node-version: '22'
+
+    - name: Install NPM Dependencies
+      run: npm install
+
+    - name: Build NPM Assets
+      run: npm run build
+
+    # - name: Synchronize Files To Server
+    #   uses: appleboy/scp-action@v0.1.1
+    #   with:
+    #     host: ${{ secrets.VPS_HOST }}
+    #     username: ${{ secrets.VPS_USER }}
+    #     password: ${{ secrets.VPS_PASSWORD }}
+    #     source: "."
+    #     target: "/var/www/html/ecomapp/"
+
+    # - name: Run Remote/Artisan Commands
+    #   uses: appleboy/ssh-action@v0.1.6
+    #   with:
+    #     host: ${{ secrets.VPS_HOST }}
+    #     username: ${{ secrets.VPS_USER }}
+    #     password: ${{ secrets.VPS_PASSWORD }}
+    #     script: |
+    #       cd /var/www/html/ecomapp
+    #       sudo chown -R www-data:www-data /var/www/html/ecomapp
+    #       sudo chmod -R 775 /var/www/html/ecomapp/storage
+    #       sudo chmod -R 775 /var/www/html/ecomapp/bootstrap/cache
+
+    #       php artisan migrate --force
+    #       php artisan optimize
+    #       php artisan config:cache
+    #       php artisan route:cache
+    #       php artisan view:cache
+          
+          
+          

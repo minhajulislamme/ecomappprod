@@ -1,0 +1,132 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        USER: ${USER:-laravel}
+        UID: ${UID:-1000}
+        PHP_VERSION: ${DOCKER_PHP_VERSION:-8.2}
+    container_name: laravel-app
+    volumes:
+      - ./:/var/www
+    networks:
+      - app-network
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    environment:
+      - REDIS_CLIENT=predis
+      - REDIS_HOST=redis
+      - SESSION_DRIVER=redis
+      - APP_ENV=local
+      - PHP_IDE_CONFIG=serverName=Docker
+      - XDEBUG_MODE=develop,debug
+      - XDEBUG_CLIENT_HOST=host.docker.internal
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  nginx:
+    image: nginx:alpine
+    container_name: laravel-nginx
+    ports:
+      - "${DOCKER_NGINX_PORT:-8000}:80"
+    volumes:
+      - ./:/var/www
+      - ./docker/nginx/conf.d:/etc/nginx/conf.d
+    networks:
+      - app-network
+    depends_on:
+      - app
+
+  mysql:
+    image: mysql:8.0
+    container_name: laravel-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: your_password
+      MYSQL_DATABASE: laravel_db
+      MYSQL_USER: laravel_user
+      MYSQL_PASSWORD: your_password
+    command: --default-authentication-plugin=mysql_native_password
+    volumes:
+      - mysql_data:/var/lib/mysql
+    ports:
+      - "${DOCKER_MYSQL_PORT:-3306}:3306"
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p$$MYSQL_ROOT_PASSWORD"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  redis:
+    image: redis:alpine
+    container_name: laravel-redis
+    ports:
+      - "${DOCKER_REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    command: redis-server --appendonly yes
+
+  vite:
+    image: node:latest
+    container_name: laravel-vite
+    volumes:
+      - ./:/var/www
+    working_dir: /var/www
+    command: sh -c "npm install && npm run dev"
+    environment:
+      - VITE_APP_URL=http://localhost:${DOCKER_NGINX_PORT:-8000}
+      - CHOKIDAR_USEPOLLING=true
+      - HOST=0.0.0.0
+      - PORT=${DOCKER_VITE_PORT:-5173}
+    ports:
+      - "5173:5173"
+    networks:
+      - app-network
+
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: laravel-phpmyadmin
+    environment:
+      PMA_HOST: mysql
+      MYSQL_ROOT_PASSWORD: your_password
+    ports:
+      - "${DOCKER_PHPMYADMIN_PORT:-8080}:80"
+    networks:
+      - app-network
+    depends_on:
+      - mysql
+
+  mailhog:
+    image: mailhog/mailhog:latest
+    container_name: laravel-mailhog
+    ports:
+      - "1025:1025"
+      - "${DOCKER_MAILHOG_PORT:-8025}:8025"
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+    name: laravel_network
+
+volumes:
+  mysql_data:
+    driver: local
+  redis_data:
+    driver: local
