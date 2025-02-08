@@ -97,6 +97,7 @@
                                             Whether you are a newcomer or have prior experience with Laravel, we
                                             recommend reading our documentation from beginning to end.
                                         </p>
+                                        <h2 class="text-xl font-semibold text-black dark:text-white">Develop By Minhajul Islam</h2>
                                     </div>
                                 </div>
 
