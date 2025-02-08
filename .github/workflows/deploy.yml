@@ -31,32 +31,32 @@ jobs:
     - name: Build NPM Assets
       run: npm run build
 
-    # - name: Synchronize Files To Server
-    #   uses: appleboy/scp-action@v0.1.1
-    #   with:
-    #     host: ${{ secrets.VPS_HOST }}
-    #     username: ${{ secrets.VPS_USER }}
-    #     password: ${{ secrets.VPS_PASSWORD }}
-    #     source: "."
-    #     target: "/var/www/html/ecomapp/"
+    - name: Synchronize Files To Server
+      uses: appleboy/scp-action@v0.1.1
+      with:
+        host: ${{ secrets.VPS_HOST }}
+        username: ${{ secrets.VPS_USER }}
+        password: ${{ secrets.VPS_PASSWORD }}
+        source: "."
+        target: "/var/www/html/ecomappprod/"
 
-    # - name: Run Remote/Artisan Commands
-    #   uses: appleboy/ssh-action@v0.1.6
-    #   with:
-    #     host: ${{ secrets.VPS_HOST }}
-    #     username: ${{ secrets.VPS_USER }}
-    #     password: ${{ secrets.VPS_PASSWORD }}
-    #     script: |
-    #       cd /var/www/html/ecomapp
-    #       sudo chown -R www-data:www-data /var/www/html/ecomapp
-    #       sudo chmod -R 775 /var/www/html/ecomapp/storage
-    #       sudo chmod -R 775 /var/www/html/ecomapp/bootstrap/cache
+    - name: Run Remote/Artisan Commands
+      uses: appleboy/ssh-action@v0.1.6
+      with:
+        host: ${{ secrets.VPS_HOST }}
+        username: ${{ secrets.VPS_USER }}
+        password: ${{ secrets.VPS_PASSWORD }}
+        script: |
+          cd /var/www/html/ecomappprod
+          sudo chown -R www-data:www-data /var/www/html/ecomappprod
+          sudo chmod -R 775 /var/www/html/ecomappprod/storage
+          sudo chmod -R 775 /var/www/html/ecomappprod/bootstrap/cache
 
-    #       php artisan migrate --force
-    #       php artisan optimize
-    #       php artisan config:cache
-    #       php artisan route:cache
-    #       php artisan view:cache
+          php artisan migrate --force
+          php artisan optimize
+          php artisan config:cache
+          php artisan route:cache
+          php artisan view:cache
           
           
           
