@@ -31,7 +31,7 @@
         <header class="bg-white shadow">
             <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
                 <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                    Dashboard User
+                    Dashboard Super Admin
                 </h2>
             </div>
         </header>
@@ -44,15 +44,16 @@
                     </div>
                 </div>
             </div>
+
+            <div class="text-center">
+                <form method="POST" action="{{ route('logout') }}">
+                    @csrf
+                    <button type="submit" class="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
+                        Logout
+                    </button>
+                </form>
+            </div>
         </main>
-        <div class="text-center">
-            <form method="POST" action="{{ route('logout') }}">
-                @csrf
-                <button type="submit" class="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
-                    Logout
-                </button>
-            </form>
-        </div>
     </div>
 </body>
 
