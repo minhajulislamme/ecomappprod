@@ -97,35 +97,92 @@ scrollToTopBtn.addEventListener('click', () => {
       behavior: 'smooth'
   });
 });
-// Chat Widget Toggle Function
-function toggleChat() {
-  const chatWidget = document.getElementById('chatWidget');
-  if (chatWidget.classList.contains('invisible')) {
-      // Show chat
-      chatWidget.classList.remove('invisible', 'opacity-0', 'translate-y-full');
-      chatWidget.classList.add('opacity-100', 'translate-y-0');
-  } else {
-      // Hide chat
-      chatWidget.classList.remove('opacity-100', 'translate-y-0');
-      chatWidget.classList.add('opacity-0', 'translate-y-full');
-      setTimeout(() => {
-          chatWidget.classList.add('invisible');
-      }, 300);
-  }
+// Chat Widget Toggle Function with improved transitions
+window.toggleChat = function() {
+    const chatWidget = document.getElementById('chatWidget');
+    if (!chatWidget) return;
+
+    // Define transition classes
+    const transitionClasses = 'transition-all duration-300 ease-in-out';
+    
+    if (!chatWidget.classList.contains(transitionClasses)) {
+        chatWidget.classList.add(...transitionClasses.split(' '));
+    }
+
+    if (chatWidget.classList.contains('invisible')) {
+        // Show chat with smooth animation
+        chatWidget.classList.remove('invisible');
+        requestAnimationFrame(() => {
+            chatWidget.classList.remove('opacity-0', 'translate-y-full', 'scale-95');
+            chatWidget.classList.add('opacity-100', 'translate-y-0', 'scale-100');
+        });
+    } else {
+        // Hide chat with smooth animation
+        chatWidget.classList.remove('opacity-100', 'translate-y-0', 'scale-100');
+        chatWidget.classList.add('opacity-0', 'translate-y-full', 'scale-95');
+        
+        // Wait for animation to complete
+        chatWidget.addEventListener('transitionend', function handler() {
+            chatWidget.classList.add('invisible');
+            chatWidget.removeEventListener('transitionend', handler);
+        });
+    }
 }
-// Floating Buttons Toggle Function
-function toggleFloatingButtons() {
-  const hiddenButtons = document.getElementById('hiddenButtons');
-  if (hiddenButtons.classList.contains('scale-0')) {
-      // Show buttons
-      hiddenButtons.classList.remove('scale-0', 'opacity-0');
-      hiddenButtons.classList.add('scale-100', 'opacity-100');
-  } else {
-      // Hide buttons
-      hiddenButtons.classList.remove('scale-100', 'opacity-100');
-      hiddenButtons.classList.add('scale-0', 'opacity-0');
-  }
+
+// Floating Buttons Toggle Function with improved animations
+window.toggleFloatingButtons = function() {
+    const hiddenButtons = document.getElementById('hiddenButtons');
+    const mainButton = document.querySelector('.fixed.left-4.bottom-20');
+    if (!hiddenButtons || !mainButton) return;
+
+    if (hiddenButtons.classList.contains('scale-0')) {
+        // Show buttons with stagger effect
+        hiddenButtons.classList.remove('scale-0', 'opacity-0');
+        
+        // Animate each button with delay
+        const buttons = hiddenButtons.querySelectorAll('a');
+        buttons.forEach((button, index) => {
+            button.style.transition = `all 300ms ease ${index * 100}ms`;
+            setTimeout(() => {
+                button.classList.remove('scale-0', 'opacity-0');
+                button.classList.add('scale-100', 'opacity-100');
+            }, index * 100);
+        });
+
+        hiddenButtons.classList.add('scale-100', 'opacity-100');
+    } else {
+        // Hide buttons with reverse stagger effect
+        const buttons = hiddenButtons.querySelectorAll('a');
+        [...buttons].reverse().forEach((button, index) => {
+            button.style.transition = `all 300ms ease ${index * 100}ms`;
+            setTimeout(() => {
+                button.classList.remove('scale-100', 'opacity-100');
+                button.classList.add('scale-0', 'opacity-0');
+            }, index * 100);
+        });
+
+        // Final cleanup after all buttons have animated
+        setTimeout(() => {
+            hiddenButtons.classList.remove('scale-100', 'opacity-100');
+            hiddenButtons.classList.add('scale-0', 'opacity-0');
+        }, buttons.length * 100);
+    }
 }
+
+// Enhanced click outside handler for floating buttons
+document.addEventListener('click', function(event) {
+    const floatingButtons = document.querySelector('.fixed.left-4.bottom-20');
+    const hiddenButtons = document.getElementById('hiddenButtons');
+    const toggleButton = event.target.closest('[onclick*="toggleFloatingButtons"]');
+    
+    if (!floatingButtons || !hiddenButtons) return;
+
+    if (!toggleButton && 
+        !floatingButtons.contains(event.target) && 
+        !hiddenButtons.classList.contains('scale-0')) {
+        toggleFloatingButtons();
+    }
+});
 // Close floating buttons when clicking outside
 document.addEventListener('click', function(event) {
   const floatingButtons = document.querySelector('.fixed.left-4.bottom-28');
@@ -259,5 +316,27 @@ document.addEventListener('DOMContentLoaded', function() {
                 window.toggleCategoryMenu();
             }
         });
+    }
+
+    const hiddenButtons = document.getElementById('hiddenButtons');
+    const mainButton = document.querySelector('.fixed.left-4.bottom-20');
+    
+    if (hiddenButtons && mainButton) {
+        // Add initial state classes
+        hiddenButtons.classList.add('transition-all', 'duration-300', 'ease-in-out', 'scale-0', 'opacity-0');
+        
+        // Add initial state to child buttons
+        const buttons = hiddenButtons.querySelectorAll('a');
+        buttons.forEach(button => {
+            button.classList.add('scale-0', 'opacity-0', 'transition-all', 'duration-300', 'ease-in-out');
+        });
+
+        // Trigger initial animation after a small delay
+        setTimeout(() => {
+            mainButton.classList.add('animate-bounce');
+            setTimeout(() => {
+                mainButton.classList.remove('animate-bounce');
+            }, 1000);
+        }, 1500);
     }
 });
