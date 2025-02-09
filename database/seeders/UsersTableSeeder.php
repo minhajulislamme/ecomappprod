@@ -26,7 +26,7 @@ class UsersTableSeeder extends Seeder
                 [
                     'name' => 'Super Admin',
                     'username' => 'superadmin',
-                    'email' => 'superadmin@example.com',
+                    'email' => 'superadmin@techeverit.com',
                     'password' => Hash::make('Minhaz@1332'),
                     'role' => self::ROLES['SUPER_ADMIN'],
                     'status' => self::STATUS_ACTIVE,
