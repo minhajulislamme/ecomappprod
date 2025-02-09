@@ -1,3 +1,144 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+
+
+
+@import url('https://fonts.googleapis.com/css2?family=Anek+Bangla:wght@100..800&family=Hind+Siliguri:wght@300;400;500;600;700&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Jost:ital,wght@0,100..900;1,100..900&display=swap');
+
+@import "tailwindcss";
+
+.font-anek {
+  font-family: 'Anek Bangla', sans-serif;
+}
+
+.font-hind {
+  font-family: 'Hind Siliguri', sans-serif;
+}
+
+.font-inter {
+  font-family: 'Inter', sans-serif;
+}
+
+.font-jost {
+  font-family: 'Jost', sans-serif;
+}
+/* custom css by minhajul islam */
+@media (max-width: 1024px) {
+  body {
+      padding-bottom: 4.5rem;
+  }
+}
+@media (min-width: 768px) and (max-width: 1024px) {
+  body {
+      padding-bottom: 5rem;
+  }
+}
+/* ...existing styles... */
+.group:hover .group-hover\:opacity-100 {
+  opacity: 1;
+  transform: translateX(0);
+}
+.absolute.right-2 {
+  transform: translateX(10px);
+  transition: all 0.3s ease-in-out;
+}
+/* Add these styles to your existing styles */
+.group:hover .group-hover\:scale-110 {
+  transform: scale(1.1);
+}
+.aspect-square img {
+  transition: transform 0.3s ease-in-out;
+}
+.aspect-square {
+  position: relative;
+}
+.overflow-hidden {
+  overflow: hidden;
+}
+.group-hover\:scale-110 {
+  transition: transform 0.5s ease;
+}
+.swiper-button-next::after,
+.swiper-button-prev::after {
+  content: '';
+}
+.swiper-button-next,
+.swiper-button-prev {
+  transition: all 0.3s ease;
+}
+.swiper-button-next:hover,
+.swiper-button-prev:hover {
+  background-color: #FFF1F2;
+}
+.bannerSwiper .swiper-slide {
+  width: 100% !important; /* Force full width */
+}
+.bannerSwiper img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+/* Scroll to top button styles */
+#scrollToTop {
+  opacity: 0.8;
+  transition: all 0.3s ease;
+}
+#scrollToTop:hover {
+  opacity: 1;
+  transform: translateY(-5px) scale(1.1);
+}
+/* Ensure button is above bottom navigation on mobile */
+@media (max-width: 1024px) {
+  #scrollToTop {
+      bottom: 5rem;
+  }
+}
+/* Adjust floating buttons position for mobile */
+@media (max-width: 1024px) {
+  .fixed.right-4.bottom-28 {
+      bottom: 7rem; /* Adjust based on your bottom navigation height */
+  }
+}
+/* Chat widget animations */
+#chatWidget {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+#chatWidget.opacity-100 {
+  transform: translateY(0);
+}
+/* Floating buttons animations */
+#hiddenButtons {
+  transform-origin: bottom left;
+}
+#hiddenButtons.scale-100 {
+  transform: scale(1);
+}
+/* Adjust for mobile */
+@media (max-width: 1024px) {
+  .fixed.left-4.bottom-28 {
+      bottom: 7rem;
+  }
+}
+/* Add these new styles for product categories */
+.grid-cols-4 > a {
+max-width: calc(100vw / 4 - 1rem);
+}
+@media (min-width: 640px) {
+.sm\:grid-cols-6 > a {
+max-width: calc(100vw / 6 - 1rem);
+}
+}
+@media (min-width: 768px) {
+.md\:grid-cols-8 > a {
+max-width: calc(100vw / 8 - 1rem);
+}
+}
+@media (min-width: 1024px) {
+.lg\:grid-cols-10 > a {
+max-width: calc(100vw / 10 - 1rem);
+}
+}
+  
