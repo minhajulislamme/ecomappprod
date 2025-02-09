@@ -1,20 +1,6 @@
-<!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+@extends('layouts.app')
 
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{ config('app.name', 'Laravel') }}</title>
-
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
-
-    <!-- Vite Assets -->
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-</head>
-
-<body class="font-sans antialiased dark:bg-black dark:text-white/50">
+@section('content')
     <div class="bg-gray-50 text-black/50 dark:bg-black dark:text-white/50">
         <img id="background" class="absolute -left-20 top-0 max-w-[877px]"
             src="https://laravel.com/assets/img/welcome/background.svg" alt="Laravel background" />
@@ -63,11 +49,11 @@
                                     alt="Laravel documentation screenshot"
                                     class="aspect-video h-full w-full flex-1 rounded-[10px] object-top object-cover drop-shadow-[0px_4px_34px_rgba(0,0,0,0.06)] dark:hidden"
                                     onerror="
-                                            document.getElementById('screenshot-container').classList.add('!hidden');
-                                            document.getElementById('docs-card').classList.add('!row-span-1');
-                                            document.getElementById('docs-card-content').classList.add('!flex-row');
-                                            document.getElementById('background').classList.add('!hidden');
-                                        " />
+                                        document.getElementById('screenshot-container').classList.add('!hidden');
+                                        document.getElementById('docs-card').classList.add('!row-span-1');
+                                        document.getElementById('docs-card-content').classList.add('!flex-row');
+                                        document.getElementById('background').classList.add('!hidden');
+                                    " />
                                 <img src="https://laravel.com/assets/img/welcome/docs-dark.svg"
                                     alt="Laravel documentation screenshot"
                                     class="hidden aspect-video h-full w-full flex-1 rounded-[10px] object-top object-cover drop-shadow-[0px_4px_34px_rgba(0,0,0,0.25)] dark:block" />
@@ -192,7 +178,7 @@
                                 <p class=" mt-4 text-sm/relaxed">
                                     Laravel's robust library of first-party tools and libraries, such as <a
                                         href="
-                                        https://forge.laravel.com"
+                                    https://forge.laravel.com"
                                         class="rounded-sm underline hover:text-black focus:outline-none focus-visible:ring-1 focus-visible:ring-[#FF2D20] dark:hover:text-white dark:focus-visible:ring-[#FF2D20]">Forge</a>,
                                     <a href="https://vapor.laravel.com"
                                         class="rounded-sm underline hover:text-black focus:outline-none focus-visible:ring-1 focus-visible:ring-[#FF2D20] dark:hover:text-white">Vapor</a>,
@@ -228,6 +214,4 @@
             </div>
         </div>
     </div>
-</body>
-
-</html>
+@endsection
