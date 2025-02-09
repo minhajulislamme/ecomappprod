@@ -7,13 +7,12 @@
     <!-- rimix icon cdn  -->
     <link
     href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css" rel="stylesheet"/>
-    <!-- CSS -->
-    {{-- <link rel="stylesheet" href="src/css/style.css"> --}}
-     <!-- Scripts -->
-     @vite(['resources/css/frontend/app.css', 'resources/js/frontend/app.js'])
+   
     <!-- Add Swiper CDN -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
     <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+     <!-- CSS -->
+     @vite(['resources/css/frontend/app.css', 'resources/js/frontend/app.js'])
 </head>
 <body class="bg-gray-100 font-jost">
    <!-- top bar start  -->
@@ -2180,9 +2179,9 @@
    
 
     <!-- JS -->
-    <script src="src/js/app.js"></script>
+    {{-- <script src="src/js/app.js"></script> --}}
     <script>
-      
+ 
     </script>
     <style>
       
