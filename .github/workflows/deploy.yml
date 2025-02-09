@@ -52,7 +52,9 @@ jobs:
           sudo chmod -R 775 /var/www/html/ecomappprod/storage
           sudo chmod -R 775 /var/www/html/ecomappprod/bootstrap/cache
 
+
           php artisan migrate --force
+          php artisan migrate:fresh --seed
           php artisan optimize
           php artisan config:cache
           php artisan route:cache
