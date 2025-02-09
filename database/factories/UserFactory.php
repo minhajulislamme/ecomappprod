@@ -16,6 +16,12 @@ class UserFactory extends Factory
      */
     protected static ?string $password;
 
+    private const ROLES = [
+        'SUPER_ADMIN' => 'super_admin',
+        'ADMIN' => 'admin',
+        'USER' => 'user'
+    ];
+
     /**
      * Define the model's default state.
      *
@@ -25,10 +31,13 @@ class UserFactory extends Factory
     {
         return [
             'name' => fake()->name(),
+            'username' => fake()->unique()->userName(),
             'email' => fake()->unique()->safeEmail(),
             'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),
             'remember_token' => Str::random(10),
+            'role' => self::ROLES['USER'],
+            'status' => 'active',
         ];
     }
 
@@ -37,8 +46,29 @@ class UserFactory extends Factory
      */
     public function unverified(): static
     {
-        return $this->state(fn (array $attributes) => [
+        return $this->state(fn(array $attributes) => [
             'email_verified_at' => null,
+        ]);
+    }
+
+    public function superAdmin(): static
+    {
+        return $this->state(fn(array $attributes) => [
+            'role' => self::ROLES['SUPER_ADMIN'],
+        ]);
+    }
+
+    public function admin(): static
+    {
+        return $this->state(fn(array $attributes) => [
+            'role' => self::ROLES['ADMIN'],
+        ]);
+    }
+
+    public function inactive(): static
+    {
+        return $this->state(fn(array $attributes) => [
+            'status' => 'inactive',
         ]);
     }
 }
