@@ -15,3 +15,12 @@
 .animate-bounce {
     animation: bounce 1s infinite;
 }
+
+#hiddenButtons {
+    transform-origin: bottom left;
+}
+
+#hiddenButtons a {
+    transform-origin: bottom left;
+    transition: all 0.3s ease;
+}

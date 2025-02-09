@@ -132,39 +132,39 @@ window.toggleChat = function() {
 // Floating Buttons Toggle Function with improved animations
 window.toggleFloatingButtons = function() {
     const hiddenButtons = document.getElementById('hiddenButtons');
-    const mainButton = document.querySelector('.fixed.left-4.bottom-20');
-    if (!hiddenButtons || !mainButton) return;
+    if (!hiddenButtons) return;
 
     if (hiddenButtons.classList.contains('scale-0')) {
-        // Show buttons with stagger effect
+        // Show buttons with bottom-up stagger effect
         hiddenButtons.classList.remove('scale-0', 'opacity-0');
+        hiddenButtons.classList.add('scale-100', 'opacity-100');
         
-        // Animate each button with delay
+        // Animate each button with delay and bottom-up transition
         const buttons = hiddenButtons.querySelectorAll('a');
         buttons.forEach((button, index) => {
-            button.style.transition = `all 300ms ease ${index * 100}ms`;
-            setTimeout(() => {
-                button.classList.remove('scale-0', 'opacity-0');
-                button.classList.add('scale-100', 'opacity-100');
-            }, index * 100);
+            button.style.transitionDelay = `${index * 100}ms`;
+            requestAnimationFrame(() => {
+                button.classList.remove('scale-0', 'opacity-0', 'translate-y-10');
+                button.classList.add('scale-100', 'opacity-100', 'translate-y-0');
+            });
         });
-
-        hiddenButtons.classList.add('scale-100', 'opacity-100');
     } else {
         // Hide buttons with reverse stagger effect
         const buttons = hiddenButtons.querySelectorAll('a');
         [...buttons].reverse().forEach((button, index) => {
-            button.style.transition = `all 300ms ease ${index * 100}ms`;
-            setTimeout(() => {
-                button.classList.remove('scale-100', 'opacity-100');
-                button.classList.add('scale-0', 'opacity-0');
-            }, index * 100);
+            button.style.transitionDelay = `${index * 100}ms`;
+            button.classList.remove('scale-100', 'opacity-100', 'translate-y-0');
+            button.classList.add('scale-0', 'opacity-0', 'translate-y-10');
         });
 
         // Final cleanup after all buttons have animated
         setTimeout(() => {
             hiddenButtons.classList.remove('scale-100', 'opacity-100');
             hiddenButtons.classList.add('scale-0', 'opacity-0');
+            // Reset transition delays
+            buttons.forEach(button => {
+                button.style.transitionDelay = '0s';
+            });
         }, buttons.length * 100);
     }
 }
@@ -323,12 +323,13 @@ document.addEventListener('DOMContentLoaded', function() {
     
     if (hiddenButtons && mainButton) {
         // Add initial state classes
-        hiddenButtons.classList.add('transition-all', 'duration-300', 'ease-in-out', 'scale-0', 'opacity-0');
+        hiddenButtons.classList.add('transition-all', 'duration-300', 'ease-in-out', 'scale-0', 'opacity-0', 'origin-bottom-left');
         
-        // Add initial state to child buttons
+        // Add initial state to child buttons with translate-y for bottom-up animation
         const buttons = hiddenButtons.querySelectorAll('a');
         buttons.forEach(button => {
-            button.classList.add('scale-0', 'opacity-0', 'transition-all', 'duration-300', 'ease-in-out');
+            button.classList.add('scale-0', 'opacity-0', 'translate-y-10', 'transition-all', 'duration-300', 'ease-in-out');
+            button.style.transformOrigin = 'bottom left';
         });
 
         // Trigger initial animation after a small delay
