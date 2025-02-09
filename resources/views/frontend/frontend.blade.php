@@ -314,26 +314,26 @@
 <div class="max-w-7xl mx-auto px-4 py-2 ">
     <div class="border border-orange-500 rounded-lg p-3">
     <!-- Flash Sales Header -->
-        <div class="flex sm:flex-row items-start sm:items-center justify-between mb-6 space-y-2 sm:space-y-0">
-            <h2 class="text-2xl sm:text-3xl font-semibold text-orange-500">Flash Sales</h2>
-            <div class="flex items-center gap-2">
-                <span class="text-gray-600 text-sm sm:text-base">Ends in:</span>
-                <div class="flex gap-1 sm:gap-2 text-white">
-                    <div class="bg-orange-500 px-2 sm:px-3 py-1 rounded-md">
-                        <span id="hours" class="text-base sm:text-xl font-bold">00</span>
-                        <span class="text-xs">h</span>
-                    </div>
-                    <div class="bg-orange-500 px-2 sm:px-3 py-1 rounded-md">
-                        <span id="minutes" class="text-base sm:text-xl font-bold">00</span>
-                        <span class="text-xs">m</span>
-                    </div>
-                    <div class="bg-orange-500 px-2 sm:px-3 py-1 rounded-md">
-                        <span id="seconds" class="text-base sm:text-xl font-bold">00</span>
-                        <span class="text-xs">s</span>
-                    </div>
+    <div class="flex  sm:flex-row items-center justify-between gap-4 sm:gap-0 mb-6">
+        <h2 class="text-2xl sm:text-3xl font-semibold text-orange-500">Flash Sales</h2>
+        <div class="flex items-center gap-2">
+            <span class="text-gray-600 text-sm sm:text-base">Ends in:</span>
+            <div class="flex gap-1 sm:gap-2 text-white">
+                <div class="bg-orange-500 px-2 sm:px-3 py-1 rounded-md">
+                    <span id="hours" class="text-base sm:text-xl font-bold">00</span>
+                    <span class="text-xs">h</span>
+                </div>
+                <div class="bg-orange-500 px-2 sm:px-3 py-1 rounded-md">
+                    <span id="minutes" class="text-base sm:text-xl font-bold">00</span>
+                    <span class="text-xs">m</span>
+                </div>
+                <div class="bg-orange-500 px-2 sm:px-3 py-1 rounded-md">
+                    <span id="seconds" class="text-base sm:text-xl font-bold">00</span>
+                    <span class="text-xs">s</span>
                 </div>
             </div>
         </div>
+    </div>
 
         <!-- Flash Sales Slider -->
         <div class="relative">
