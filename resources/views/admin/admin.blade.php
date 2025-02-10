@@ -2181,25 +2181,33 @@
     <!-- footer part -->
     
     <!-- =========================================================== script js==================================== -->
+    <!-- Load dependencies before vite -->
     <script src="https://unpkg.com/@popperjs/core@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.js"></script>
-     <script src="./dist/js/script.js"></script>
-     <script>
-         $(document).ready(function() {
-            $('#summernote').summernote({
-                placeholder: 'Write your blog content here...',
-                tabsize: 2,
-                height: 250,
-                toolbar: [
-                    ['style', ['bold', 'italic', 'underline', 'clear']],
-                    ['para', ['ul', 'ol', 'paragraph']],
-                    ['insert', ['link', 'picture', 'video']],
-                    ['view', ['fullscreen', 'codeview']]
-                ]
-            });
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+
+    <!-- Load admin.js through vite last -->
+    @vite(['resources/css/admin/admin.css', 'resources/js/admin/admin.js'])
+
+    <script>
+        // Move summernote initialization to after vite loads
+        document.addEventListener('DOMContentLoaded', function() {
+            if($('#summernote').length) {
+                $('#summernote').summernote({
+                    placeholder: 'Write your blog content here...',
+                    tabsize: 2,
+                    height: 250,
+                    toolbar: [
+                        ['style', ['bold', 'italic', 'underline', 'clear']],
+                        ['para', ['ul', 'ol', 'paragraph']],
+                        ['insert', ['link', 'picture', 'video']],
+                        ['view', ['fullscreen', 'codeview']]
+                    ]
+                });
+            }
         });
-      </script>
+    </script>
 </body>
 </html>
