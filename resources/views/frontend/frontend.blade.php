@@ -2033,7 +2033,7 @@
         <!-- Main Chat Button -->
         <a href="#" onclick="toggleFloatingButtons()" class="relative flex items-center justify-center w-10 h-10 bg-orange-500 text-white rounded-full shadow-lg hover:bg-orange-600 transform hover:-translate-y-1 transition-all duration-300 group">
             <i class="ri-message-3-line text-xl"></i>
-            <span class="absolute left-full ml-2 bg-black text-white text-sm py-1 px-2 rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">
+            <span class="absolute left-full ml-2 bg-orange-500 text-white text-sm py-1 px-2 rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">
                 Live Chat
             </span>
         </a>
@@ -2045,14 +2045,14 @@
                 <div class="flex items-center justify-center w-10 h-10 bg-blue-500 text-white rounded-full shadow-lg hover:bg-blue-600 transform hover:-translate-y-1 transition-all duration-300">
                     <i class="ri-messenger-line text-2xl"></i>
                 </div>
-                <span class="bg-black text-white text-sm py-1 px-2 rounded ml-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">Messenger</span>
+                <span class="bg-orange-500 text-white text-sm py-1 px-2 rounded ml-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">Messenger</span>
             </a>
             <!-- WhatsApp -->
             <a href="https://wa.me/1234567890" target="_blank" class="flex items-center group">
                 <div class="flex items-center justify-center w-10 h-10 bg-green-500 text-white rounded-full shadow-lg hover:bg-green-600 transform hover:-translate-y-1 transition-all duration-300">
                     <i class="ri-whatsapp-line text-2xl"></i>
                 </div>
-                <span class="bg-black text-white text-sm py-1 px-2 rounded ml-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">WhatsApp</span>
+                <span class="bg-orange-500 text-white text-sm py-1 px-2 rounded ml-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">WhatsApp</span>
             </a>
             
             <!-- Call -->
@@ -2060,7 +2060,7 @@
                 <div class="flex items-center justify-center w-10 h-10 bg-blue-500 text-white rounded-full shadow-lg hover:bg-blue-600 transform hover:-translate-y-1 transition-all duration-300">
                     <i class="ri-phone-line text-2xl"></i>
                 </div>
-                <span class="bg-black text-white text-sm py-1 px-2 rounded ml-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">Call Us</span>
+                <span class="bg-orange-500 text-white text-sm py-1 px-2 rounded ml-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">Call Us</span>
             </a>
         </div>
     </div>

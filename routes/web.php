@@ -12,6 +12,10 @@ Route::get('/frontend', function () {
     return view('frontend.frontend');
 });
 
+Route::get('/admin', function () {
+    return view('admin.admin');
+});
+
 // User Routes
 Route::middleware(['auth', 'verified', 'user'])->group(function () {
     Route::get('/dashboard', function () {
