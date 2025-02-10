@@ -1,6 +1,49 @@
+/* Font imports */
+@import url("https://fonts.googleapis.com/css2?family=Anek+Bangla:wght@100..800&family=Hind+Siliguri:wght@300;400;500;600;700&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap");
+
+/* Tailwind directives */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+/* Base layer - for base element styles */
+@layer base {
+  input[type="number"]::-webkit-outer-spin-button,
+  input[type="number"]::-webkit-inner-spin-button {
+    @apply appearance-none;
+  }
 
+  input[type="number"] {
+    @apply appearance-none;
+    -moz-appearance: textfield;
+  }
+}
 
+/* Components layer - for component patterns */
+@layer components {
+  .notification-tab > .active {
+    @apply text-blue-500 border-b-blue-500 hover:text-blue-500;
+  }
+  .order-tab > .active {
+    @apply bg-orange-500 text-white hover:text-white;
+  }
+  .delivery-tab > .active {
+    @apply bg-orange-500 text-white hover:text-white;
+  }
+  .main.active {
+    @apply md:w-full md:ml-0;
+  }
+}
+
+/* Utilities layer - for custom utility classes */
+@layer utilities {
+  .font-inter {
+    font-family: "Inter", sans-serif;
+  }
+  .font-anek {
+    font-family: "Anek Bangla", sans-serif;
+  }
+  .font-hind {
+    font-family: "Hind Siliguri", sans-serif;
+  }
+}
