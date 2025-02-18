@@ -11,6 +11,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
     <!-- CSS -->
     @vite(['resources/css/admin/app.css', 'resources/js/admin/app.js'])
     {{-- <link rel="stylesheet" href="./dist/css/style.css"> --}}
@@ -111,34 +112,25 @@
     <!-- login section end -->
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
-        // Initialize Notyf
-        const notyf = new Notyf({
-            duration: 4000,
-            position: {
-                x: 'right',
-                y: 'top',
-            },
-            types: [{
-                    type: 'success',
-                    className: 'notyf__toast--success',
-                    backgroundColor: '#10B981',
-                    icon: false
-                },
-                {
-                    type: 'error',
-                    className: 'notyf__toast--error',
-                    backgroundColor: '#EF4444',
-                    icon: false
-                }
-            ]
-        });
-
         @if (Session::has('message'))
-            notyf.{{ Session::get('alert-type', 'success') }}("{{ Session::get('message') }}");
+            Swal.fire({
+                text: "{{ Session::get('message') }}",
+                icon: "{{ Session::get('alert-type', 'success') }}",
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true,
+                customClass: {
+                    popup: 'colored-toast'
+                }
+            });
         @endif
     </script>
+    <style>
+    </style>
     <script>
         function togglePassword() {
             const passwordInput = document.getElementById('password');

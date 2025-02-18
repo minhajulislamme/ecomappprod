@@ -1,8 +1,6 @@
 @extends('admin.admin_dashboard')
 
-@section('styles')
-    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.css">
-@endsection
+
 
 @section('admin_content')
     <div class="p-6">
@@ -12,8 +10,13 @@
                     <img id="showImage"
                         src="{{ !empty($adminData->photo) ? url('upload/admin_images/' . $adminData->photo) : url('https://placehold.co/600x600') }}"
                         alt="Admin Photo" class="w-32 h-32 rounded mb-4">
-                    <h3 class="text-xl font-semibold">{{ $adminData->name ?? 'Admin Name' }}</h3>
-                    <p class="text-gray-500">{{ $adminData->email ?? 'admin@example.com' }}</p>
+                    <div class=""> 
+                    <h3 class="text-xl font-semibold">Username: {{ $adminData->username ?? 'Admin Name' }}</h3>
+                    <h3 class="text-xl font-semibold">Name: {{ $adminData->name ?? 'Admin Name' }}</h3>
+                    <p class="text-gray-500">User Email: {{ $adminData->email ?? 'admin@example.com' }}</p>
+                    <p class="text-gray-500">User Phone: {{ $adminData->phone ?? 'admin@example.com' }}</p>
+                    <p class="text-gray-500"> User Address: {{ $adminData->address ?? 'admin@example.com' }}</p>
+                </div>
                 </div>
             </div>
 
@@ -44,13 +47,13 @@
                                 class="border-gray-100 p-2.5 bg-gray-50 outline-none rounded-md w-full text-sm focus:ring-2 focus:ring-orange-500 focus:border-none">
                         </div>
 
-                        <div class="md:col-span-2">
+                        <div class="md:col-span-1">
                             <label class="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
                             <input type="email" name="email" value="{{ old('email', $adminData->email ?? '') }}"
                                 class="border-gray-100 p-2.5 bg-gray-50 outline-none rounded-md w-full text-sm focus:ring-2 focus:ring-orange-500 focus:border-none">
                         </div>
 
-                        <div class="md:col-span-2">
+                        <div class="md:col-span-1">
                             <label class="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
                             <input type="tel" name="phone" value="{{ old('phone', $adminData->phone ?? '') }}"
                                 class="border-gray-100 p-2.5 bg-gray-50 outline-none rounded-md w-full text-sm focus:ring-2 focus:ring-orange-500 focus:border-none"
@@ -102,8 +105,4 @@
     </div>
 @endsection
 
-@section('scripts')
-    <script>
-        // Add any profile-specific scripts here
-    </script>
-@endsection
+
