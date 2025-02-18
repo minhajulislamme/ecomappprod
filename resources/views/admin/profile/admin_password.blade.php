@@ -5,16 +5,18 @@
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
             <div class="p-6 bg-white items-center shadow-md shadow-black/5 rounded-md border border-gray-100 mb-6">
                 <div class="flex flex-col items-center">
-                    <img id="showImage"
-                        src="{{ !empty($adminData->photo) ? url('upload/admin_images/' . $adminData->photo) : url('https://placehold.co/600x600') }}"
-                        alt="Admin Photo" class="w-32 h-32 rounded mb-4">
-                        <div class=""> 
-                            <h3 class="text-xl font-semibold">Username: {{ $adminData->username ?? 'Admin Name' }}</h3>
-                            <h3 class="text-xl font-semibold">Name: {{ $adminData->name ?? 'Admin Name' }}</h3>
-                            <p class="text-gray-500">User Email: {{ $adminData->email ?? 'admin@example.com' }}</p>
-                            <p class="text-gray-500">User Phone: {{ $adminData->phone ?? 'admin@example.com' }}</p>
-                            <p class="text-gray-500"> User Address: {{ $adminData->address ?? 'admin@example.com' }}</p>
-                        </div>
+                    <div class="flex justify-center w-full">
+                        <img id="showImage"
+                            src="{{ !empty($adminData->photo) ? url('upload/admin_images/' . $adminData->photo) : url('https://placehold.co/600x600') }}"
+                            alt="Admin Photo" class="w-32 h-32 object-cover rounded mb-4">
+                    </div>
+                    <div class="">
+                        <h3 class="text-xl font-semibold">Username: {{ $adminData->username ?? 'Admin Name' }}</h3>
+                        <h3 class="text-xl font-semibold">Name: {{ $adminData->name ?? 'Admin Name' }}</h3>
+                        <p class="text-gray-500">User Email: {{ $adminData->email ?? 'admin@example.com' }}</p>
+                        <p class="text-gray-500">User Phone: {{ $adminData->phone ?? 'admin@example.com' }}</p>
+                        <p class="text-gray-500"> User Address: {{ $adminData->address ?? 'admin@example.com' }}</p>
+                    </div>
                 </div>
             </div>
 
@@ -68,7 +70,7 @@
                         </div>
                     @endif
 
-                    <div class="flex justify-start mt-6">
+                    <div class="flex justify-center mt-6">
                         <button type="submit"
                             class="bg-orange-500 text-white py-2 px-6 rounded hover:bg-orange-600 transition duration-200">
                             Update Password
