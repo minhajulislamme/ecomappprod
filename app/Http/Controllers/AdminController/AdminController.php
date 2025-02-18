@@ -6,12 +6,15 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
+use Illuminate\Support\Facades\Hash;
 
 class AdminController extends Controller
 {
     public function AdminDashboard()
     {
-        return view('admin.index');
+        $id = Auth::id();
+        $adminData = User::find($id);
+        return view('admin.index', compact('adminData'));
     }
 
     public function AdminLogout(Request $request)
@@ -24,7 +27,7 @@ class AdminController extends Controller
 
         $notification = array(
             'message' => 'Successfully Logged Out',
-            'alert-type' => 'success'
+            'alert-type' => 'success'  // 'success' or 'error' only
         );
 
         return redirect('/admin/login')->with($notification);
@@ -86,8 +89,45 @@ class AdminController extends Controller
         $adminData->save();
         $notification = array(
             'message' => 'Profile Updated Successfully',
-            'alert-type' => 'success'  // only 'success' or 'error' supported by default
+            'alert-type' => 'success'  // 'success' or 'error' only
         );
         return redirect()->back()->with($notification);
+    }
+
+    public function AdminPassword()
+    {
+        $id = Auth::id();
+        $adminData = User::find($id);
+        return view('admin.profile.admin_password', compact('adminData'));
+    }
+
+    public function AdminPasswordUpdate(Request $request)
+    {
+        $request->validate([
+            'old_password' => 'required',
+            'password' => 'required|min:8|confirmed',
+            'password_confirmation' => 'required'
+        ]);
+
+        // Check if the current password matches
+        if (!Hash::check($request->old_password, auth()->user()->password)) {
+            $notification = array(
+                'message' => 'Current password does not match our records',
+                'alert-type' => 'error'
+            );
+            return back()->with($notification);
+        }
+
+        // Update the password
+        $user = auth()->user();
+        $user->password = Hash::make($request->password);
+        $user->save();
+
+        $notification = array(
+            'message' => 'Password Updated Successfully',
+            'alert-type' => 'success'
+        );
+
+        return back()->with($notification);
     }
 }
