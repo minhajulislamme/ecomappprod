@@ -1,22 +1,22 @@
 @extends('admin.admin_dashboard')
 
-
-
 @section('admin_content')
     <div class="p-6">
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
             <div class="p-6 bg-white items-center shadow-md shadow-black/5 rounded-md border border-gray-100 mb-6">
                 <div class="flex flex-col items-center">
-                    <img id="showImage"
-                        src="{{ !empty($adminData->photo) ? url('upload/admin_images/' . $adminData->photo) : url('https://placehold.co/600x600') }}"
-                        alt="Admin Photo" class="w-32 h-32 rounded mb-4">
-                    <div class=""> 
-                    <h3 class="text-xl font-semibold">Username: {{ $adminData->username ?? 'Admin Name' }}</h3>
-                    <h3 class="text-xl font-semibold">Name: {{ $adminData->name ?? 'Admin Name' }}</h3>
-                    <p class="text-gray-500">User Email: {{ $adminData->email ?? 'admin@example.com' }}</p>
-                    <p class="text-gray-500">User Phone: {{ $adminData->phone ?? 'admin@example.com' }}</p>
-                    <p class="text-gray-500"> User Address: {{ $adminData->address ?? 'admin@example.com' }}</p>
-                </div>
+                    <div class="flex justify-center w-full">
+                        <img id="showImage"
+                            src="{{ !empty($adminData->photo) ? url('upload/admin_images/' . $adminData->photo) : url('https://placehold.co/600x600') }}"
+                            alt="Admin Photo" class="w-32 h-32 object-cover rounded mb-4">
+                    </div>
+                    <div class="text-center">
+                        <h3 class="text-xl font-semibold">Username: {{ $adminData->username ?? 'Admin Name' }}</h3>
+                        <h3 class="text-xl font-semibold">Name: {{ $adminData->name ?? 'Admin Name' }}</h3>
+                        <p class="text-gray-500">User Email: {{ $adminData->email ?? 'admin@example.com' }}</p>
+                        <p class="text-gray-500">User Phone: {{ $adminData->phone ?? 'admin@example.com' }}</p>
+                        <p class="text-gray-500"> User Address: {{ $adminData->address ?? 'admin@example.com' }}</p>
+                    </div>
                 </div>
             </div>
 
@@ -67,8 +67,9 @@
                                 class="border-gray-100 p-2.5 bg-gray-50 outline-none rounded-md w-full text-sm focus:ring-2 focus:ring-orange-500 focus:border-none">{{ old('address', $adminData->address ?? '') }}</textarea>
                         </div>
                         <div class="md:col-span-2">
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Profile Image</label>
-                            <div class="mr-4 mb-4" id="single-image-upload">
+                            <label class="block text-sm font-medium text-gray-700 mb-1 text-center md:text-left">Profile
+                                Image</label>
+                            <div class="flex justify-center md:justify-start md:mr-4 md:mb-4" id="single-image-upload">
                                 <div id="drop-area-single"
                                     class="border-2 border-dashed border-gray-400 p-6 w-32 h-32 text-center rounded-lg cursor-pointer hover:border-orange-500 relative"
                                     ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)"
@@ -104,5 +105,3 @@
         </div>
     </div>
 @endsection
-
-
