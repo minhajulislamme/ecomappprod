@@ -35,7 +35,7 @@
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Current Password</label>
                             <input type="password" name="old_password"
-                                class="border p-2.5 bg-gray-50 outline-none rounded-md w-full text-sm focus:ring-2 focus:ring-orange-500 foucs:border-none
+                                class="border-gray-100 p-2.5 bg-gray-50 outline-none rounded-md w-full text-sm focus:ring-2 focus:ring-orange-500 focus:border-none
                                 {{ $errors->has('old_password') ? 'border-red-500' : 'border-gray-100' }}">
                             @error('old_password')
                                 <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
@@ -45,7 +45,7 @@
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">New Password</label>
                             <input type="password" name="password"
-                                class="border p-2.5 bg-gray-50 outline-none rounded-md w-full text-sm focus:ring-2 focus:ring-orange-500  foucs:border-none
+                                class="border-gray-100 p-2.5 bg-gray-50 outline-none rounded-md w-full text-sm focus:ring-2 focus:ring-orange-500  focus:border-none
                                 {{ $errors->has('password') ? 'border-red-500' : 'border-gray-100' }}">
                             @error('password')
                                 <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
@@ -55,7 +55,7 @@
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Confirm Password</label>
                             <input type="password" name="password_confirmation"
-                                class="border p-2.5 bg-gray-50 outline-none rounded-md w-full text-sm focus:ring-2 focus:ring-orange-500 foucs:border-none
+                                class="border-gray-100 p-2.5 bg-gray-50 outline-none rounded-md w-full text-sm focus:ring-2 focus:ring-orange-500 focus:border-none
                                 {{ $errors->has('password_confirmation') ? 'border-red-500' : 'border-gray-100' }}">
                             @error('password_confirmation')
                                 <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
