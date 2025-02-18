@@ -199,7 +199,7 @@
        
             <ul class="dropdown-menu shadow-md shadow-black/5 z-30 hidden py-1.5 rounded-md bg-white border border-gray-100 w-full max-w-[140px]">
                 <li>
-                    <a href="#" class="flex items-center text-[13px] py-1.5 px-4 text-gray-600 hover:bg-gray-50">
+                    <a href="{{route('admin.profile')}}" class="flex items-center text-[13px] py-1.5 px-4 text-gray-600 hover:bg-gray-50">
                         <i class="ri-user-line text-gray-400 mr-3"></i>
                         <span class="text-gray-600  hover:text-orange-500 font-medium">Profile</span>
                     </a>
