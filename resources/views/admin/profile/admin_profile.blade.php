@@ -10,7 +10,7 @@
                             src="{{ !empty($adminData->photo) ? url('upload/admin_images/' . $adminData->photo) : url('https://placehold.co/600x600') }}"
                             alt="Admin Photo" class="w-32 h-32 object-cover rounded mb-4">
                     </div>
-                    <div class="text-center">
+                    <div class="">
                         <h3 class="text-xl font-semibold">Username: {{ $adminData->username ?? 'Admin Name' }}</h3>
                         <h3 class="text-xl font-semibold">Name: {{ $adminData->name ?? 'Admin Name' }}</h3>
                         <p class="text-gray-500">User Email: {{ $adminData->email ?? 'admin@example.com' }}</p>
@@ -94,7 +94,7 @@
                         </div>
                     </div>
 
-                    <div class="flex justify-start mt-6">
+                    <div class="flex justify-center mt-6">
                         <button type="submit"
                             class="bg-orange-500 text-white py-2 px-6 rounded hover:bg-orange-600 transition duration-200">
                             Update Profile
