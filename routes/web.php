@@ -26,8 +26,6 @@ Route::middleware(['auth', 'verified', 'user'])->group(function () {
 Route::middleware(['auth', 'verified', 'admin'])->group(function () {
     Route::get('/admin/dashboard', [AdminController::class, 'AdminDashboard'])->name('admin.dashboard');
     Route::get('/admin/logout', [AdminController::class, 'AdminLogout'])->name('admin.logout');
-    
-   
 });
 
 // Super Admin Routes - define super admin accessible routes here
@@ -36,6 +34,12 @@ Route::middleware(['auth', 'verified', 'super_admin'])->group(function () {
         return view('superadmin.super_admin');
     })->name('superadmin.dashboard');
 });
+
+
+// All public route
+Route::get('/admin/login', [AdminController::class, 'AdminLogin'])->name('admin.login');
+Route::post('/admin/login/store', [AdminController::class, 'AdminLoginStore'])->name('admin.login.store');
+
 
 // Profile Routes
 Route::middleware('auth')->group(function () {
