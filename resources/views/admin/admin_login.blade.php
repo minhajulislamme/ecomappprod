@@ -10,8 +10,9 @@
     <!-- Excel cdn  -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css">
     <!-- CSS -->
-    @vite(['resources/css/admin/admin.css', 'resources/js/admin/admin.js'])
+    @vite(['resources/css/admin/app.css', 'resources/js/admin/app.js'])
     {{-- <link rel="stylesheet" href="./dist/css/style.css"> --}}
 </head>
 
@@ -109,6 +110,35 @@
     </div>
     <!-- login section end -->
 
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>
+    <script>
+        // Initialize Notyf
+        const notyf = new Notyf({
+            duration: 4000,
+            position: {
+                x: 'right',
+                y: 'top',
+            },
+            types: [{
+                    type: 'success',
+                    className: 'notyf__toast--success',
+                    backgroundColor: '#10B981',
+                    icon: false
+                },
+                {
+                    type: 'error',
+                    className: 'notyf__toast--error',
+                    backgroundColor: '#EF4444',
+                    icon: false
+                }
+            ]
+        });
+
+        @if (Session::has('message'))
+            notyf.{{ Session::get('alert-type', 'success') }}("{{ Session::get('message') }}");
+        @endif
+    </script>
     <script>
         function togglePassword() {
             const passwordInput = document.getElementById('password');
