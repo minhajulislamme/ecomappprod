@@ -71,18 +71,54 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
  // Move summernote initialization to after vite loads
- document.addEventListener('DOMContentLoaded', function() {
-    if ($('#summernote').length) {
-        $('#summernote').summernote({
-            placeholder: 'Write your blog content here...',
-            tabsize: 2,
-            height: 250,
-            toolbar: [
-                ['style', ['bold', 'italic', 'underline', 'clear']],
-                ['para', ['ul', 'ol', 'paragraph']],
-                ['insert', ['link', 'picture', 'video']],
-                ['view', ['fullscreen', 'codeview']]
-            ]
-        });
+ var quill = new Quill('#editor', {
+    theme: 'snow',
+    modules: {
+        toolbar: [
+            [{
+                'header': [1, 2, 3, 4, 5, 6, false]
+            }],
+            ['bold', 'italic', 'underline', 'strike'],
+            [{
+                'color': []
+            }, {
+                'background': []
+            }],
+            [{
+                'list': 'ordered'
+            }, {
+                'list': 'bullet'
+            }],
+            [{
+                'align': []
+            }],
+            ['link', 'image'],
+            ['clean']
+        ]
+    },
+    placeholder: 'Write your content here...'
+});
+
+// Save content to hidden input when editor changes
+quill.on('text-change', function() {
+    var content = quill.root.innerHTML;
+    document.getElementById('content').value = content;
+});
+
+// Auto-save functionality
+let autoSaveTimeout;
+quill.on('text-change', function() {
+    clearTimeout(autoSaveTimeout);
+    autoSaveTimeout = setTimeout(function() {
+        localStorage.setItem('quill-content', quill.root.innerHTML);
+        console.log('Content auto-saved');
+    }, 1000);
+});
+
+// Load saved content if exists
+document.addEventListener('DOMContentLoaded', function() {
+    const savedContent = localStorage.getItem('quill-content');
+    if (savedContent) {
+        quill.root.innerHTML = savedContent;
     }
 });
