@@ -194,7 +194,7 @@
     </li>
     <li class="dropdown ml-3">
         <button type="button" class="dropdown-toggle text-gray-400 w-8 h-8 rounded flex items-center justify-center hover:bg-gray-50 hover:text-gray-600">
-            <img src="{{ asset('upload/admin_images/' . $adminData->photo) }}" alt="" class="w-8 h-8 rounded block object-cover align-middle">
+            <img src="{{ !empty(Auth::user()->photo) ? url('upload/admin_images/' . Auth::user()->photo) : url('https://placehold.co/600x600') }}" alt="" class="w-8 h-8 rounded block object-cover align-middle">
         </button>
        
             <ul class="dropdown-menu shadow-md shadow-black/5 z-30 hidden py-1.5 rounded-md bg-white border border-gray-100 w-full max-w-[140px]">

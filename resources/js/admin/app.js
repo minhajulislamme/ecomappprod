@@ -30,61 +30,44 @@ sidebarOverlay.addEventListener('click', function (e) {
 // end: Sidebar
 
 // side bar menu toggle
-
 document.addEventListener('DOMContentLoaded', function() {
+    const currentPath = window.location.pathname;
+    
+    // First, check for active links and expand their parent dropdowns
+    document.querySelectorAll('.sidebar-link').forEach(function(link) {
+        const href = link.getAttribute('href');
+        if (href && href !== 'javascript:void()' && (currentPath === href || currentPath.startsWith(href))) {
+            // Mark link as active
+            link.classList.add('active');
+            
+            // Find and expand all parent dropdowns
+            let parentGroup = link.closest('.group');
+            while (parentGroup) {
+                parentGroup.classList.add('selected', 'active');
+                parentGroup = parentGroup.parentElement.closest('.group');
+            }
+        }
+    });
+
     // Handle dropdown toggles
     document.querySelectorAll('.sidebar-dropdown-toggle').forEach(function(item) {
         item.addEventListener('click', function(e) {
             e.preventDefault();
             const parent = item.closest('.group');
-            if (parent.classList.contains('selected')) {
-                parent.classList.remove('selected');
-            } else {
-                document.querySelectorAll('.group').forEach(function(group) {
-                    group.classList.remove('selected');
-                });
-                parent.classList.add('selected');
-            }
-        });
-    });
-
-    // Handle link activation
-    document.querySelectorAll('.sidebar-link').forEach(function(link) {
-        link.addEventListener('click', function(e) {
-            // Deactivate all links and remove 'active' class from their parent groups
-            document.querySelectorAll('.sidebar-link').forEach(function(i) {
-                i.classList.remove('active');
-                const parentGroup = i.closest('.group');
-                if (parentGroup) {
-                    parentGroup.classList.remove('active');
-                }
-            });
             
-            // Activate the clicked link
-            link.classList.add('active');
-
-            // Ensure that the parent dropdown (if any) is marked as active
-            const parentDropdown = link.closest('.group');
-            if (parentDropdown) {
-                parentDropdown.classList.add('active');
-            }
-
-            // Close all dropdowns except the one containing the active link
-            document.querySelectorAll('.group').forEach(function(group) {
-                if (!group.contains(link)) {
-                    group.classList.remove('selected');
-                }
-            });
-
-            // Mark the parent dropdown of the active link as selected
-            if (parentDropdown) {
-                parentDropdown.classList.add('selected');
+            // Don't close dropdown if it contains active link
+            if (!parent.querySelector('.sidebar-link.active')) {
+                parent.classList.toggle('selected');
+                
+                // Close other dropdowns that don't contain active items
+                document.querySelectorAll('.group.selected').forEach(function(group) {
+                    if (group !== parent && !group.querySelector('.sidebar-link.active')) {
+                        group.classList.remove('selected');
+                    }
+                });
             }
         });
     });
-
-    // Initial render
-    initializeRows();
 });
 
 // side bar menu toggle

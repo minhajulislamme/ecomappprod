@@ -3,6 +3,7 @@
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\AdminController\AdminController;
 use App\Http\Controllers\UserController\UserController;
+use App\Http\Controllers\Backend\Category\CategoryController;
 use Illuminate\Support\Facades\Route;
 
 // Route::get('/', function () {
@@ -35,8 +36,18 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
     Route::get('/admin/password', [AdminController::class, 'AdminPassword'])->name('admin.password');
     Route::post('/admin/password/update', [AdminController::class, 'AdminPasswordUpdate'])->name('admin.password.update');
 
+    // All Category Routes
+    Route::controller(CategoryController::class)->group(function () {
+        Route::get('/category', 'AllCategory')->name('all.category');
+        Route::get('/category/add', 'CategoryAdd')->name('category.add');
+        // Route::post('/category/store', 'CategoryStore')->name('category.store');
+        // Route::get('/category/edit/{id}', 'CategoryEdit')->name('category.edit');
+        // Route::post('/category/update', 'CategoryUpdate')->name('category.update');
+        // Route::get('/category/delete/{id}', 'CategoryDelete')->name('category.delete');
+
     });
 
+});
 
 
 
