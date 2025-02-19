@@ -9,22 +9,47 @@ const sidebarToggle = document.querySelector('.sidebar-toggle')
 const sidebarOverlay = document.querySelector('.sidebar-overlay')
 const sidebarMenu = document.querySelector('.sidebar-menu')
 const main = document.querySelector('.main')
-if(window.innerWidth < 768) {
-    main.classList.toggle('active')
-    sidebarOverlay.classList.toggle('hidden')
-    sidebarMenu.classList.toggle('-translate-x-full')
+
+// Initialize sidebar state based on screen size
+const initializeSidebar = () => {
+    if(window.innerWidth < 768) {
+        main.classList.add('active')
+        sidebarOverlay.classList.add('hidden')
+        sidebarMenu.classList.add('-translate-x-full')
+    } else {
+        // Reset state for desktop view
+        main.classList.remove('active')
+        sidebarOverlay.classList.add('hidden')
+        sidebarMenu.classList.remove('-translate-x-full')
+    }
 }
+
+// Call on page load and resize
+initializeSidebar()
+window.addEventListener('resize', initializeSidebar)
+
+// Update sidebar toggle click handler
 sidebarToggle.addEventListener('click', function (e) {
     e.preventDefault()
-    main.classList.toggle('active')
-    sidebarOverlay.classList.toggle('hidden')
-    sidebarMenu.classList.toggle('-translate-x-full')
+    const isMobile = window.innerWidth < 768
+    
+    if (isMobile) {
+        main.classList.toggle('active')
+        sidebarOverlay.classList.toggle('hidden')
+        sidebarMenu.classList.toggle('-translate-x-full')
+    }
 })
+
+// Update overlay click handler
 sidebarOverlay.addEventListener('click', function (e) {
     e.preventDefault()
-    main.classList.add('active')
-    sidebarOverlay.classList.add('hidden')
-    sidebarMenu.classList.add('-translate-x-full')
+    const isMobile = window.innerWidth < 768
+    
+    if (isMobile) {
+        main.classList.add('active')
+        sidebarOverlay.classList.add('hidden')
+        sidebarMenu.classList.add('-translate-x-full')
+    }
 })
 
 // end: Sidebar
