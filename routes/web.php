@@ -4,13 +4,13 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\AdminController\AdminController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('welcome');
-});
+// Route::get('/', function () {
+//     return view('welcome');
+// });
 
 // Frontend Routes
-Route::get('/frontend', function () {
-    return view('frontend.frontend');
+Route::get('/', function () {
+    return view('frontend.index');
 });
 
 
