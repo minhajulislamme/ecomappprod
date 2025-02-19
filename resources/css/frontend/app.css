@@ -180,3 +180,40 @@ max-width: calc(100vw / 10 - 1rem);
 .hover-shadow:hover {
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
 }
+
+
+.colored-toast.swal2-icon-success {
+  background-color: #10B981 !important;
+  color: white !important;
+}
+
+.colored-toast.swal2-icon-error {
+  background-color: #EF4444 !important;
+  color: white !important;
+}
+
+.colored-toast .swal2-title {
+  color: white !important;
+}
+
+.colored-toast .swal2-close {
+  color: white !important;
+}
+
+.colored-toast .swal2-timer-progress-bar {
+  background: rgba(255, 255, 255, 0.2) !important;
+}
+
+/* Add mobile specific styles */
+@media screen and (max-width: 768px) {
+  .colored-toast {
+      width: 260px !important;
+      padding: 8px !important;
+      font-size: 14px !important;
+  }
+
+  .colored-toast .swal2-title {
+      margin: 0 !important;
+      padding: 0 !important;
+  }
+}
