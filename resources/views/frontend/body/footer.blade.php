@@ -121,7 +121,7 @@
                 </div> --}}
                 <div class="text-gray-400 text-sm">
                    
-                  Design and Develop by❤️ Tech Ever IT
+                  Design and Develop by ❤️ Tech Ever IT
                 </div>
             </div>
         </div>

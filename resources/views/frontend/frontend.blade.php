@@ -148,11 +148,48 @@
 
     <!-- JS -->
     {{-- <script src="src/js/app.js"></script> --}}
-
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src={{ asset('js/frontend/custom.js') }}></script>
-    <style>
+    <script>
+        @if (Session::has('message'))
+            Swal.fire({
+                text: "{{ Session::get('message') }}",
+                icon: "{{ Session::get('alert-type', 'success') }}",
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true,
+                customClass: {
+                    popup: 'colored-toast'
+                }
+            });
+        @endif
+    </script>
+    <script>
+        @if (Session::has('message'))
+            var type = "{{ Session::get('alert-type', 'info') }}"
+            switch (type) {
+                case 'info':
+                    toastr.info(" {{ Session::get('message') }} ");
+                    break;
 
-    </style>
+                case 'success':
+                    toastr.success(" {{ Session::get('message') }} ");
+                    break;
+
+                case 'warning':
+                    toastr.warning(" {{ Session::get('message') }} ");
+                    break;
+
+                case 'error':
+                    toastr.error(" {{ Session::get('message') }} ");
+                    break;
+            }
+        @endif
+    </script>
+
+    @yield('scripts')
 </body>
 
 </html>

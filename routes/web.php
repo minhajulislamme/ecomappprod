@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\AdminController\AdminController;
+use App\Http\Controllers\UserController\UserController;
 use Illuminate\Support\Facades\Route;
 
 // Route::get('/', function () {
@@ -17,9 +18,9 @@ Route::get('/', function () {
 
 // User Routes
 Route::middleware(['auth', 'verified', 'user'])->group(function () {
-    Route::get('/dashboard', function () {
-        return view('dashboard');
-    })->name('dashboard');
+   
+    Route::get('/dashboard', [UserController::class, 'UserDashboard'])->name('user.dashboard');
+    Route::get('/logout', [UserController::class, 'UserLogout'])->name('user.logout');
 });
 
 // Admin Routes all the routes that are only accessible by the admin will be defined here

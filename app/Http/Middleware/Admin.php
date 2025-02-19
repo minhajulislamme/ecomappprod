@@ -18,7 +18,7 @@ class Admin
         return match (Auth::user()->role) {
             'admin' => $next($request),
             'super_admin' => redirect()->route('superadmin.dashboard'),
-            'user' => redirect()->route('dashboard'),
+            'user' => redirect()->route('user.dashboard'),
             default => redirect()->route('login')->with('error', 'Invalid role')
         };
     }
