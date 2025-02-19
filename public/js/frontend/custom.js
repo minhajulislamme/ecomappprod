@@ -214,6 +214,15 @@ document.addEventListener('DOMContentLoaded', function() {
             closeAllMenus();
         }
     });
+
+    // Initialize profile image preview
+    const preview = document.getElementById('image-preview-single');
+    const uploadText = document.getElementById('upload-text-single');
+
+    if (preview && preview.src && preview.src !== window.location.href) {
+        preview.classList.remove('hidden');
+        uploadText.classList.add('hidden');
+    }
 });
 
 // Initialize Swiper
@@ -424,63 +433,3 @@ function updateCartSubtotal() {
     document.getElementById('cart-total').textContent = `$${subtotal.toFixed(2)}`;
 }
 
-// ...existing code...
-  // Tab switching functionality
-  function showTab(tabName) {
-    // Hide all tab contents
-    document.querySelectorAll('.tab-content').forEach(tab => {
-        tab.classList.add('hidden');
-    });
-
-    // Show selected tab content
-    const selectedTab = document.getElementById(`${tabName}-tab`);
-    if (selectedTab) {
-        selectedTab.classList.remove('hidden');
-    }
-
-    // Remove active state from all menu items
-    document.querySelectorAll(
-            '.dashboard-tab-btn, .orders-tab-btn, .wishlist-tab-btn, .addresses-tab-btn, .settings-tab-btn')
-        .forEach(item => {
-            item.classList.remove('text-orange-400', 'bg-orange-50');
-            item.classList.add('text-gray-600');
-        });
-
-    // Add active state to selected menu item
-    const activeMenuItem = document.querySelector(`.${tabName}-tab-btn`);
-    if (activeMenuItem) {
-        activeMenuItem.classList.remove('text-gray-600');
-        activeMenuItem.classList.add('text-orange-400', 'bg-orange-50');
-    }
-}
-
-// Address form toggle functionality
-function toggleAddressForm() {
-    const form = document.getElementById('newAddressForm');
-    if (form) {
-        if (form.classList.contains('hidden')) {
-            form.classList.remove('hidden');
-            form.scrollIntoView({
-                behavior: 'smooth',
-                block: 'start'
-            });
-        } else {
-            form.classList.add('hidden');
-        }
-    }
-}
-
-// Initialize dashboard tab on page load
-document.addEventListener('DOMContentLoaded', () => {
-    showTab('dashboard');
-
-    // Add click event listeners to all tab buttons
-    const tabButtons = document.querySelectorAll('[onclick^="showTab"]');
-    tabButtons.forEach(button => {
-        const tabName = button.getAttribute('onclick').match(/'([^']+)'/)[1];
-        button.addEventListener('click', (e) => {
-            e.preventDefault();
-            showTab(tabName);
-        });
-    });
-});
