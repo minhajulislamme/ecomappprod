@@ -33,9 +33,16 @@
             </div>
             <span class="text-xs md:text-sm mt-1">Wishlist</span>
         </a>
-        <a href="#" class="flex flex-col items-center text-gray-400 hover:text-orange-400">
+        @auth
+        <a href="{{ route('user.dashboard') }}" class="flex flex-col items-center {{ request()->routeIs('user.dashboard') ? 'text-orange-400' : 'text-gray-400 hover:text-orange-400' }}">
             <i class="ri-user-line text-xl md:text-2xl"></i>
             <span class="text-xs md:text-sm mt-1">Account</span>
         </a>
+        @else
+        <a href="{{ route('login') }}" class="flex flex-col items-center {{ request()->routeIs('login') ? 'text-orange-400' : 'text-gray-400 hover:text-orange-400' }}">
+            <i class="ri-user-line text-xl md:text-2xl"></i>
+            <span class="text-xs md:text-sm mt-1">Account</span>
+        </a>
+        @endauth
     </div>
 </div>

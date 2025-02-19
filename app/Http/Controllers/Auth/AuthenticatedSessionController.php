@@ -31,10 +31,15 @@ class AuthenticatedSessionController extends Controller
         $route = match ($role) {
             'admin' => 'admin.dashboard',
             'super_admin' => 'superadmin.dashboard',
-            default => 'dashboard'
+            default => 'user.dashboard'
         };
 
-        return redirect()->intended(route($route, absolute: false));
+        $notification = array(
+            'message' => 'Successfully Logged In',
+            'alert-type' => 'success'
+        );
+
+        return redirect()->intended(route($route, absolute: false))->with($notification);
     }
 
     /**
