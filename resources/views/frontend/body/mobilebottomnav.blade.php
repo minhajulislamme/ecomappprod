@@ -1,10 +1,12 @@
 <div class="fixed bottom-0 left-0 right-0 bg-white shadow-lg lg:hidden z-50">
     <div class="flex items-center justify-around py-3 md:py-4 max-w-3xl mx-auto">
-        <a href="./index.html" class="flex flex-col items-center text-orange-400">
+        <a href="{{ route('home') }}"
+            class="flex flex-col items-center {{ request()->routeIs('home') ? 'text-orange-400' : 'text-gray-400 hover:text-orange-400' }}">
             <i class="ri-home-4-line text-xl md:text-2xl"></i>
             <span class="text-xs md:text-sm mt-1">Home</span>
         </a>
-        <a href="./shop.html" class="flex flex-col items-center text-gray-400 hover:text-orange-400">
+        <a href="#"
+            class="flex flex-col items-center {{ request()->routeIs('shop*') ? 'text-orange-400' : 'text-gray-400 hover:text-orange-400' }}">
             <i class="ri-store-2-line text-xl md:text-2xl"></i>
             <span class="text-xs md:text-sm mt-1">Shop</span>
         </a>

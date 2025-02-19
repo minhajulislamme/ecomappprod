@@ -27,20 +27,22 @@
 
         <!-- Menu Items -->
         <div class="py-4 md:py-6">
+            <a href="{{ route('home') }}"
+                class="block px-4 md:px-6 py-2 md:py-3 {{ request()->routeIs('home') ? 'bg-orange-50 text-orange-600' : 'text-gray-800 hover:bg-orange-50 hover:text-orange-600' }} cursor-pointer text-base md:text-lg">
+                Home
+            </a>
             <a href="#"
-                class="block px-4 md:px-6 py-2 md:py-3 text-gray-800 hover:bg-orange-50 hover:text-orange-600 cursor-pointer text-base md:text-lg">Home</a>
+                class="block px-4 md:px-6 py-2 md:py-3 {{ request()->routeIs('shop*') ? 'bg-orange-50 text-orange-600' : 'text-gray-800 hover:bg-orange-50 hover:text-orange-600' }} cursor-pointer text-base md:text-lg">
+                Shop
+            </a>
             <a href="#"
-                class="block px-4 md:px-6 py-2 md:py-3 text-gray-800 hover:bg-orange-50 hover:text-orange-600 cursor-pointer text-base md:text-lg">New
-                Arrivals</a>
+                class="block px-4 md:px-6 py-2 md:py-3 {{ request()->routeIs('blog*') ? 'bg-orange-50 text-orange-600' : 'text-gray-800 hover:bg-orange-50 hover:text-orange-600' }} cursor-pointer text-base md:text-lg">
+                Blog
+            </a>
             <a href="#"
-                class="block px-4 md:px-6 py-2 md:py-3 text-gray-800 hover:bg-orange-50 hover:text-orange-600 cursor-pointer text-base md:text-lg">Best
-                Sellers</a>
-            <a href="#"
-                class="block px-4 md:px-6 py-2 md:py-3 text-gray-800 hover:bg-orange-50 hover:text-orange-600 cursor-pointer text-base md:text-lg">Deals</a>
-            <a href="#"
-                class="block px-4 md:px-6 py-2 md:py-3 text-gray-800 hover:bg-orange-50 hover:text-orange-600 cursor-pointer text-base md:text-lg">Blog</a>
-            <a href="#"
-                class="block px-4 md:px-6 py-2 md:py-3 text-gray-800 hover:bg-orange-50 hover:text-orange-600 cursor-pointer text-base md:text-lg">Contact</a>
+                class="block px-4 md:px-6 py-2 md:py-3 {{ request()->routeIs('contact*') ? 'bg-orange-50 text-orange-600' : 'text-gray-800 hover:bg-orange-50 hover:text-orange-600' }} cursor-pointer text-base md:text-lg">
+                Contact
+            </a>
         </div>
 
         <!-- Menu Footer -->

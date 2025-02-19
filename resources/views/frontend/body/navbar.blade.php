@@ -55,13 +55,19 @@
 
             <!-- Main Navigation -->
             <div class="flex items-center space-x-6">
-                <a href="#" class=" font-semibold text-gray-900 hover:text-orange-600">Home</a>
-                <a href="#" class=" font-semibold text-gray-900 hover:text-orange-600">Home</a>
+                <a href="{{ route('home') }}"
+                    class="font-semibold {{ request()->routeIs('home') ? 'text-orange-600' : 'text-gray-900 hover:text-orange-600' }}">
+                    Home
+                </a>
+                <a href="#"
+                    class="font-semibold {{ request()->routeIs('shop*') ? 'text-orange-600' : 'text-gray-900 hover:text-orange-600' }}">
+                    Shop
+                </a>
 
                 <!-- Shop Dropdown -->
                 <div class="relative group">
                     <button
-                        class="flex font-semibold text-gray-900 items-center space-x-2 hover:text-orange-600 py-2">
+                        class="flex font-semibold {{ request()->routeIs('shop*') ? 'text-orange-600' : 'text-gray-900 hover:text-orange-600' }} items-center space-x-2 py-2">
                         <span>Shop</span>
                         <i class="ri-arrow-down-s-line"></i>
                     </button>
@@ -80,7 +86,7 @@
                 <!-- Pages Dropdown -->
                 <div class="relative group">
                     <button
-                        class="flex font-semibold text-gray-900 items-center space-x-2 hover:text-orange-600 py-2">
+                        class="flex font-semibold {{ request()->routeIs('about*', 'contact*', 'faq*') ? 'text-orange-600' : 'text-gray-900 hover:text-orange-600' }} items-center space-x-2 py-2">
                         <span>Pages</span>
                         <i class="ri-arrow-down-s-line"></i>
                     </button>
@@ -95,8 +101,14 @@
                     </div>
                 </div>
 
-                <a href="#" class="font-semibold text-gray-900 hover:text-orange-600">Blog</a>
-                <a href="#" class="font-semibold text-gray-900 hover:text-orange-600">Contact</a>
+                <a href="#"
+                    class="font-semibold {{ request()->routeIs('blog*') ? 'text-orange-600' : 'text-gray-900 hover:text-orange-600' }}">
+                    Blog
+                </a>
+                <a href="#"
+                    class="font-semibold {{ request()->routeIs('contact*') ? 'text-orange-600' : 'text-gray-900 hover:text-orange-600' }}">
+                    Contact
+                </a>
             </div>
         </div>
     </div>
