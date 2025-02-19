@@ -18,6 +18,45 @@
                 </p>
             </div>
 
+            <!-- Error Messages -->
+            @if ($errors->any())
+                <div class="bg-red-50 border-l-4 border-red-400 p-4 mb-6">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <i class="ri-error-warning-line text-red-400 text-xl"></i>
+                        </div>
+                        <div class="ml-3">
+                            <h3 class="text-sm font-medium text-red-800">
+                                Please fix the following errors:
+                            </h3>
+                            <div class="mt-2 text-sm text-red-700">
+                                <ul class="list-disc pl-5 space-y-1">
+                                    @foreach ($errors->all() as $error)
+                                        <li>{{ $error }}</li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @endif
+
+            <!-- Success/Error Notifications -->
+            @if (session('status'))
+                <div class="bg-green-50 border-l-4 border-green-400 p-4 mb-6">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <i class="ri-checkbox-circle-line text-green-400 text-xl"></i>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm text-green-700">
+                                {{ session('status') }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            @endif
+
             <!-- Login Form -->
             <form method="POST" action="{{ route('login') }}" class="mt-8 space-y-6">
                 @csrf
@@ -30,12 +69,15 @@
                         </label>
                         <div class="mt-1 relative">
                             <input id="email" name="email" type="email" required
-                                class="appearance-none block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent"
-                                placeholder="Enter your email">
+                                class="appearance-none block w-full px-4 py-3 border @error('email') border-red-300 @else border-gray-300 @enderror rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent"
+                                placeholder="Enter your email" value="{{ old('email') }}">
                             <span class="absolute right-3 top-3 text-gray-400">
                                 <i class="ri-mail-line text-xl"></i>
                             </span>
                         </div>
+                        @error('email')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
                     </div>
 
                     <!-- Password Input -->
@@ -45,13 +87,16 @@
                         </label>
                         <div class="mt-1 relative">
                             <input id="password" name="password" type="password" required
-                                class="appearance-none block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent"
+                                class="appearance-none block w-full px-4 py-3 border @error('password') border-red-300 @else border-gray-300 @enderror rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent"
                                 placeholder="Enter your password">
                             <button type="button" onclick="togglePassword()"
                                 class="absolute right-3 top-3 text-gray-400 hover:text-gray-600">
                                 <i id="password-icon" class="ri-eye-off-line text-xl"></i>
                             </button>
                         </div>
+                        @error('password')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
                     </div>
                 </div>
 

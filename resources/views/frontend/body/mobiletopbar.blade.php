@@ -45,12 +45,6 @@
             </a>
         </div>
 
-        <!-- Menu Footer -->
-        <div class="absolute bottom-0 left-0 right-0 border-t p-4 md:p-6">
-            <div class="flex items-center space-x-3 text-base md:text-lg">
-                <i class="ri-user-line text-orange-400 text-xl md:text-2xl"></i>
-                <span>Login / Register</span>
-            </div>
-        </div>
+      
     </div>
 </div>
