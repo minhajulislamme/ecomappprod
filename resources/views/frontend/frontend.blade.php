@@ -74,7 +74,7 @@
         </div>
     </div>
     <!-- Mobile Side Menu -->
-    <div id="mobileMenu" class="fixed inset-0 bg-black/50 bg-opacity-50 z-50 hidden lg:hidden">
+    <div id="mobileMenu" class="fixed inset-0 bg-black/50 bg-opacity-50 z-[100] hidden lg:hidden">
         <div id="menuContent"
             class="fixed top-0 left-0 bottom-0 w-80 md:w-96 bg-white transform -translate-x-full transition-transform duration-300 ease-in-out">
             <!-- Menu Header -->
@@ -266,7 +266,7 @@
     </div>
 
     <!-- Mobile Category Menu -->
-    <div id="mobileCategoryMenu" class="fixed inset-0 bg-black/50 bg-opacity-50 z-50 hidden lg:hidden">
+    <div id="mobileCategoryMenu" class="fixed inset-0 bg-black/50 bg-opacity-50 z-[100] hidden lg:hidden">
         <div id="categoryContent"
             class="fixed top-0 left-0 bottom-0 w-80 md:w-96 bg-white transform -translate-x-full transition-transform duration-300 ease-in-out">
             <!-- Category Header -->
@@ -424,7 +424,7 @@
 
 
     <!-- Cart Sidebar -->
-    <div id="cartSidebar" class="fixed inset-0 bg-black/50 z-50 hidden">
+    <div id="cartSidebar" class="fixed inset-0 bg-black/50 z-[100] hidden">
         <div id="cartContent"
             class="fixed top-0 right-0 bottom-0 w-80 md:w-96 bg-white transform translate-x-full transition-transform duration-300 ease-in-out overflow-hidden flex flex-col">
             <!-- Cart Header -->
@@ -525,7 +525,7 @@
     </div>
 
     <!-- Wishlist Sidebar -->
-    <div id="wishlistSidebar" class="fixed inset-0 bg-black/50 z-50 hidden">
+    <div id="wishlistSidebar" class="fixed inset-0 bg-black/50 z-[100] hidden">
         <div id="wishlistContent"
             class="fixed top-0 right-0 bottom-0 w-80 md:w-96 bg-white transform translate-x-full transition-transform duration-300 ease-in-out overflow-hidden flex flex-col">
             <!-- Wishlist Header -->
