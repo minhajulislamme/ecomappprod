@@ -104,7 +104,7 @@ function moveToCart(itemId) {
     const item = document.getElementById(`wishlist-item-${itemId}`);
     if (item) {
         // You can implement the actual cart addition logic here
-        alert('Item added to cart!');
+        // alert('Item added to cart!');
         removeFromWishlist(itemId);
     }
 }
