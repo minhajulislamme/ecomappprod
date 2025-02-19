@@ -1,22 +1,23 @@
 @extends('frontend.frontend')
 @section('content')
-
     <div class="max-w-7xl mx-auto px-4 py-8">
         <!-- User Profile Header -->
         <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
             <div class="flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-6">
                 <div class="w-24 h-24 rounded-full overflow-hidden">
-                    <img src="https://placehold.co/96x96" alt="User Avatar" class="w-full h-full object-cover">
+                    @if ($user->photo)
+                        <img src="{{ asset('upload/user_images/' . $user->photo) }}" alt="{{ $user->name }}"
+                            class="w-full h-full object-cover">
+                    @else
+                        <img src="https://placehold.co/600x600" alt="Default Avatar" class="w-full h-full object-cover">
+                    @endif
                 </div>
                 <div class="flex-1 text-center md:text-left">
-                    <h1 class="text-2xl font-semibold text-gray-800">John Doe</h1>
-                    <p class="text-gray-500">john.doe@example.com</p>
-                    <p class="text-gray-500">Member since: January 2024</p>
+                    <h1 class="text-2xl font-semibold text-gray-800">{{ $user->name }}</h1>
+                    <p class="text-gray-500">{{ $user->email }}</p>
+                    <p class="text-gray-500">Member since: {{ $user->created_at->format('F Y') }}</p>
                 </div>
-                <a href="#"
-                    class="bg-orange-400 text-white px-6 py-2 rounded-md hover:bg-orange-500 transition-colors">
-                    Edit Profile
-                </a>
+                
             </div>
         </div>
 
@@ -29,33 +30,33 @@
                         <h2 class="text-lg font-semibold text-gray-800">Dashboard Menu</h2>
                     </div>
                     <nav class="p-4">
-                        <a href="#" onclick="showTab('dashboard')"
+                        <a href="#"
                             class="dashboard-tab-btn flex items-center space-x-3 text-gray-600 p-3 rounded-md hover:bg-gray-50">
                             <i class="ri-dashboard-line text-xl"></i>
                             <span>Dashboard</span>
                         </a>
-                        <a href="#" onclick="showTab('orders')"
+                        <a href="#"
                             class="orders-tab-btn flex items-center space-x-3 text-gray-600 p-3 rounded-md hover:bg-gray-50">
                             <i class="ri-shopping-bag-line text-xl"></i>
                             <span>Orders</span>
                         </a>
-                        <a href="#" onclick="showTab('wishlist')"
+                        <a href="#"
                             class="wishlist-tab-btn flex items-center space-x-3 text-gray-600 p-3 rounded-md hover:bg-gray-50">
                             <i class="ri-heart-line text-xl"></i>
                             <span>Wishlist</span>
                         </a>
-                        <a href="#" onclick="showTab('addresses')"
+                        <a href="#"
                             class="addresses-tab-btn flex items-center space-x-3 text-gray-600 p-3 rounded-md hover:bg-gray-50">
                             <i class="ri-account-box-line"></i>
                             <span>Account Settings</span>
                         </a>
-                        <a href="#" onclick="showTab('settings')"
+                        <a href="#"
                             class="settings-tab-btn flex items-center space-x-3 text-gray-600 p-3 rounded-md hover:bg-gray-50">
                             <i class="ri-key-line text-xl"></i>
                             <span>Account Password</span>
                         </a>
                         <a href="{{ route('user.logout') }}"
-                            class="settings-tab-btn flex items-center space-x-3 text-gray-600 p-3 rounded-md hover:bg-gray-50">
+                            class="flex items-center space-x-3 text-gray-600 p-3 rounded-md hover:bg-gray-50">
                             <i class="ri-logout-box-r-line"></i>
                             <span>Logout</span>
                         </a>
@@ -241,60 +242,69 @@
                             <h2 class="text-lg font-semibold text-gray-800">Account Settings</h2>
                         </div>
                         <div class="p-6">
-                            <form class="space-y-6">
+                            <form method="POST" action="{{ route('user.profile.update') }}" class="space-y-6"
+                                enctype="multipart/form-data">
+                                @csrf
                                 <!-- Personal Information -->
                                 <div>
                                     <h3 class="text-lg font-medium text-gray-900 mb-4">Personal Information</h3>
                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                         <div>
                                             <label class="block text-sm font-medium text-gray-700 mb-2">Username </label>
-                                            <input type="text" value="John"
+                                            <input type="text" name="username" value="{{ $user->username }}"
                                                 class="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-orange-400 focus:border-orange-400">
                                         </div>
                                         <div>
                                             <label class="block text-sm font-medium text-gray-700 mb-2">Name</label>
-                                            <input type="text" value="Doe"
+                                            <input type="text" name="name" value="{{ $user->name }}"
                                                 class="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-orange-400 focus:border-orange-400">
                                         </div>
                                         <div>
                                             <label class="block text-sm font-medium text-gray-700 mb-2">Email
                                                 Address</label>
-                                            <input type="email" value="john.doe@example.com"
+                                            <input type="email" name="email" value="{{ $user->email }}"
                                                 class="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-orange-400 focus:border-orange-400">
                                         </div>
                                         <div>
                                             <label class="block text-sm font-medium text-gray-700 mb-2">Phone
                                                 Number</label>
-                                            <input type="tel" value="+1 234 567 890"
+                                            <input type="tel" name="phone" value="{{ $user->phone }}"
                                                 class="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-orange-400 focus:border-orange-400">
                                         </div>
                                         <div>
                                             <label class="block text-sm font-medium text-gray-700 mb-2">Address</label>
-                                            <textarea class="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-orange-400 focus:border-orange-400"
-                                                rows="3" placeholder="Enter your full address"></textarea>
+                                            <textarea name="address"
+                                                class="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-orange-400 focus:border-orange-400"
+                                                rows="3">{{ $user->address }}</textarea>
                                         </div>
                                         <div class="">
-                                            <label class="block text-sm font-medium text-gray-700 mb-1 text-center md:text-left">Profile
+                                            <label
+                                                class="block text-sm font-medium text-gray-700 mb-1 text-center md:text-left">Profile
                                                 Image</label>
-                                            <div class="flex justify-center md:justify-start md:mr-4 md:mb-4" id="single-image-upload">
+                                            <div class="flex justify-center md:justify-start md:mr-4 md:mb-4"
+                                                id="single-image-upload">
                                                 <div id="drop-area-single"
                                                     class="border-2 border-dashed border-gray-400 p-6 w-32 h-32 text-center rounded-lg cursor-pointer hover:border-orange-500 relative"
-                                                    ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)"
-                                                    ondrop="handleDrop(event)"
+                                                    ondragover="handleDragOver(event)"
+                                                    ondragleave="handleDragLeave(event)" ondrop="handleDrop(event)"
                                                     onclick="document.getElementById('file-input-single').click()">
                                                     <div id="upload-text-single" class="text-gray-600">
                                                         <i class="fas fa-cloud-upload-alt text-sm mb-2"></i>
-                                                        <p class="text-[11px]">Drag & Drop image here or click to upload</p>
+                                                        <p class="text-[11px]">Drag & Drop image here or click to upload
+                                                        </p>
                                                         <p class="text-[9px] mt-1">(Max size: 2MB, Formats: JPG, PNG)</p>
                                                     </div>
-                                                    <input type="file" id="file-input-single" name="photo" class="hidden"
-                                                        accept="image/jpeg,image/png" onchange="handleFile(this.files[0])">
+                                                    <input type="file" id="file-input-single" name="photo"
+                                                        class="hidden" accept="image/jpeg,image/png"
+                                                        onchange="handleFile(this.files[0])">
                                                     <img id="image-preview-single"
                                                         class="hidden w-full h-full absolute top-0 left-0 object-cover rounded-lg p-1"
                                                         alt="Profile preview">
                                                     <div id="loading-indicator"
                                                         class="hidden absolute inset-0 flex items-center justify-center bg-white bg-opacity-80">
-                                                        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500"></div>
+                                                        <div
+                                                            class="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500">
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -324,31 +334,31 @@
                             <h2 class="text-lg font-semibold text-gray-800">Account Settings</h2>
                         </div>
                         <div class="p-6">
-                            <form class="space-y-6">
+                            <form method="POST" action="{{ route('user.password.update') }}" class="space-y-6">
+                                @csrf
                                 <!-- Personal Information -->
 
 
                                 <!-- Password Change -->
                                 <div class="pt-6 ">
                                     <h3 class="text-lg font-medium text-gray-900 mb-4">Change Password</h3>
-                                    <div class="grid grid-cols-1  gap-6">
+                                    <div class="grid grid-cols-1 gap-6">
                                         <div>
                                             <label class="block text-sm font-medium text-gray-700 mb-2">Current
                                                 Password</label>
-                                            <input type="password"
+                                            <input type="password" name="old_password"
                                                 class="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-orange-400 focus:border-orange-400">
                                         </div>
-                                        <div></div>
                                         <div>
                                             <label class="block text-sm font-medium text-gray-700 mb-2">New
                                                 Password</label>
-                                            <input type="password"
+                                            <input type="password" name="new_password"
                                                 class="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-orange-400 focus:border-orange-400">
                                         </div>
                                         <div>
                                             <label class="block text-sm font-medium text-gray-700 mb-2">Confirm New
                                                 Password</label>
-                                            <input type="password"
+                                            <input type="password" name="new_password_confirmation"
                                                 class="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-orange-400 focus:border-orange-400">
                                         </div>
                                     </div>
@@ -370,5 +380,4 @@
             </div>
         </div>
     </div>
-
 @endsection

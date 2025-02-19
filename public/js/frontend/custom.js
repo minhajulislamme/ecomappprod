@@ -223,6 +223,20 @@ document.addEventListener('DOMContentLoaded', function() {
         preview.classList.remove('hidden');
         uploadText.classList.add('hidden');
     }
+
+    // Initialize dashboard tabs
+    if (document.querySelector('.dashboard-tab-btn')) {
+        showDashboardTab('dashboard'); // Show dashboard tab by default
+
+        // Add click handlers to all tab buttons
+        document.querySelectorAll('[class*="-tab-btn"]').forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+                const tabName = this.className.match(/(\w+)-tab-btn/)[1];
+                showDashboardTab(tabName);
+            });
+        });
+    }
 });
 
 // Initialize Swiper
@@ -431,5 +445,32 @@ function updateCartSubtotal() {
     document.getElementById('cart-subtotal').textContent = `$${subtotal.toFixed(2)}`;
     // Update total (same as subtotal since shipping is free)
     document.getElementById('cart-total').textContent = `$${subtotal.toFixed(2)}`;
+}
+
+// Dashboard Tab Management
+function showDashboardTab(tabName) {
+    // Hide all tab contents
+    const tabContents = document.querySelectorAll('.tab-content');
+    tabContents.forEach(tab => tab.classList.add('hidden'));
+
+    // Show selected tab content
+    const selectedTab = document.getElementById(`${tabName}-tab`);
+    if (selectedTab) {
+        selectedTab.classList.remove('hidden');
+    }
+
+    // Remove active state from all tab buttons
+    const tabButtons = document.querySelectorAll('[class*="-tab-btn"]');
+    tabButtons.forEach(button => {
+        button.classList.remove('bg-orange-50', 'text-orange-400');
+        button.classList.add('text-gray-600');
+    });
+
+    // Add active state to selected button
+    const activeButton = document.querySelector(`.${tabName}-tab-btn`);
+    if (activeButton) {
+        activeButton.classList.remove('text-gray-600');
+        activeButton.classList.add('bg-orange-50', 'text-orange-400');
+    }
 }
 

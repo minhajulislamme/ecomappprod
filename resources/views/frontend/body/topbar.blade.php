@@ -11,8 +11,13 @@
             <i class="ri-search-line absolute left-[14%] top-1/2 -translate-y-1/2 text-gray-400"></i>
         </div>
         <div class="flex-none space-x-1">
-            <a href="#" class="text-1xl text-orange-400 p-2 rounded-sm hover:bg-orange-50"><i
+            @auth
+            <a href="{{ route('user.dashboard') }}" class="text-1xl text-orange-400 p-2 rounded-sm hover:bg-orange-50"><i
                     class="ri-user-line"></i></a>
+            @else
+            <a href="{{ route('login') }}" class="text-1xl text-orange-400 p-2 rounded-sm hover:bg-orange-50"><i
+                class="ri-user-line"></i></a>
+            @endauth
             <a href="#" class="text-1xl text-orange-400 p-2 rounded-sm hover:bg-orange-50 relative"
                 onclick="toggleCart(); return false;">
                 <i class="ri-shopping-cart-line"></i>

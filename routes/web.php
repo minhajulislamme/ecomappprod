@@ -21,9 +21,12 @@ Route::middleware(['auth', 'verified', 'user'])->group(function () {
    
     Route::get('/dashboard', [UserController::class, 'UserDashboard'])->name('user.dashboard');
     Route::get('/logout', [UserController::class, 'UserLogout'])->name('user.logout');
+    Route::post('/profile/update', [UserController::class, 'UserProfileUpdate'])->name('user.profile.update');
+    Route::post('/password/update', [UserController::class, 'UserPasswordUpdate'])->name('user.password.update');
+   
 });
 
-// Admin Routes all the routes that are only accessible by the admin will be defined here
+// Admin Routes all the routes that are only accessible by the admin will be defined her
 Route::middleware(['auth', 'verified', 'admin'])->group(function () {
     Route::get('/admin/dashboard', [AdminController::class, 'AdminDashboard'])->name('admin.dashboard');
     Route::get('/admin/logout', [AdminController::class, 'AdminLogout'])->name('admin.logout');
