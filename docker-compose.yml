@@ -8,10 +8,12 @@ services:
       args:
         USER: ${USER:-laravel}
         UID: ${UID:-1000}
-        PHP_VERSION: ${DOCKER_PHP_VERSION:-8.2}
+        PHP_VERSION: ${DOCKER_PHP_VERSION:-8.3}
     container_name: laravel-app
     volumes:
       - ./:/var/www
+      - ./docker/php/local.ini:/usr/local/etc/php/conf.d/local.ini
+      - ~/.composer/cache:/home/${USER:-laravel}/.composer/cache
     networks:
       - app-network
     depends_on:
@@ -25,8 +27,10 @@ services:
       - SESSION_DRIVER=redis
       - APP_ENV=local
       - PHP_IDE_CONFIG=serverName=Docker
-      - XDEBUG_MODE=develop,debug
+      - XDEBUG_MODE=${XDEBUG_MODE:-off}
       - XDEBUG_CLIENT_HOST=host.docker.internal
+      - UPLOAD_MAX_FILESIZE=64M
+      - POST_MAX_SIZE=64M
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
@@ -51,7 +55,7 @@ services:
       MYSQL_DATABASE: laravel_db
       MYSQL_USER: laravel_user
       MYSQL_PASSWORD: your_password
-    command: --default-authentication-plugin=mysql_native_password
+    command: --default-authentication-plugin=mysql_native_password --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
     volumes:
       - mysql_data:/var/lib/mysql
     ports:
@@ -119,6 +123,11 @@ services:
       - "${DOCKER_MAILHOG_PORT:-8025}:8025"
     networks:
       - app-network
+
+  php:
+    build:
+      context: .
+      dockerfile: Dockerfile
 
 networks:
   app-network:

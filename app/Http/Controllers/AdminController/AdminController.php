@@ -79,11 +79,26 @@ class AdminController extends Controller
         $adminData->email = $request->email;
         $adminData->phone = $request->phone;
         $adminData->address = $request->address;
+
         if ($request->file('photo')) {
             $file = $request->file('photo');
-            @unlink(public_path('upload/admin_images/' . $adminData->photo));
+
+            // Create directory if doesn't exist
+            $uploadPath = public_path('upload/admin_images');
+            if (!file_exists($uploadPath)) {
+                mkdir($uploadPath, 0777, true);
+            }
+
+            // Delete old image if exists
+            if ($adminData->photo) {
+                $oldImage = $uploadPath . '/' . $adminData->photo;
+                if (file_exists($oldImage)) {
+                    unlink($oldImage);
+                }
+            }
+
             $filename = date('YmdHi') . $file->getClientOriginalName();
-            $file->move(public_path('upload/admin_images'), $filename);
+            $file->move($uploadPath, $filename);
             $adminData['photo'] = $filename;
         }
         $adminData->save();

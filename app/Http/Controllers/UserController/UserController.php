@@ -45,16 +45,18 @@ class UserController extends Controller
         if ($request->hasFile('photo')) {
             $file = $request->file('photo');
 
-            // Delete old image if exists
-            $oldImage = public_path('upload/user_images/' . $user->photo);
-            if (file_exists($oldImage) && $user->photo) {
-                unlink($oldImage);
-            }
-
             // Create directory if doesn't exist
             $uploadPath = public_path('upload/user_images');
             if (!file_exists($uploadPath)) {
                 mkdir($uploadPath, 0777, true);
+            }
+
+            // Delete old image if exists
+            if ($user->photo) {
+                $oldImage = $uploadPath . '/' . $user->photo;
+                if (file_exists($oldImage)) {
+                    unlink($oldImage);
+                }
             }
 
             // Generate unique filename and store image

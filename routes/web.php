@@ -19,12 +19,11 @@ Route::get('/', function () {
 
 // User Routes
 Route::middleware(['auth', 'verified', 'user'])->group(function () {
-   
+
     Route::get('/dashboard', [UserController::class, 'UserDashboard'])->name('user.dashboard');
     Route::get('/logout', [UserController::class, 'UserLogout'])->name('user.logout');
     Route::post('/profile/update', [UserController::class, 'UserProfileUpdate'])->name('user.profile.update');
     Route::post('/password/update', [UserController::class, 'UserPasswordUpdate'])->name('user.password.update');
-   
 });
 
 // Admin Routes all the routes that are only accessible by the admin will be defined her
@@ -40,18 +39,16 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
     Route::controller(CategoryController::class)->group(function () {
         Route::get('/category', 'AllCategory')->name('all.category');
         Route::get('/category/add', 'CategoryAdd')->name('category.add');
-        // Route::post('/category/store', 'CategoryStore')->name('category.store');
-        // Route::get('/category/edit/{id}', 'CategoryEdit')->name('category.edit');
-        // Route::post('/category/update', 'CategoryUpdate')->name('category.update');
-        // Route::get('/category/delete/{id}', 'CategoryDelete')->name('category.delete');
-
+        Route::post('/category/store', 'CategoryStore')->name('category.store');
+        Route::get('/category/edit/{id}', 'CategoryEdit')->name('category.edit');
+        Route::post('/category/update', 'CategoryUpdate')->name('category.update');
+        Route::get('/category/delete/{id}', 'CategoryDelete')->name('category.delete');
     });
-
 });
 
 
 
-    
+
 // Super Admin Routes - define super admin accessible routes here
 Route::middleware(['auth', 'verified', 'super_admin'])->group(function () {
     Route::get('/superadmin/dashboard', function () {
