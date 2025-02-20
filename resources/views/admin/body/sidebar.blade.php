@@ -2,7 +2,7 @@
 
 
 <div
-    class="fixed left-0 top-0 w-64 h-full bg-gray-900 p-4 z-50 sidebar-menu -translate-x-full transition-transform md:translate-x-0">
+    class="fixed left-0 top-0 w-64 h-full bg-gray-900 p-4 z-50 sidebar-menu transition-transform duration-300 -translate-x-full lg:translate-x-0">
     <a href="{{ route('admin.dashboard') }}" class="flex items-center pb-4 border-b border-b-gray-800">
         <img src="{{ !empty(Auth::user()->photo) ? url('upload/admin_images/' . Auth::user()->photo) : url('https://placehold.co/600x600') }}"
             alt="" class="w-8 h-8 rounded object-cover">
@@ -95,4 +95,5 @@
         </li>
     </ul>
 </div>
-<div class="fixed top-0 left-0 w-full h-full bg-black/50 z-40 md:hidden sidebar-overlay hidden"></div>
+<div class="fixed top-0 left-0 w-full h-full bg-black/50 z-40 md:hidden sidebar-overlay hidden transition-all-smooth">
+</div>

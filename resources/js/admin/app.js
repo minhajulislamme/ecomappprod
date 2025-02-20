@@ -4,7 +4,8 @@ import Alpine from 'alpinejs';
 // Make Alpine globally available
 window.Alpine = Alpine;
 Alpine.start();
-// start: Sidebar
+
+// Sidebar functionality
 const sidebarToggle = document.querySelector('.sidebar-toggle')
 const sidebarOverlay = document.querySelector('.sidebar-overlay')
 const sidebarMenu = document.querySelector('.sidebar-menu')
@@ -12,43 +13,53 @@ const main = document.querySelector('.main')
 
 // Initialize sidebar state based on screen size
 const initializeSidebar = () => {
-    if(window.innerWidth < 768) {
-        main.classList.add('active')
-        sidebarOverlay.classList.add('hidden')
+    const isMobileOrTablet = window.innerWidth < 1024;
+    
+    if(isMobileOrTablet) {
         sidebarMenu.classList.add('-translate-x-full')
-    } else {
-        // Reset state for desktop view
-        main.classList.remove('active')
+        main.classList.remove('lg:ml-64')
         sidebarOverlay.classList.add('hidden')
+    } else {
         sidebarMenu.classList.remove('-translate-x-full')
+        main.classList.add('lg:ml-64')
+        sidebarOverlay.classList.add('hidden')
     }
 }
-
-// Call on page load and resize
-initializeSidebar()
-window.addEventListener('resize', initializeSidebar)
 
 // Update sidebar toggle click handler
 sidebarToggle.addEventListener('click', function (e) {
     e.preventDefault()
-    const isMobile = window.innerWidth < 768
+    const isMobileOrTablet = window.innerWidth < 1024
     
-    if (isMobile) {
-        main.classList.toggle('active')
-        sidebarOverlay.classList.toggle('hidden')
+    if (isMobileOrTablet) {
         sidebarMenu.classList.toggle('-translate-x-full')
+        sidebarOverlay.classList.toggle('hidden')
+    } else {
+        if (sidebarMenu.classList.contains('lg:-translate-x-full')) {
+            sidebarMenu.classList.remove('lg:-translate-x-full', 'hidden')
+            main.classList.add('lg:ml-64')
+        } else {
+            sidebarMenu.classList.add('lg:-translate-x-full')
+            main.classList.remove('lg:ml-64')
+            setTimeout(() => {
+                sidebarMenu.classList.add('hidden')
+            }, 300)
+        }
     }
 })
+
+// Initialize on load and resize
+initializeSidebar()
+window.addEventListener('resize', initializeSidebar)
 
 // Update overlay click handler
 sidebarOverlay.addEventListener('click', function (e) {
     e.preventDefault()
-    const isMobile = window.innerWidth < 768
+    const isMobileOrTablet = window.innerWidth < 1024
     
-    if (isMobile) {
-        main.classList.add('active')
-        sidebarOverlay.classList.add('hidden')
+    if (isMobileOrTablet) {
         sidebarMenu.classList.add('-translate-x-full')
+        sidebarOverlay.classList.add('hidden')
     }
 })
 
