@@ -4,6 +4,8 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\AdminController\AdminController;
 use App\Http\Controllers\UserController\UserController;
 use App\Http\Controllers\Backend\Category\CategoryController;
+use App\Http\Controllers\Backend\Category\SubcategoryController;
+
 use Illuminate\Support\Facades\Route;
 
 // Route::get('/', function () {
@@ -43,6 +45,16 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
         Route::get('/category/edit/{id}', 'CategoryEdit')->name('category.edit');
         Route::post('/category/update', 'CategoryUpdate')->name('category.update');
         Route::get('/category/delete/{id}', 'CategoryDelete')->name('category.delete');
+    });
+
+    // All SubCategory Routes
+    Route::controller(SubcategoryController::class)->group(function () {
+        Route::get('/subcategory', 'AllSubCategory')->name('all.subcategory');
+        Route::get('/subcategory/add', 'SubCategoryAdd')->name('subcategory.add');
+        Route::post('/subcategory/store', 'SubCategoryStore')->name('subcategory.store');
+        Route::get('/subcategory/edit/{id}', 'SubCategoryEdit')->name('subcategory.edit');
+        Route::post('/subcategory/update/{id}', 'SubCategoryUpdate')->name('subcategory.update');
+        Route::get('/subcategory/delete/{id}', 'SubCategoryDelete')->name('subcategory.delete');
     });
 });
 

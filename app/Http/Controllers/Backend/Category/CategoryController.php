@@ -142,19 +142,37 @@ class CategoryController extends Controller
 
     public function CategoryDelete($id)
     {
-        $category = Category::findOrFail($id);
+        try {
+            $category = Category::findOrFail($id);
 
-        if ($category->category_image && file_exists(public_path($category->category_image))) {
-            unlink(public_path($category->category_image));
+            // Delete all related subcategories
+            foreach ($category->subcategories as $subcategory) {
+                if ($subcategory->subcategory_image && file_exists(public_path($subcategory->subcategory_image))) {
+                    unlink(public_path($subcategory->subcategory_image));
+                }
+                $subcategory->delete();
+            }
+
+            // Delete category image
+            if ($category->category_image && file_exists(public_path($category->category_image))) {
+                unlink(public_path($category->category_image));
+            }
+
+            $category->delete();
+
+            $notification = [
+                'message' => 'Category and Related Subcategories Deleted Successfully',
+                'alert-type' => 'success'
+            ];
+
+            return redirect()->route('all.category')->with($notification);
+        } catch (\Exception $e) {
+            $notification = [
+                'message' => 'Error: ' . $e->getMessage(),
+                'alert-type' => 'error'
+            ];
+
+            return back()->with($notification);
         }
-
-        $category->delete();
-
-        $notification = [
-            'message' => 'Category Deleted Successfully',
-            'alert-type' => 'success'
-        ];
-
-        return redirect()->route('all.category')->with($notification);
     }
 }

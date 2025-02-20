@@ -16,9 +16,10 @@
                 <span class="ml-2">Dashboard</span>
             </a>
         </li>
-        <li class="mb-1 group {{ request()->is('category*') ? 'selected active' : '' }}">
+        <li
+            class="mb-1 group {{ request()->is('category*') || request()->is('subcategory*') ? 'selected active' : '' }}">
             <a href="javascript:void()"
-                class="flex items-center py-2 px-4 text-gray-300 hover:bg-gray-800 hover:text-orange-500 rounded-md sidebar-link sidebar-dropdown-toggle {{ request()->is('category*') ? 'bg-gray-800 text-orange-500' : '' }}">
+                class="flex items-center py-2 px-4 text-gray-300 hover:bg-gray-800 hover:text-orange-500 rounded-md sidebar-link sidebar-dropdown-toggle {{ request()->is('category*') || request()->is('subcategory*') ? 'bg-gray-800 text-orange-500' : '' }}">
                 <i class="ri-file-list-3-line mr-3 text-lg"></i>
                 <span class="ml-2">Category</span>
                 <i class="ri-arrow-right-s-line ml-auto group-[.selected]:rotate-90"></i>
@@ -36,6 +37,20 @@
                         class="text-gray-300 text-sm flex items-center hover:text-orange-500 sidebar-link {{ request()->routeIs('category.add') ? 'text-orange-500 active' : '' }}">
                         <span class="w-1 h-1 rounded-full bg-gray-300 mr-3"></span>
                         Add Category
+                    </a>
+                </li>
+                <li class="mb-4">
+                    <a href="{{ route('all.subcategory') }}"
+                        class="text-gray-300 text-sm flex items-center hover:text-orange-500 sidebar-link {{ request()->routeIs('all.subcategory') ? 'text-orange-500 active' : '' }}">
+                        <span class="w-1 h-1 rounded-full bg-gray-300 mr-3"></span>
+                        All Subcategory
+                    </a>
+                </li>
+                <li class="mb-4">
+                    <a href="{{ route('subcategory.add') }}"
+                        class="text-gray-300 text-sm flex items-center hover:text-orange-500 sidebar-link {{ request()->routeIs('subcategory.add') ? 'text-orange-500 active' : '' }}">
+                        <span class="w-1 h-1 rounded-full bg-gray-300 mr-3"></span>
+                        Add Subcategory
                     </a>
                 </li>
             </ul>
