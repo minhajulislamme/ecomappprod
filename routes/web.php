@@ -5,6 +5,7 @@ use App\Http\Controllers\AdminController\AdminController;
 use App\Http\Controllers\UserController\UserController;
 use App\Http\Controllers\Backend\Category\CategoryController;
 use App\Http\Controllers\Backend\Category\SubcategoryController;
+use App\Http\Controllers\Backend\Banner\BannerController;
 use App\Http\Controllers\Backend\Slider\SliderController;
 
 use Illuminate\Support\Facades\Route;
@@ -67,6 +68,18 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
         Route::post('/slider/update/{id}', 'SliderUpdate')->name('slider.update');
         Route::get('/slider/delete/{id}', 'SliderDelete')->name('slider.delete');
     });
+
+     // All Banner Routes
+     Route::controller(BannerController::class)->group(function () {
+        Route::get('/banner', 'AllBanner')->name('all.banner');
+        Route::get('/banner/add', 'BannerAdd')->name('banner.add');
+        Route::post('/banner/store', 'BannerStore')->name('banner.store');
+        Route::get('/banner/edit/{id}', 'BannerEdit')->name('banner.edit');
+        Route::post('/banner/update/{id}', 'BannerUpdate')->name('banner.update');
+        Route::get('/banner/delete/{id}', 'BannerDelete')->name('banner.delete');
+    });
+
+
 });
 
 

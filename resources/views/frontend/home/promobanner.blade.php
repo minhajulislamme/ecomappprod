@@ -14,5 +14,6 @@
                  alt="Promo Banner 2" 
                  class="w-full h-full object-cover">
         </a>
+        
     </div>
 </div>
