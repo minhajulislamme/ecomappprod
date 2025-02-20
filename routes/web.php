@@ -5,6 +5,7 @@ use App\Http\Controllers\AdminController\AdminController;
 use App\Http\Controllers\UserController\UserController;
 use App\Http\Controllers\Backend\Category\CategoryController;
 use App\Http\Controllers\Backend\Category\SubcategoryController;
+use App\Http\Controllers\Backend\Slider\SliderController;
 
 use Illuminate\Support\Facades\Route;
 
@@ -55,6 +56,16 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
         Route::get('/subcategory/edit/{id}', 'SubCategoryEdit')->name('subcategory.edit');
         Route::post('/subcategory/update/{id}', 'SubCategoryUpdate')->name('subcategory.update');
         Route::get('/subcategory/delete/{id}', 'SubCategoryDelete')->name('subcategory.delete');
+    });
+
+    // All Main Slider Routes
+    Route::controller(SliderController::class)->group(function () {
+        Route::get('/slider', 'AllSlider')->name('all.slider');
+        Route::get('/slider/add', 'SliderAdd')->name('slider.add');
+        Route::post('/slider/store', 'SliderStore')->name('slider.store');
+        Route::get('/slider/edit/{id}', 'SliderEdit')->name('slider.edit');
+        Route::post('/slider/update/{id}', 'SliderUpdate')->name('slider.update');
+        Route::get('/slider/delete/{id}', 'SliderDelete')->name('slider.delete');
     });
 });
 

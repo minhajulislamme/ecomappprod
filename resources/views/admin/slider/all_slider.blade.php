@@ -7,8 +7,8 @@
 
             <div class="flex justify-between mb-4 items-start">
                 <div>
-                    <div class="text-lg font-semibold">Category Data Table </div>
-                    <div class="text-sm font-medium text-gray-400">All Category list </div>
+                    <div class="text-lg font-semibold">Slider Data Table </div>
+                    <div class="text-sm font-medium text-gray-400">All Slider list </div>
                 </div>
                 <div class="dropdown">
                     <button type="button"
@@ -20,10 +20,10 @@
                         <ul>
 
                             <li>
-                                <a href="{{ route('category.add') }}"
+                                <a href="{{route('slider.add')}}"
                                     class="py-2 px-4 text-[13px] flex items-center hover:bg-gray-50 group">
                                     <i class="ri-menu-add-line text-gray-400 mr-3"></i>
-                                    <span class="text-gray-600 group-hover:text-orange-500 font-medium">Add</span>
+                                    <span class="text-gray-600 group-hover:text-orange-500 font-medium">Add Slider</span>
                                 </a>
                             </li>
                             
@@ -68,7 +68,7 @@
                             </th>
                             <th
                                 class="text-[12px] uppercase tracking-wide font-medium text-gray-400 py-2 px-4 bg-gray-50 text-left">
-                                Category
+                                Slider
                             </th>
                             <th
                                 class="text-[12px] uppercase tracking-wide font-medium text-gray-400 py-2 px-4 bg-gray-50 text-left">
@@ -81,17 +81,17 @@
                         </tr>
                     </thead>
                     <tbody id="tableBody">
-                        @foreach ($categories as $key => $item)
+                        @foreach ($sliders as $key => $item)
                             <tr class="data-row">
                                 <td class="py-2 px-4 border-b border-b-gray-50">
                                     <span class="text-[13px] font-medium text-gray-400">{{ $key + 1 }}</span>
                                 </td>
                                 <td class="py-2 px-4 border-b border-b-gray-50">
                                     <div class="flex items-center">
-                                        <img src="{{ asset($item->category_image) }}" alt=""
+                                        <img src="{{ asset($item->image) }}" alt=""
                                             class="w-8 h-8 rounded object-cover block">
                                         <span
-                                            class="text-[13px] font-medium text-gray-400 ml-3">{{ $item->category_name }}</span>
+                                            class="text-[13px] font-medium text-gray-400 ml-3">{{ $item->title }}</span>
                                     </div>
                                 </td>
                                 <td class="py-2 px-4 border-b border-b-gray-50">
@@ -116,14 +116,14 @@
                                         <ul
                                             class="dropdown-menu shadow-md shadow-black/5 z-30 hidden py-1.5 rounded-md bg-white border border-gray-100 w-full max-w-[140px]">
                                             <li>
-                                                <a href="{{ route('category.edit', $item->id) }}"
+                                                <a href="{{route('slider.edit',$item->id)}}"
                                                     class="flex items-center text-[13px] py-1.5 px-4 text-gray-600 hover:text-orange-500 hover:bg-gray-50">
                                                     <i class="ri-edit-line mr-2"></i>Edit
                                                 </a>
                                             </li>
                                             <li>
                                                 <a href="#"
-                                                    onclick="confirmDelete('{{ route('category.delete', $item->id) }}')"
+                                                    onclick="confirmDelete('{{route('slider.delete',$item->id)}}')"
                                                     class="flex items-center text-[13px] py-1.5 px-4 text-gray-600 hover:text-orange-500 hover:bg-gray-50">
                                                     <i class="ri-delete-bin-line mr-2"></i>Delete
                                                 </a>
