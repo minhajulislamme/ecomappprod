@@ -44,13 +44,23 @@ class SubcategoryController extends Controller
                 'status' => 'active'
             ]);
 
+            $notification = [
+                'message' => 'Subcategory Added Successfully',
+                'alert-type' => 'success'
+            ];
+
             return redirect()
                 ->route('all.subcategory')
-                ->with('success', 'Subcategory created successfully');
+                ->with($notification);
         } catch (\Exception $e) {
+            $notification = [
+                'message' => 'Failed to create subcategory',
+                'alert-type' => 'error'
+            ];
+
             return back()
                 ->withInput()
-                ->with('error', 'Failed to create subcategory');
+                ->with($notification);
         }
     }
 
@@ -81,29 +91,47 @@ class SubcategoryController extends Controller
                 'status' => $request->status,
             ]);
 
+            $notification = [
+                'message' => 'Subcategory Updated Successfully',
+                'alert-type' => 'success'
+            ];
+
             return redirect()
                 ->route('all.subcategory')
-                ->with('success', 'Subcategory updated successfully');
+                ->with($notification);
         } catch (\Exception $e) {
+            $notification = [
+                'message' => 'Failed to update subcategory',
+                'alert-type' => 'error'
+            ];
+
             return back()
                 ->withInput()
-                ->with('error', 'Failed to update subcategory');
+                ->with($notification);
         }
     }
 
     public function SubCategoryDelete($id)
     {
+        try {
+            $subcategory = SubCategory::findOrFail($id);
+            $subcategory->delete();
 
-        $subcategory = SubCategory::findOrFail($id);
-        $subcategory->delete();
+            $notification = [
+                'message' => 'Subcategory Deleted Successfully',
+                'alert-type' => 'success'
+            ];
 
+            return redirect()
+                ->route('all.subcategory')
+                ->with($notification);
+        } catch (\Exception $e) {
+            $notification = [
+                'message' => 'Failed to delete subcategory',
+                'alert-type' => 'error'
+            ];
 
-
-        $notification = [
-            'message' => 'Category Deleted Successfully',
-            'alert-type' => 'success'
-        ];
-
-        return redirect()->route('all.subcategory')->with($notification);
+            return back()->with($notification);
+        }
     }
 }
