@@ -16,26 +16,20 @@
                     <div
                         class="dropdown-menu hidden shadow-md shadow-black/5 z-30 w-full max-w-[140px] bg-white rounded-md border border-gray-100">
                         <ul>
+
+                           
                             <li>
-                                <a href="#" class="py-2 px-4 text-[13px] flex items-center hover:bg-gray-50 group">
-                                    <i class="ri-eye-line text-gray-400 mr-3"></i>
-                                    <span class="text-gray-600 group-hover:text-orange-500 font-medium">View</span>
+                                <a href="{{ route('all.category') }}"
+                                    class="py-2 px-4 text-[13px] flex items-center hover:bg-gray-50 group">
+                                    <i class="ri-file-list-line text-gray-400 mr-3"></i>
+                                    <span class="text-gray-600 group-hover:text-orange-500 font-medium">All Category</span>
                                 </a>
                             </li>
-                            <li>
-                                <a href="#" class="py-2 px-4 text-[13px] flex items-center hover:bg-gray-50 group">
-                                    <i class="ri-pencil-line text-gray-400 mr-3"></i>
-                                    <span class="text-gray-600 group-hover:text-orange-500 font-medium">Edit</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="#" class="py-2 px-4 text-[13px] flex items-center hover:bg-gray-50 group">
-                                    <i class="ri-delete-bin-line text-gray-400 mr-3"></i>
-                                    <span class="text-gray-600 group-hover:text-orange-500 font-medium">Delete</span>
-                                </a>
-                            </li>
+
+
                         </ul>
                     </div>
+
                 </div>
             </div>
             <div>
