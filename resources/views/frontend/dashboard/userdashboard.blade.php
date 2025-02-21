@@ -292,7 +292,7 @@
                                                         <i class="fas fa-cloud-upload-alt text-sm mb-2"></i>
                                                         <p class="text-[11px]">Drag & Drop image here or click to upload
                                                         </p>
-                                                        <p class="text-[9px] mt-1">(Max size: 2MB, Formats: JPG, PNG)</p>
+                                                        <p class="text-[9px] mt-1">(Max size: 5MB, Formats: JPG, PNG)</p>
                                                     </div>
                                                     <input type="file" id="file-input-single" name="photo"
                                                         class="hidden" accept="image/jpeg,image/png"

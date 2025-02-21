@@ -1,15 +1,15 @@
-   // image handel for profile 
+// image handel for profile 
 
-   function handleFile(file) {
+function handleFile(file) {
     // Validate file type
     if (!file.type.match('image.*')) {
         alert('Please upload an image file (JPG, PNG)');
         return;
     }
 
-    // Validate file size (2MB)
-    if (file.size > 2 * 1024 * 1024) {
-        alert('File size should not exceed 2MB');
+    // Validate file size (5MB)
+    if (file.size > 5 * 1024 * 1024) {
+        alert('File size should not exceed 5MB');
         return;
     }
 
