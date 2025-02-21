@@ -35,7 +35,7 @@ class SliderController extends Controller
 
             // Create directory if it doesn't exist
             if (!file_exists(public_path('upload/slider'))) {
-                mkdir(public_path('upload/slider'), 0755, true);
+                mkdir(public_path('upload/slider'), 0755, true); 
             }
 
             // Initialize Intervention Image with GD driver
