@@ -25,7 +25,7 @@ class BannerController extends Controller
     {
         $request->validate([
             'title' => 'required|unique:banners|max:255',
-            'image' => 'required|image|mimes:jpeg,png,jpg,webp|max:2048',
+            'image' => 'required|image|mimes:jpeg,png,jpg,webp|max:5120',
         ]);
 
         try {
@@ -84,7 +84,7 @@ class BannerController extends Controller
 
         $request->validate([
             'title' => 'required|max:255|unique:banners,title,' . $request->id,
-            'image' => 'image|mimes:jpeg,png,jpg,webp|max:2048',
+            'image' => 'image|mimes:jpeg,png,jpg,webp|max:5120',
         ]);
 
         try {

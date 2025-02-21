@@ -25,7 +25,7 @@ class SliderController extends Controller
     {
         $request->validate([
             'title' => 'required|unique:main_sliders|max:255',
-            'image' => 'required|image|mimes:jpeg,png,jpg,webp|max:2048',
+            'image' => 'required|image|mimes:jpeg,png,jpg,webp|max:5120',
         ]);
 
         try {
@@ -84,7 +84,7 @@ class SliderController extends Controller
 
         $request->validate([
             'title' => 'required|max:255|unique:main_sliders,title,' . $id,
-            'image' => 'image|mimes:jpeg,png,jpg,webp|max:2048',
+            'image' => 'image|mimes:jpeg,png,jpg,webp|max:5120',
         ]);
 
         try {

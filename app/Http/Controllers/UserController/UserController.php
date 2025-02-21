@@ -34,6 +34,16 @@ class UserController extends Controller
 
     public function UserProfileUpdate(Request $request)
     {
+        // Validate the image file
+        if ($request->hasFile('photo')) {
+            $request->validate([
+                'photo' => 'image|mimes:jpeg,png,jpg,gif|max:5120' // 5120KB = 5MB
+            ], [
+                'photo.max' => 'Photo size should not be greater than 5MB',
+                'photo.mimes' => 'Photo must be of type: jpeg, png, jpg, gif'
+            ]);
+        }
+
         $id = Auth::user()->id;
         $user = User::find($id);
         $user->username = $request->username;
