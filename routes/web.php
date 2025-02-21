@@ -7,6 +7,7 @@ use App\Http\Controllers\Backend\Category\CategoryController;
 use App\Http\Controllers\Backend\Category\SubcategoryController;
 use App\Http\Controllers\Backend\Banner\BannerController;
 use App\Http\Controllers\Backend\Slider\SliderController;
+use App\Http\Controllers\Backend\Product\ProductController;
 
 use Illuminate\Support\Facades\Route;
 
@@ -69,8 +70,8 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
         Route::get('/slider/delete/{id}', 'SliderDelete')->name('slider.delete');
     });
 
-     // All Banner Routes
-     Route::controller(BannerController::class)->group(function () {
+    // All Banner Routes
+    Route::controller(BannerController::class)->group(function () {
         Route::get('/banner', 'AllBanner')->name('all.banner');
         Route::get('/banner/add', 'BannerAdd')->name('banner.add');
         Route::post('/banner/store', 'BannerStore')->name('banner.store');
@@ -79,7 +80,14 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
         Route::get('/banner/delete/{id}', 'BannerDelete')->name('banner.delete');
     });
 
-
+    // All Product Routes
+    Route::controller(ProductController::class)->group(function () {
+        Route::get('/product', 'AllProduct')->name('all.product');
+        Route::get('/product/add', 'ProductAdd')->name('product.add');
+        Route::post('/product/store', 'StoreProduct')->name('product.store');
+        Route::get('/product/edit/{id}', 'EditProduct')->name('product.edit');
+        Route::get('/product/delete/{id}', 'DeleteProduct')->name('product.delete');
+    });
 });
 
 

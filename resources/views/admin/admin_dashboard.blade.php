@@ -54,6 +54,9 @@
     <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="{{ asset('js/admin/custom.js') }}"></script>
+    <script src="{{ asset('js/admin/multiimage_validation.js') }}"></script>
+    <script src="{{ asset('js/admin/products_add.js') }}"></script>
+    
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         
