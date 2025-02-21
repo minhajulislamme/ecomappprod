@@ -149,8 +149,8 @@
     <!-- JS -->
     {{-- <script src="src/js/app.js"></script> --}}
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src={{ asset('js/frontend/image_vaild.js') }}></script>
     <script src={{ asset('js/frontend/custom.js') }}></script>
-    <script src={{ asset('js/frontend/image.js') }}></script>
     <script>
         @if (Session::has('message'))
             Swal.fire({
