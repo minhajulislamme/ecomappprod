@@ -76,16 +76,8 @@
                         <!-- Tags, Colors, and Sizes Grid -->
 
                     </div>
-                    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Products QYT</label>
-                            <input type="text" name="category_name" value="{{ old('category_name') }}"
-                                placeholder="Enter category name"
-                                class="w-full px-4 py-2 border @error('category_name') border-red-500 @enderror border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none transition">
-                            @error('category_name')
-                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                            @enderror
-                        </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        
                         <!-- Tags Input -->
                         <div>
                             <label for="tag-input" class="block text-sm font-medium text-gray-700 mb-2">Tags</label>
@@ -153,7 +145,16 @@
                         <input type="hidden" name="content" id="content">
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Products QYT</label>
+                            <input type="text" name="category_name" value="{{ old('category_name') }}"
+                                placeholder="Enter category name"
+                                class="w-full px-4 py-2 border @error('category_name') border-red-500 @enderror border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none transition">
+                            @error('category_name')
+                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                            @enderror
+                        </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Product Selling Price</label>
                             <input type="text" name="category_name" value="{{ old('category_name') }}"

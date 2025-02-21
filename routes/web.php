@@ -86,6 +86,7 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
         Route::get('/product/add', 'ProductAdd')->name('product.add');
         Route::post('/product/store', 'StoreProduct')->name('product.store');
         Route::get('/product/edit/{id}', 'EditProduct')->name('product.edit');
+        Route::post('/product/update/{id}', 'UpdateProduct')->name('product.update'); // Add this line
         Route::get('/product/delete/{id}', 'DeleteProduct')->name('product.delete');
     });
 });
