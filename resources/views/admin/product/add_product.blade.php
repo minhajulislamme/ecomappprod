@@ -8,62 +8,53 @@
                     <div class="text-lg font-semibold">Add New Product</div>
                     <div class="text-sm font-medium text-gray-400">Add new product to your store</div>
                 </div>
-                <div class="dropdown">
-                    <button type="button"
-                        class="dropdown-toggle text-gray-400 w-8 h-8 rounded flex items-center justify-center hover:bg-gray-50 hover:text-gray-600">
-                        <i class="ri-more-2-fill"></i>
-                    </button>
-                    <div
-                        class="dropdown-menu hidden shadow-md shadow-black/5 z-30 w-full max-w-[140px] bg-white rounded-md border border-gray-100">
-                        <ul>
-                            <li>
-                                <a href="{{ route('all.category') }}"
-                                    class="py-2 px-4 text-[13px] flex items-center hover:bg-gray-50 group">
-                                    <i class="ri-file-list-line text-gray-400 mr-3"></i>
-                                    <span class="text-gray-600 group-hover:text-orange-500 font-medium">All Category</span>
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
             </div>
             <div>
                 <form id="product-form" action="{{ route('product.store') }}" method="POST" enctype="multipart/form-data"
                     class="space-y-6">
                     @csrf
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <!-- Producs Name Input -->
+                        <!-- Product Name Input -->
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Products Name</label>
-                            <input type="text" name="category_name" value="{{ old('category_name') }}"
-                                placeholder="Enter category name"
-                                class="w-full px-4 py-2 border @error('category_name') border-red-500 @enderror border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none transition">
-                            @error('category_name')
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Product Name</label>
+                            <input type="text" name="product_name" value="{{ old('product_name') }}"
+                                placeholder="Enter product name"
+                                class="w-full px-4 py-2 border @error('product_name') border-red-500 @enderror border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none transition">
+                            @error('product_name')
                                 <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                             @enderror
                         </div>
 
+                        <!-- Category Select -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Category</label>
+                            <select name="category_id" id="category_id"
+                                class="w-full px-4 py-2 border @error('category_id') border-red-500 @enderror border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none transition">
+                                <option value="">Select Category</option>
+                                @foreach ($categories as $category)
+                                    <option value="{{ $category->id }}"
+                                        {{ old('category_id') == $category->id ? 'selected' : '' }}>
+                                        {{ $category->category_name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            @error('category_id')
+                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                            @enderror
+                        </div>
 
-                        <!-- Category Name Input -->
+                        <!-- Subcategory Select -->
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Products Name</label>
-                            <input type="text" name="category_name" value="{{ old('category_name') }}"
-                                placeholder="Enter category name"
-                                class="w-full px-4 py-2 border @error('category_name') border-red-500 @enderror border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none transition">
-                            @error('category_name')
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Subcategory</label>
+                            <select name="subcategory_id" id="subcategory_id"
+                                class="w-full px-4 py-2 border @error('subcategory_id') border-red-500 @enderror border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none transition">
+                                <option value="">Select Subcategory</option>
+                            </select>
+                            @error('subcategory_id')
                                 <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                             @enderror
                         </div>
-                        <!-- sub Category Name Input -->
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Products Name</label>
-                            <input type="text" name="category_name" value="{{ old('category_name') }}"
-                                placeholder="Enter category name"
-                                class="w-full px-4 py-2 border @error('category_name') border-red-500 @enderror border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none transition">
-                            @error('category_name')
-                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                            @enderror
-                        </div>
+
                         {{-- products short description  --}}
                         <div>
                             <h3 class="text-lg font-medium mb-2">Product Short Description</h3>
@@ -77,7 +68,7 @@
 
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        
+
                         <!-- Tags Input -->
                         <div>
                             <label for="tag-input" class="block text-sm font-medium text-gray-700 mb-2">Tags</label>
@@ -331,6 +322,66 @@
         </div>
     </div>
 
-    
    
 @endsection
+@push('scripts')
+    
+    
+
+<script>
+    function handleCategoryChange(categoryId) {
+        const subcategorySelect = document.getElementById('subcategory_id');
+
+        // Clear existing options
+        subcategorySelect.innerHTML = '<option value="">Select Subcategory</option>';
+
+        if (categoryId) {
+            // Add loading indicator
+            subcategorySelect.innerHTML = '<option value="">Loading...</option>';
+
+            // Fetch subcategories with proper URL
+            fetch(`/get-subcategories/${categoryId}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // Clear the loading option
+                    subcategorySelect.innerHTML = '<option value="">Select Subcategory</option>';
+
+                    // Add the subcategories
+                    if (data && data.length > 0) {
+                        data.forEach(subcategory => {
+                            const option = document.createElement('option');
+                            option.value = subcategory.id;
+                            option.textContent = subcategory.subcategory_name;
+                            subcategorySelect.appendChild(option);
+                        });
+                    } else {
+                        subcategorySelect.innerHTML = '<option value="">No subcategories found</option>';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    subcategorySelect.innerHTML = '<option value="">Error loading subcategories</option>';
+                });
+        }
+    }
+
+    // Add this event listener when the document loads
+    document.addEventListener('DOMContentLoaded', function() {
+        const categorySelect = document.getElementById('category_id');
+        if (categorySelect.value) {
+            handleCategoryChange(categorySelect.value);
+        }
+
+        // Add change event listener
+        categorySelect.addEventListener('change', function() {
+            handleCategoryChange(this.value);
+        });
+    });
+</script>
+
+@endpush

@@ -58,6 +58,7 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
         Route::get('/subcategory/edit/{id}', 'SubCategoryEdit')->name('subcategory.edit');
         Route::post('/subcategory/update/{id}', 'SubCategoryUpdate')->name('subcategory.update');
         Route::get('/subcategory/delete/{id}', 'SubCategoryDelete')->name('subcategory.delete');
+        Route::get('/get-subcategories/{category_id}', 'getSubcategories')->name('get.subcategories');
     });
 
     // All Main Slider Routes
@@ -78,6 +79,7 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
         Route::get('/banner/edit/{id}', 'BannerEdit')->name('banner.edit');
         Route::post('/banner/update/{id}', 'BannerUpdate')->name('banner.update');
         Route::get('/banner/delete/{id}', 'BannerDelete')->name('banner.delete');
+       
     });
 
     // All Product Routes
@@ -88,6 +90,7 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
         Route::get('/product/edit/{id}', 'EditProduct')->name('product.edit');
         Route::post('/product/update/{id}', 'UpdateProduct')->name('product.update'); // Add this line
         Route::get('/product/delete/{id}', 'DeleteProduct')->name('product.delete');
+       
     });
 });
 
