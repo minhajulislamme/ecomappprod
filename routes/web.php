@@ -7,7 +7,8 @@ use App\Http\Controllers\Backend\Category\CategoryController;
 use App\Http\Controllers\Backend\Category\SubcategoryController;
 use App\Http\Controllers\Backend\Banner\BannerController;
 use App\Http\Controllers\Backend\Slider\SliderController;
-use App\Http\Controllers\Backend\Product\ProductController;
+use App\Http\Controllers\Backend\Attribute\AttributeController;
+
 
 use Illuminate\Support\Facades\Route;
 
@@ -79,18 +80,16 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
         Route::get('/banner/edit/{id}', 'BannerEdit')->name('banner.edit');
         Route::post('/banner/update/{id}', 'BannerUpdate')->name('banner.update');
         Route::get('/banner/delete/{id}', 'BannerDelete')->name('banner.delete');
-       
     });
 
-    // All Product Routes
-    Route::controller(ProductController::class)->group(function () {
-        Route::get('/product', 'AllProduct')->name('all.product');
-        Route::get('/product/add', 'ProductAdd')->name('product.add');
-        Route::post('/product/store', 'StoreProduct')->name('product.store');
-        Route::get('/product/edit/{id}', 'EditProduct')->name('product.edit');
-        Route::post('/product/update/{id}', 'UpdateProduct')->name('product.update'); // Add this line
-        Route::get('/product/delete/{id}', 'DeleteProduct')->name('product.delete');
-       
+    // All Attribute Routes
+    Route::controller(AttributeController::class)->group(function () {
+        Route::get('/attribute', 'AllAttribute')->name('all.attribute');
+        Route::get('/attribute/add', 'AttributeAdd')->name('attribute.add');
+        Route::post('/attribute/store', 'AttributeStore')->name('attribute.store');
+        Route::get('/attribute/edit/{id}', 'AttributeEdit')->name('attribute.edit');
+        Route::post('/attribute/update/{id}', 'AttributeUpdate')->name('attribute.update');
+        Route::get('/attribute/delete/{id}', 'AttributeDelete')->name('attribute.delete');
     });
 });
 

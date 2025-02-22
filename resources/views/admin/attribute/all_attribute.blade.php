@@ -7,8 +7,8 @@
 
             <div class="flex justify-between mb-4 items-start">
                 <div>
-                    <div class="text-lg font-semibold">Peoducts Data Table </div>
-                    <div class="text-sm font-medium text-gray-400">All Peoducts list </div>
+                    <div class="text-lg font-semibold">Attribute Data Table</div>
+                    <div class="text-sm font-medium text-gray-400">All Attributes</div>
                 </div>
                 <div class="dropdown">
                     <button type="button"
@@ -20,7 +20,7 @@
                         <ul>
 
                             <li>
-                                <a href="{{ route('product.add') }}"
+                                <a href="{{ route('attribute.add') }}"
                                     class="py-2 px-4 text-[13px] flex items-center hover:bg-gray-50 group">
                                     <i class="ri-menu-add-line text-gray-400 mr-3"></i>
                                     <span class="text-gray-600 group-hover:text-orange-500 font-medium">Add</span>
@@ -68,19 +68,15 @@
                             </th>
                             <th
                                 class="text-[12px] uppercase tracking-wide font-medium text-gray-400 py-2 px-4 bg-gray-50 text-left">
-                                Product Image
+                                Attribute Name
                             </th>
                             <th
                                 class="text-[12px] uppercase tracking-wide font-medium text-gray-400 py-2 px-4 bg-gray-50 text-left">
-                                Product Name
+                                Type
                             </th>
                             <th
                                 class="text-[12px] uppercase tracking-wide font-medium text-gray-400 py-2 px-4 bg-gray-50 text-left">
-                                Price
-                            </th>
-                            <th
-                                class="text-[12px] uppercase tracking-wide font-medium text-gray-400 py-2 px-4 bg-gray-50 text-left">
-                                Quantity
+                                Values
                             </th>
                             <th
                                 class="text-[12px] uppercase tracking-wide font-medium text-gray-400 py-2 px-4 bg-gray-50 text-left">
@@ -93,38 +89,52 @@
                         </tr>
                     </thead>
                     <tbody id="tableBody">
-                        @foreach ($products as $key => $item)
+                        @foreach ($attributes as $key => $item)
                             <tr class="data-row">
                                 <td class="py-2 px-4 border-b border-b-gray-50">
                                     <span class="text-[13px] font-medium text-gray-400">{{ $key + 1 }}</span>
                                 </td>
                                 <td class="py-2 px-4 border-b border-b-gray-50">
-                                    <div class="flex items-center">
-                                        <img src="{{ asset($item->product_thumbnail) }}" alt=""
-                                            class="w-8 h-8 rounded object-cover block">
+                                    <span class="text-[13px] font-medium text-gray-400">{{ $item->attribute_name }}</span>
+                                </td>
+                                <td class="py-2 px-4 border-b border-b-gray-50">
+                                    <span
+                                        class="text-[13px] font-medium text-gray-400">{{ ucfirst($item->attribute_type) }}</span>
+                                </td>
+                                <td class="py-2 px-4 border-b border-b-gray-50">
+                                    <div class="flex flex-wrap gap-1">
+                                        @foreach (json_decode($item->attribute_value) as $value)
+                                            @if ($item->attribute_type === 'color')
+                                                <div class="flex items-center gap-1">
+                                                    <span class="inline-block w-4 h-4 rounded border border-gray-200"
+                                                        style="background-color: {{ $value }}"></span>
+                                                    <span
+                                                        class="inline-block px-2 py-1 rounded bg-gray-100 text-gray-600 text-[12px]">
+                                                        {{ $value }}
+                                                    </span>
+                                                </div>
+                                            @else
+                                                <span
+                                                    class="inline-block px-2 py-1 rounded bg-gray-100 text-gray-600 text-[12px]">
+                                                    {{ $value }}
+                                                </span>
+                                            @endif
+                                        @endforeach
                                     </div>
                                 </td>
                                 <td class="py-2 px-4 border-b border-b-gray-50">
-                                    <span class="text-[13px] font-medium text-gray-400">{{ $item->product_name }}</span>
-                                </td>
-                                <td class="py-2 px-4 border-b border-b-gray-50">
-                                    <span class="text-[13px] font-medium text-gray-400">${{ $item->selling_price }}</span>
-                                </td>
-                                <td class="py-2 px-4 border-b border-b-gray-50">
-                                    <span class="text-[13px] font-medium text-gray-400">{{ $item->product_qty }}</span>
-                                </td>
-                                <td class="py-2 px-4 border-b border-b-gray-50">
-                                    @if ($item->status === 1)
+                                    @if ($item->status === 'active')
                                         <span
                                             class="inline-block p-1 rounded bg-emerald-500/10 text-emerald-500 font-medium text-[12px] leading-none">
-                                            Active
+                                            {{ $item->status }}
                                         </span>
                                     @else
                                         <span
                                             class="inline-block p-1 rounded bg-rose-500/10 text-rose-500 font-medium text-[12px] leading-none">
-                                            Inactive
+                                            {{ $item->status }}
                                         </span>
                                     @endif
+
                                 </td>
                                 <td class="py-2 px-4 border-b border-b-gray-50">
                                     <div class="ml-2 dropdown">
@@ -134,18 +144,19 @@
                                         <ul
                                             class="dropdown-menu shadow-md shadow-black/5 z-30 hidden py-1.5 rounded-md bg-white border border-gray-100 w-full max-w-[140px]">
                                             <li>
-                                                <a href="{{ route('category.edit', $item->id) }}"
+                                                <a href="{{ route('attribute.edit', $item->id) }}"
                                                     class="flex items-center text-[13px] py-1.5 px-4 text-gray-600 hover:text-orange-500 hover:bg-gray-50">
                                                     <i class="ri-edit-line mr-2"></i>Edit
                                                 </a>
                                             </li>
                                             <li>
                                                 <a href="#"
-                                                    onclick="confirmDelete('{{ route('category.delete', $item->id) }}')"
+                                                    onclick="confirmDelete('{{ route('attribute.delete', $item->id) }}')"
                                                     class="flex items-center text-[13px] py-1.5 px-4 text-gray-600 hover:text-orange-500 hover:bg-gray-50">
                                                     <i class="ri-delete-bin-line mr-2"></i>Delete
                                                 </a>
                                             </li>
+                                            
                                         </ul>
                                     </div>
                                 </td>
