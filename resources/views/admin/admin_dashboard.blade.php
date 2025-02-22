@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Admin Dashboard By Shop Ever</title>
     <!-- Core Dependencies -->
@@ -11,7 +12,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
 
-  
+
 
     <!-- CSS -->
     @vite(['resources/css/admin/app.css', 'resources/js/admin/app.js'])
@@ -22,7 +23,7 @@
     <!-- QuillJS CSS -->
     <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
     <style>
-        
+
     </style>
 </head>
 
@@ -30,7 +31,7 @@
     <!-- =========================================================Sider bar Start==================================== -->
     @include('admin.body.sidebar')
 
-    
+
     <!-- =========================================================Sider bar End==================================== -->
     <!-- =========================================================Main Start==================================== -->
     <main class="main transition-all duration-300 ease-in-out lg:ml-64">
@@ -43,7 +44,7 @@
         @include('admin.body.footer')
 
         <!-- Replace old editor container with QuillJS -->
-        
+
     </main>
 
     <!-- footer part -->
@@ -54,9 +55,11 @@
     <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="{{ asset('js/admin/custom.js') }}"></script>
+    <script src="{{ asset('js/admin/multiimage_validation.js') }}"></script>
+
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
-        
+
     </script>
     <script>
         @if (Session::has('message'))
@@ -113,6 +116,8 @@
         })
     }
 </script>
+@stack('scripts')
+
 </body>
 
 </html>

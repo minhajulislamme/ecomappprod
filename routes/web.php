@@ -7,6 +7,8 @@ use App\Http\Controllers\Backend\Category\CategoryController;
 use App\Http\Controllers\Backend\Category\SubcategoryController;
 use App\Http\Controllers\Backend\Banner\BannerController;
 use App\Http\Controllers\Backend\Slider\SliderController;
+use App\Http\Controllers\Backend\Attribute\AttributeController;
+
 
 use Illuminate\Support\Facades\Route;
 
@@ -57,6 +59,7 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
         Route::get('/subcategory/edit/{id}', 'SubCategoryEdit')->name('subcategory.edit');
         Route::post('/subcategory/update/{id}', 'SubCategoryUpdate')->name('subcategory.update');
         Route::get('/subcategory/delete/{id}', 'SubCategoryDelete')->name('subcategory.delete');
+        Route::get('/get-subcategories/{category_id}', 'getSubcategories')->name('get.subcategories');
     });
 
     // All Main Slider Routes
@@ -69,8 +72,8 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
         Route::get('/slider/delete/{id}', 'SliderDelete')->name('slider.delete');
     });
 
-     // All Banner Routes
-     Route::controller(BannerController::class)->group(function () {
+    // All Banner Routes
+    Route::controller(BannerController::class)->group(function () {
         Route::get('/banner', 'AllBanner')->name('all.banner');
         Route::get('/banner/add', 'BannerAdd')->name('banner.add');
         Route::post('/banner/store', 'BannerStore')->name('banner.store');
@@ -79,7 +82,15 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
         Route::get('/banner/delete/{id}', 'BannerDelete')->name('banner.delete');
     });
 
-
+    // All Attribute Routes
+    Route::controller(AttributeController::class)->group(function () {
+        Route::get('/attribute', 'AllAttribute')->name('all.attribute');
+        Route::get('/attribute/add', 'AttributeAdd')->name('attribute.add');
+        Route::post('/attribute/store', 'AttributeStore')->name('attribute.store');
+        Route::get('/attribute/edit/{id}', 'AttributeEdit')->name('attribute.edit');
+        Route::post('/attribute/update/{id}', 'AttributeUpdate')->name('attribute.update');
+        Route::get('/attribute/delete/{id}', 'AttributeDelete')->name('attribute.delete');
+    });
 });
 
 
