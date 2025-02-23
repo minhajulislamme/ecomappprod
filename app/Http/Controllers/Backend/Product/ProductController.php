@@ -7,21 +7,14 @@ use App\Models\Category;
 use App\Models\Product;
 use App\Models\SubCategory;
 use App\Models\ProductAttribute;
+use App\Models\Attribute;
 use Illuminate\Http\Request;
 use Intervention\Image\ImageManager;
 use Intervention\Image\Drivers\Gd\Driver;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\File;
+
 
 class ProductController extends Controller
 {
-    protected $imageManager;
-
-    public function __construct()
-    {
-        $this->imageManager = new ImageManager(new Driver());
-    }
-
     public function AllProduct()
     {
         $products = Product::with(['category', 'subcategory', 'productAttributes'])->latest()->get();
@@ -31,7 +24,7 @@ class ProductController extends Controller
     public function ProductAdd()
     {
         $categories = Category::active()->get();
-        $attributes = DB::table('attributes')->where('status', 'active')->get();
+        $attributes = Attribute::where('status', 'active')->get();
         return view('admin.product.add_product', compact('categories', 'attributes'));
     }
 
@@ -43,15 +36,12 @@ class ProductController extends Controller
             'category_id' => 'required|exists:categories,id',
             'subcategory_id' => 'required|exists:sub_categories,id',
             'stock' => 'required|integer|min:0',
-            'main_image' => 'required|image|max:5120',
             'thumbnail_image' => 'required|image|max:2048',
             'attributes' => 'nullable|array',
             'attributes.*' => 'nullable|array'
         ]);
 
         try {
-            DB::beginTransaction();
-
             $product = Product::create([
                 'name' => $request->name,
                 'description' => $request->description,
@@ -59,84 +49,80 @@ class ProductController extends Controller
                 'category_id' => $request->category_id,
                 'subcategory_id' => $request->subcategory_id,
                 'stock' => $request->stock,
-                'main_image' => $this->uploadImage($request->file('main_image'), 'main'),
                 'thumbnail_image' => $this->uploadImage($request->file('thumbnail_image'), 'thumbnail'),
                 'gallery_images' => $this->handleGalleryImages($request->file('gallery_images') ?? []),
                 'status' => $request->status
             ]);
 
-            // Handle attributes safely
-            $attributes = $request->input('attributes', []);
-            if (is_array($attributes)) {
-                foreach ($attributes as $attributeId => $values) {
-                    // Ensure values is an array and not empty
-                    $attributeValues = is_array($values) ? array_filter($values) : [];
-
-                    if (!empty($attributeValues)) {
-                        ProductAttribute::create([
-                            'product_id' => $product->id,
-                            'attribute_id' => $attributeId,
-                            'values' => array_values($attributeValues) // Reindex array
-                        ]);
-                    }
-                }
+            // Handle attributes
+            if ($request->has('attributes')) {
+                $this->saveProductAttributes($product, $request->input('attributes', []));
             }
 
-            DB::commit();
             return redirect()->route('all.product')->with('success', 'Product Added Successfully');
         } catch (\Exception $e) {
-            DB::rollBack();
             return back()->with('error', 'Failed to add product: ' . $e->getMessage());
         }
     }
 
-    public function uploadImage($image, $type)
+    protected function saveProductAttributes($product, array $attributes)
+    {
+        foreach ($attributes as $attributeId => $values) {
+            if (is_array($values) && !empty($values)) {
+                ProductAttribute::create([
+                    'product_id' => $product->id,
+                    'attribute_id' => $attributeId,
+                    'values' => array_values(array_filter($values))
+                ]);
+            }
+        }
+    }
+
+    protected function uploadImage($image, $type)
     {
         if (!$image) return '';
 
-        $filename = hexdec(uniqid()) . '.' . $image->getClientOriginalExtension();
+        $filename = uniqid() . '.' . $image->getClientOriginalExtension();
         $path = "upload/products/$type";
 
-        if (!File::exists(public_path($path))) {
-            File::makeDirectory(public_path($path), 0755, true);
+        if (!is_dir(public_path($path))) {
+            mkdir(public_path($path), 0755, true);
         }
 
-        $img = $this->imageManager->read($image);
+        $manager = new ImageManager(new Driver());
+        $img = $manager->read($image);
 
-        // Simple resize logic
-        if ($type == 'main') {
-            $img->resize(800, null, fn($constraint) => $constraint->aspectRatio());
-        } elseif ($type == 'thumbnail') {
-            $img->resize(300, 300, fn($constraint) => $constraint->aspectRatio());
-        } else {
-            $img->resize(600, null, fn($constraint) => $constraint->aspectRatio());
+        // Standardize image sizes
+        switch ($type) {
+            case 'thumbnail':
+                $img->cover(300, 300); // Thumbnail for listings
+                break;
+            case 'gallery':
+                $img->cover(600, 600); // Gallery images
+                break;
         }
+
+        // Optimize image quality
+        $img->toJpeg(80); // Convert to JPEG with 80% quality
 
         $img->save(public_path("$path/$filename"));
         return "$path/$filename";
     }
 
-    public function handleGalleryImages($images)
+    protected function handleGalleryImages($images)
     {
-        // Ensure images is an array
-        if (!is_array($images)) {
-            return [];
-        }
+        if (!is_array($images)) return [];
 
-        $galleryImages = [];
-        foreach ($images as $image) {
-            if ($image && $image->isValid()) {
-                $galleryImages[] = $this->uploadImage($image, 'gallery');
-            }
-        }
-
-        return !empty($galleryImages) ? $galleryImages : [];
+        return array_filter(array_map(function ($image) {
+            return $image && $image->isValid() ? $this->uploadImage($image, 'gallery') : null;
+        }, $images));
     }
 
-    public function deleteImage($path)
+    protected function deleteImage($path)
     {
-        if ($path && File::exists(public_path($path))) {
-            File::delete(public_path($path));
+        $fullPath = public_path($path);
+        if ($path && file_exists($fullPath)) {
+            unlink($fullPath);
         }
     }
 
@@ -150,33 +136,22 @@ class ProductController extends Controller
 
     public function ProductUpdate(Request $request, $id)
     {
-        $validator = Validator::make($request->all(), [
+        $request->validate([
             'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
             'price' => 'required|numeric|min:0',
             'category_id' => 'required|exists:categories,id',
             'subcategory_id' => 'required|exists:sub_categories,id',
             'stock' => 'required|integer|min:0',
-            'main_image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5120',
-            'thumbnail_image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
-            'gallery_images.*' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5120',
-            'status' => 'required|in:active,inactive,draft',
+            'thumbnail_image' => 'nullable|image|max:2048',
+            'gallery_images.*' => 'nullable|image|max:2048',
             'attributes' => 'nullable|array',
-            'attributes.*' => 'array',
+            'status' => 'required|in:active,inactive,draft'
         ]);
 
-        if ($validator->fails()) {
-            return back()
-                ->withErrors($validator)
-                ->withInput();
-        }
-
         try {
-            DB::beginTransaction();
-
             $product = Product::findOrFail($id);
 
-            // Update basic product info
+            // Update basic product information
             $product->update([
                 'name' => $request->name,
                 'description' => $request->description,
@@ -187,73 +162,65 @@ class ProductController extends Controller
                 'status' => $request->status,
             ]);
 
-            // Handle image updates
-            if ($request->hasFile('main_image')) {
-                $this->deleteImage($product->main_image);
-                $product->main_image = $this->uploadImage($request->file('main_image'), 'main');
-            }
-
+            // Handle thumbnail image
             if ($request->hasFile('thumbnail_image')) {
-                $this->deleteImage($product->thumbnail_image);
+                if ($product->thumbnail_image) {
+                    $this->deleteImage($product->thumbnail_image);
+                }
                 $product->thumbnail_image = $this->uploadImage($request->file('thumbnail_image'), 'thumbnail');
+                $product->save();
             }
 
-            // Handle gallery images safely
+            // Handle gallery images
             if ($request->hasFile('gallery_images')) {
-                $galleryFiles = $request->file('gallery_images');
-                if (is_array($galleryFiles)) {
-                    foreach ($product->gallery_images ?? [] as $oldImage) {
+                if ($product->gallery_images) {
+                    foreach ($product->gallery_images as $oldImage) {
                         $this->deleteImage($oldImage);
                     }
-                    $product->gallery_images = $this->handleGalleryImages($galleryFiles);
-                    $product->save();
                 }
+                $product->gallery_images = $this->handleGalleryImages($request->file('gallery_images'));
+                $product->save();
             }
 
-            $product->save();
+            // Handle attributes
+            // First, delete existing attributes
+            ProductAttribute::where('product_id', $product->id)->delete();
 
-            // Handle attributes safely
-            $product->productAttributes()->delete();
-
+            // Then create new attributes if any
             if ($request->has('attributes')) {
-                $attributes = $request->input('attributes', []);
-                if (is_array($attributes)) {
-                    foreach ($attributes as $attributeId => $values) {
-                        $attributeValues = is_array($values) ? array_filter($values) : [];
-                        if (!empty($attributeValues)) {
-                            ProductAttribute::create([
-                                'product_id' => $product->id,
-                                'attribute_id' => $attributeId,
-                                'values' => array_values($attributeValues)
-                            ]);
-                        }
-                    }
-                }
+                $this->saveProductAttributes($product, $request->input('attributes', []));
             }
 
-            DB::commit();
             return redirect()
                 ->route('all.product')
-                ->with('success', 'Product Updated Successfully');
+                ->with('success', 'Product updated successfully');
         } catch (\Exception $e) {
-            DB::rollBack();
             return back()
                 ->withInput()
-                ->with('error', 'Failed to update product: ' . $e->getMessage());
+                ->with('error', 'Error updating product: ' . $e->getMessage());
         }
     }
 
     public function ProductEdit($id)
     {
         try {
-            $product = Product::with(['attributes'])->findOrFail($id);
+            $product = Product::with(['category', 'subcategory', 'productAttributes'])->findOrFail($id);
             $categories = Category::where('status', 'active')->get();
             $subcategories = SubCategory::where('category_id', $product->category_id)
                 ->where('status', 'active')
                 ->get();
             $attributes = Attribute::where('status', 'active')->get();
 
-            return view('admin.product.edit_product', compact('product', 'categories', 'subcategories', 'attributes'));
+            // Prepare existing attribute values
+            $existingAttributes = $product->productAttributes->pluck('values', 'attribute_id')->toArray();
+
+            return view('admin.product.edit_product', compact(
+                'product',
+                'categories',
+                'subcategories',
+                'attributes',
+                'existingAttributes'
+            ));
         } catch (\Exception $e) {
             return back()->with('error', 'Failed to load product: ' . $e->getMessage());
         }
@@ -262,12 +229,9 @@ class ProductController extends Controller
     public function ProductDelete($id)
     {
         try {
-            DB::beginTransaction();
-
             $product = Product::findOrFail($id);
 
             // Delete images
-            $this->deleteImage($product->main_image);
             $this->deleteImage($product->thumbnail_image);
 
             if ($product->gallery_images) {
@@ -276,19 +240,16 @@ class ProductController extends Controller
                 }
             }
 
-            // Delete product attributes
-            $product->attributes()->delete();
+            // Delete product attributes using the model
+            ProductAttribute::where('product_id', $product->id)->delete();
 
             // Delete the product
             $product->delete();
-
-            DB::commit();
 
             return redirect()
                 ->route('all.product')
                 ->with('success', 'Product Deleted Successfully');
         } catch (\Exception $e) {
-            DB::rollBack();
             return back()->with('error', 'Failed to delete product: ' . $e->getMessage());
         }
     }

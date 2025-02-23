@@ -66,13 +66,6 @@
                     <!-- Images -->
                     <div class="space-y-4">
                         <div class="form-group">
-                            <label>Main Image</label>
-                            <input type="file" name="main_image" required accept="image/*" class="form-input"
-                                onchange="previewImage(this, 'main-preview')">
-                            <img id="main-preview" class="mt-2 max-h-40 hidden">
-                        </div>
-
-                        <div class="form-group">
                             <label>Thumbnail Image</label>
                             <input type="file" name="thumbnail_image" required accept="image/*" class="form-input"
                                 onchange="previewImage(this, 'thumb-preview')">

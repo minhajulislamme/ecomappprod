@@ -16,7 +16,6 @@ return new class extends Migration
             $table->decimal('price', 10, 2);
             $table->foreignId('category_id')->constrained()->onDelete('restrict');
             $table->foreignId('subcategory_id')->constrained('sub_categories')->onDelete('restrict');
-            $table->string('main_image');
             $table->string('thumbnail_image');
             $table->json('gallery_images')->nullable();
             $table->integer('stock')->default(0);
