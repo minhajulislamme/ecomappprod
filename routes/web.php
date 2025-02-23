@@ -9,6 +9,7 @@ use App\Http\Controllers\Backend\Banner\BannerController;
 use App\Http\Controllers\Backend\Slider\SliderController;
 use App\Http\Controllers\Backend\Attribute\AttributeController;
 use App\Http\Controllers\Backend\Product\ProductController;
+use App\Http\Controllers\Backend\Product\ProductVariationController;
 
 
 use Illuminate\Support\Facades\Route;
@@ -102,6 +103,16 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
         Route::post('/product/update/{id}', 'ProductUpdate')->name('product.update');
         Route::get('/product/delete/{id}', 'ProductDelete')->name('product.delete');
         Route::get('/product/get-subcategories/{category_id}', 'GetSubcategories')->name('product.subcategories');
+    });
+
+    // Product Variations Routes
+    Route::controller(ProductVariationController::class)->group(function () {
+        Route::get('/products/{product}/variations', 'index')->name('admin.products.variations.index');
+        Route::get('/products/{product}/variations/create', 'create')->name('admin.products.variations.create');
+        Route::post('/products/{product}/variations', 'store')->name('admin.products.variations.store');
+        Route::get('/products/{product}/variations/{variation}/edit', 'edit')->name('admin.products.variations.edit');
+        Route::put('/products/{product}/variations/{variation}', 'update')->name('admin.products.variations.update');
+        Route::delete('/products/{product}/variations/{variation}', 'destroy')->name('admin.products.variations.destroy');
     });
 });
 

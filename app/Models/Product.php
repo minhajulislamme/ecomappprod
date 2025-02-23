@@ -41,4 +41,24 @@ class Product extends Model
     {
         return $this->hasMany(ProductAttribute::class);
     }
+
+    public function activeProductAttributes()
+    {
+        return $this->hasMany(ProductAttribute::class)->whereNotNull('values');
+    }
+
+    public function hasConfiguredAttributes()
+    {
+        return $this->productAttributes()->whereNotNull('values')->exists();
+    }
+
+    public function variations()
+    {
+        return $this->hasMany(ProductVariation::class);
+    }
+
+    public function hasVariations()
+    {
+        return $this->variations()->count() > 0;
+    }
 }

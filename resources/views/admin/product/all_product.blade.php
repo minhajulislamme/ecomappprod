@@ -104,6 +104,10 @@
                                 </td>
                                 <td class="table-td">
                                     <div class="flex items-center gap-2">
+                                        <a href="{{ route('admin.products.variations.index', $product->id) }}"
+                                            class="btn-icon text-blue-500" title="Manage Variations">
+                                            <i class="ri-stack-line"></i>
+                                        </a>
                                         <a href="{{ route('product.edit', $product->id) }}" class="btn-icon"
                                             title="Edit">
                                             <i class="ri-edit-line"></i>
