@@ -36,7 +36,8 @@ class ProductController extends Controller
             'category_id' => 'required|exists:categories,id',
             'subcategory_id' => 'required|exists:sub_categories,id',
             'stock' => 'required|integer|min:0',
-            'thumbnail_image' => 'required|image|max:2048',
+            'thumbnail_image' => 'required|image|mimes:jpeg,png,jpg,webp|max:5120',
+            'gallery_images.*' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5120',
             'attributes' => 'nullable|array',
             'attributes.*' => 'nullable|array'
         ]);
@@ -85,25 +86,19 @@ class ProductController extends Controller
         $filename = uniqid() . '.' . $image->getClientOriginalExtension();
         $path = "upload/products/$type";
 
-        if (!is_dir(public_path($path))) {
+        // Ensure upload directory exists
+        if (!file_exists(public_path($path))) {
             mkdir(public_path($path), 0755, true);
         }
 
         $manager = new ImageManager(new Driver());
         $img = $manager->read($image);
 
-        // Standardize image sizes
-        switch ($type) {
-            case 'thumbnail':
-                $img->cover(300, 300); // Thumbnail for listings
-                break;
-            case 'gallery':
-                $img->cover(600, 600); // Gallery images
-                break;
-        }
+        // Standardize all images to 600x600
+        $img->cover(600, 600);
 
-        // Optimize image quality
-        $img->toJpeg(80); // Convert to JPEG with 80% quality
+        // Optimize image quality for web
+        $img->toJpeg(80);
 
         $img->save(public_path("$path/$filename"));
         return "$path/$filename";
@@ -112,6 +107,12 @@ class ProductController extends Controller
     protected function handleGalleryImages($images)
     {
         if (!is_array($images)) return [];
+
+        // Create gallery directory if it doesn't exist
+        $path = "upload/products/gallery";
+        if (!file_exists(public_path($path))) {
+            mkdir(public_path($path), 0755, true);
+        }
 
         return array_filter(array_map(function ($image) {
             return $image && $image->isValid() ? $this->uploadImage($image, 'gallery') : null;

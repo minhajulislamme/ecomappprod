@@ -7,7 +7,6 @@ use App\Models\Product;
 use App\Models\ProductVariation;
 use App\Models\Attribute;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 use Intervention\Image\ImageManager;
 use Intervention\Image\Drivers\Gd\Driver;
 use Illuminate\Validation\ValidationException;
@@ -288,7 +287,7 @@ class ProductVariationController extends Controller
             'sale_price' => 'nullable|numeric|min:0|lt:price',
             'stock_quantity' => 'required|integer|min:0',
             'attribute_values' => 'required|array',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5120'
         ];
 
         // Get configured attributes from the product
@@ -322,12 +321,12 @@ class ProductVariationController extends Controller
         }
 
         $manager = new ImageManager(new Driver());
-        $imageName = date('YmdHi') . $image->getClientOriginalName();
+        $imageName = uniqid() . '.' . $image->getClientOriginalExtension();
 
         $img = $manager->read($image);
 
-        // Maintain aspect ratio while resizing
-        $img->scale(width: 800);
+        // Resize to 600x600 maintaining aspect ratio and cropping if needed
+        $img->cover(600, 600);
 
         // Optimize image quality
         $img->toJpeg(80);
