@@ -21,8 +21,13 @@ class Product extends Model
     protected static function boot()
     {
         parent::boot();
+
         static::creating(function ($product) {
             $product->slug = Str::slug($product->name);
+        });
+
+        static::deleting(function ($product) {
+            $product->variations()->delete();
         });
     }
 
