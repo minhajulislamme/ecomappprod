@@ -31,30 +31,28 @@ class Product extends Model
         });
     }
 
-    // Relationships
+    // Relationships with eager loading defaults
     public function category()
     {
-        return $this->belongsTo(Category::class);
+        return $this->belongsTo(Category::class)->withDefault();
     }
 
     public function subcategory()
     {
-        return $this->belongsTo(SubCategory::class);
+        return $this->belongsTo(SubCategory::class)->withDefault();
     }
 
     public function productAttributes()
     {
-        return $this->hasMany(ProductAttribute::class);
+        return $this->hasMany(ProductAttribute::class)
+            ->with('attribute:id,attribute_name,attribute_type');
     }
 
     public function activeProductAttributes()
     {
-        return $this->hasMany(ProductAttribute::class)->whereNotNull('values');
-    }
-
-    public function hasConfiguredAttributes()
-    {
-        return $this->productAttributes()->whereNotNull('values')->exists();
+        return $this->productAttributes()
+            ->whereNotNull('values')
+            ->with('attribute:id,attribute_name,attribute_type');
     }
 
     public function variations()
@@ -62,8 +60,18 @@ class Product extends Model
         return $this->hasMany(ProductVariation::class);
     }
 
-    public function hasVariations()
+    // Optimized helper methods
+    public function hasConfiguredAttributes(): bool
     {
-        return $this->variations()->count() > 0;
+        return $this->activeProductAttributes()->exists();
+    }
+
+    public function hasVariations(): bool
+    {
+        return cache()->remember(
+            "product_{$this->id}_has_variations",
+            now()->addMinutes(60),
+            fn() => $this->variations()->exists()
+        );
     }
 }

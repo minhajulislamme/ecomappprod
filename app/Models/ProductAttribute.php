@@ -24,68 +24,38 @@ class ProductAttribute extends Model
 
     public function setValuesAttribute($values)
     {
-        // Only process and store non-empty values
-        if (!empty($values)) {
-            $formattedValues = is_array($values) ? array_filter($values) : [$values];
+        $formattedValues = array_filter(is_array($values) ? $values : [$values]);
 
-            // Format color values if this is a color attribute
-            if ($this->attribute && $this->attribute->attribute_type === 'color') {
-                $formattedValues = array_map(function ($value) {
-                    return $this->formatColorValue($value);
-                }, $formattedValues);
-            }
-
-            $this->attributes['values'] = json_encode(array_values($formattedValues));
-        } else {
-            $this->attributes['values'] = null;
+        if ($this->attribute?->attribute_type === 'color') {
+            $formattedValues = array_map([$this, 'formatColorValue'], $formattedValues);
         }
+
+        $this->attributes['values'] = !empty($formattedValues) ?
+            json_encode(array_values($formattedValues)) : null;
     }
 
     public function getValuesAttribute($value)
     {
-        $values = json_decode($value, true);
+        $values = json_decode($value, true) ?? [];
 
-        if (!$values) {
-            return [];
-        }
-
-        if ($this->attribute && $this->attribute->attribute_type === 'color') {
-            return array_map(function ($value) {
-                return $this->formatColorValue($value);
-            }, $values);
-        }
-
-        return $values;
-    }
-
-    public function hasValues()
-    {
-        return !empty($this->values);
+        return $this->attribute?->attribute_type === 'color'
+            ? array_map([$this, 'formatColorValue'], $values)
+            : $values;
     }
 
     protected function formatColorValue($color)
     {
-        if (empty($color)) {
-            return null;
-        }
+        $color = trim($color);
+        if (empty($color)) return null;
 
-        // Already a valid hex color
+        // Handle hex color
         if (preg_match('/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/', $color)) {
             return $color;
         }
 
-        // Convert RGB format
-        if (preg_match('/^rgb\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)$/', $color, $matches)) {
-            $r = intval($matches[1]);
-            $g = intval($matches[2]);
-            $b = intval($matches[3]);
-            return sprintf("#%02x%02x%02x", $r, $g, $b);
-        }
-
-        // Strip any whitespace and validate
-        $color = trim($color);
-        if (empty($color)) {
-            return null;
+        // Handle RGB format
+        if (preg_match('/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/', $color, $m)) {
+            return sprintf("#%02x%02x%02x", $m[1], $m[2], $m[3]);
         }
 
         return $color;

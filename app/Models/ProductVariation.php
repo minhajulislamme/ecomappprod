@@ -23,17 +23,17 @@ class ProductVariation extends Model
 
     protected function formatColorValue($color)
     {
-        // If it's already a hex color, return it
+        $color = trim($color);
+        if (empty($color)) return null;
+
+        // Handle hex color
         if (preg_match('/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/', $color)) {
             return $color;
         }
 
-        // If it's RGB format, convert to hex
-        if (preg_match('/^rgb\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)$/', $color, $matches)) {
-            $r = intval($matches[1]);
-            $g = intval($matches[2]);
-            $b = intval($matches[3]);
-            return sprintf("#%02x%02x%02x", $r, $g, $b);
+        // Handle RGB format
+        if (preg_match('/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/', $color, $m)) {
+            return sprintf("#%02x%02x%02x", $m[1], $m[2], $m[3]);
         }
 
         return $color;
@@ -43,15 +43,16 @@ class ProductVariation extends Model
     {
         $values = json_decode($value, true) ?? [];
 
-        // Format any color values
-        foreach ($values as $attribute => $val) {
-            $attributeType = $this->product->productAttributes()
-                ->whereHas('attribute', function ($q) use ($attribute) {
-                    $q->where('attribute_name', $attribute);
-                })
-                ->first()?->attribute?->attribute_type;
+        // Cache attribute types to avoid multiple queries
+        $attributeTypes = $this->product->productAttributes()
+            ->with('attribute:id,attribute_name,attribute_type')
+            ->get()
+            ->pluck('attribute.attribute_type', 'attribute.attribute_name')
+            ->toArray();
 
-            if ($attributeType === 'color') {
+        // Format color values
+        foreach ($values as $attribute => $val) {
+            if (($attributeTypes[$attribute] ?? null) === 'color') {
                 $values[$attribute] = $this->formatColorValue($val);
             }
         }

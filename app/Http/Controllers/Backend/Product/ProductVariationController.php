@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Backend\Product;
 use App\Http\Controllers\Controller;
 use App\Models\Product;
 use App\Models\ProductVariation;
-use App\Models\Attribute;
 use Illuminate\Http\Request;
 use Intervention\Image\ImageManager;
 use Intervention\Image\Drivers\Gd\Driver;
@@ -13,156 +12,10 @@ use Illuminate\Validation\ValidationException;
 
 class ProductVariationController extends Controller
 {
-    private function ensureUploadDirectoryExists()
-    {
-        $path = public_path('upload/variation_images');
-        if (!file_exists($path)) {
-            mkdir($path, 0777, true);
-        }
-        return $path;
-    }
-
-    private $namedColors = [
-        'black' => '#000000',
-        'white' => '#ffffff',
-        'red' => '#ff0000',
-        'green' => '#008000',
-        'blue' => '#0000ff',
-        'yellow' => '#ffff00',
-        'purple' => '#800080',
-        'orange' => '#ffa500',
-        'brown' => '#a52a2a',
-        'pink' => '#ffc0cb',
-        'gray' => '#808080',
-        'silver' => '#c0c0c0'
-    ];
-
-    private function validateColorValue($color)
-    {
-        // Convert named colors to hex
-        $color = strtolower(trim($color));
-        if (isset($this->namedColors[$color])) {
-            return $this->namedColors[$color];
-        }
-
-        // Check if it's a valid hex color
-        if (preg_match('/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/', $color)) {
-            return $color;
-        }
-
-        // Check if it's an RGB color
-        if (preg_match('/^rgb\(\s*\d+\s*,\s*\d+\s*,\s*\d+\s*\)$/', $color)) {
-            return $this->rgbToHex($color);
-        }
-
-        // Try to parse as a CSS color name
-        try {
-            $color = $this->cssColorNameToHex($color);
-            if ($color) {
-                return $color;
-            }
-        } catch (\Exception $e) {
-            // Ignore conversion errors
-        }
-
-        // If not a valid color format, return null
-        return null;
-    }
-
-    private function rgbToHex($rgb)
-    {
-        if (preg_match('/^rgb\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)$/', $rgb, $matches)) {
-            $r = intval($matches[1]);
-            $g = intval($matches[2]);
-            $b = intval($matches[3]);
-            return sprintf("#%02x%02x%02x", $r, $g, $b);
-        }
-        return null;
-    }
-
-    private function cssColorNameToHex($colorName)
-    {
-        // Create a temporary div element with the color
-        $color = shell_exec("node -e \"
-            process.stdout.write(
-                require('css-color-names')['" . strtolower($colorName) . "'] || ''
-            )
-        \"");
-
-        return $color ?: null;
-    }
-
-    private function formatAttributeValues($product, $attributeValues)
-    {
-        $formattedValues = [];
-        foreach ($attributeValues as $name => $value) {
-            $attribute = $product->productAttributes()
-                ->whereHas('attribute', function ($q) use ($name) {
-                    $q->where('attribute_name', $name);
-                })
-                ->first()?->attribute;
-
-            if ($attribute && $attribute->attribute_type === 'color') {
-                // Validate and format color value
-                $validatedColor = $this->validateColorValue($value);
-
-                if ($validatedColor) {
-                    $formattedValues[$name] = $validatedColor;
-                } else {
-                    // Check if it's a predefined color value
-                    $attributeValues = json_decode($attribute->attribute_value, true) ?? [];
-                    if (in_array($value, $attributeValues)) {
-                        $formattedValues[$name] = $value;
-                    } else {
-                        // Default to a safe color if validation fails
-                        $formattedValues[$name] = '#000000';
-                    }
-                }
-            } else {
-                $formattedValues[$name] = $value;
-            }
-        }
-        return $formattedValues;
-    }
-
     public function index(Product $product)
     {
         $variations = $product->variations()->with('product')->get();
         return view('admin.product.variation.index', compact('product', 'variations'));
-    }
-
-    private function getProductAttributes(Product $product)
-    {
-        $attributesWithValues = [];
-
-        // Get only the attributes that are assigned to this product
-        $productAttributes = $product->productAttributes()
-            ->with('attribute')
-            ->whereNotNull('values') // Only get attributes that have values
-            ->get();
-
-        foreach ($productAttributes as $productAttribute) {
-            $attribute = $productAttribute->attribute;
-            if ($attribute && !empty($productAttribute->values)) {
-                $attributeValues = $productAttribute->values;
-
-                // Format color values if needed
-                if ($attribute->attribute_type === 'color') {
-                    $attributeValues = array_map(function ($value) {
-                        return $this->validateColorValue($value) ?? $value;
-                    }, $attributeValues);
-                }
-
-                $attributesWithValues[] = [
-                    'id' => $attribute->id,
-                    'name' => $attribute->attribute_name,
-                    'type' => $attribute->attribute_type,
-                    'values' => $attributeValues
-                ];
-            }
-        }
-
-        return $attributesWithValues;
     }
 
     public function create(Product $product)
@@ -177,45 +30,20 @@ class ProductVariationController extends Controller
         return view('admin.product.variation.create', compact('product', 'attributesWithValues'));
     }
 
-    private function validateProductAttributes(Product $product)
-    {
-        $configuredAttributes = $product->activeProductAttributes()->with('attribute')->get();
-
-        if ($configuredAttributes->isEmpty()) {
-            throw ValidationException::withMessages([
-                'attributes' => 'This product has no configured attributes. Please add attributes before creating variations.'
-            ]);
-        }
-    }
-
     public function store(Request $request, Product $product)
     {
         try {
             $this->validateProductAttributes($product);
             $this->validateRequest($request, $product);
 
-            $data = $request->except('image');
-            $data['attribute_values'] = $this->formatAttributeValues($product, $request->attribute_values);
-
-            if ($request->hasFile('image')) {
-                $data['image'] = $this->handleImageUpload($request->file('image'));
-            }
-
-            $variation = $product->variations()->create($data);
+            $data = $this->prepareVariationData($request, $product);
+            $product->variations()->create($data);
 
             return redirect()
                 ->route('admin.products.variations.index', $product)
                 ->with('success', 'Variation created successfully');
-        } catch (ValidationException $e) {
-            return redirect()
-                ->back()
-                ->withErrors($e->errors())
-                ->withInput();
         } catch (\Exception $e) {
-            return redirect()
-                ->back()
-                ->with('error', 'Failed to create variation. ' . $e->getMessage())
-                ->withInput();
+            return $this->handleException($e);
         }
     }
 
@@ -228,7 +56,6 @@ class ProductVariationController extends Controller
                 ->with('error', 'No attributes found for this product.');
         }
 
-        // Add selected values to attributes
         foreach ($attributesWithValues as &$attribute) {
             $attribute['selected'] = $variation->attribute_values[$attribute['name']] ?? null;
         }
@@ -242,44 +69,123 @@ class ProductVariationController extends Controller
             $this->validateProductAttributes($product);
             $this->validateRequest($request, $product, $variation);
 
-            $data = $request->except('image');
-            $data['attribute_values'] = $this->formatAttributeValues($product, $request->attribute_values);
-
-            if ($request->hasFile('image')) {
-                $data['image'] = $this->handleImageUpload($request->file('image'), $variation->image);
-            }
-
+            $data = $this->prepareVariationData($request, $product, $variation);
             $variation->update($data);
 
             return redirect()
                 ->route('admin.products.variations.index', $product)
                 ->with('success', 'Variation updated successfully');
-        } catch (ValidationException $e) {
-            return redirect()
-                ->back()
-                ->withErrors($e->errors())
-                ->withInput();
         } catch (\Exception $e) {
-            return redirect()
-                ->back()
-                ->with('error', 'Failed to update variation. ' . $e->getMessage())
-                ->withInput();
+            return $this->handleException($e);
         }
     }
 
     public function destroy(Product $product, ProductVariation $variation)
     {
-        if ($variation->image && file_exists(public_path($variation->image))) {
-            unlink(public_path($variation->image));
-        }
-
+        $this->deleteImage($variation->image);
         $variation->delete();
 
-        return redirect()->route('admin.products.variations.index', $product)
+        return redirect()
+            ->route('admin.products.variations.index', $product)
             ->with('success', 'Variation deleted successfully');
     }
 
-    private function validateRequest(Request $request, Product $product, ?ProductVariation $variation = null)
+    public function getProductAttributes(Product $product): array
+    {
+        return $product->productAttributes()
+            ->with('attribute')
+            ->whereNotNull('values')
+            ->get()
+            ->map(function ($productAttribute) {
+                $attribute = $productAttribute->attribute;
+                if (!$attribute || empty($productAttribute->values)) {
+                    return null;
+                }
+
+                $values = $attribute->attribute_type === 'color'
+                    ? array_map([$this, 'validateColorValue'], $productAttribute->values)
+                    : $productAttribute->values;
+
+                return [
+                    'id' => $attribute->id,
+                    'name' => $attribute->attribute_name,
+                    'type' => $attribute->attribute_type,
+                    'values' => $values
+                ];
+            })
+            ->filter()
+            ->toArray();
+    }
+
+    public function validateColorValue(string $color): string
+    {
+        $color = strtolower(trim($color));
+
+        return $this->namedColors[$color]
+            ?? $this->validateHexColor($color)
+            ?? $this->validateRgbColor($color)
+            ?? '#000000';
+    }
+
+    public function validateHexColor(string $color): ?string
+    {
+        return preg_match('/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/', $color) ? $color : null;
+    }
+
+    public function validateRgbColor(string $color): ?string
+    {
+        if (!preg_match('/^rgb\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)$/', $color, $matches)) {
+            return null;
+        }
+
+        return sprintf("#%02x%02x%02x", $matches[1], $matches[2], $matches[3]);
+    }
+
+    public function prepareVariationData(Request $request, Product $product, ?ProductVariation $variation = null): array
+    {
+        $data = $request->except('image');
+        $data['attribute_values'] = $this->formatAttributeValues($product, $request->attribute_values);
+
+        if ($request->hasFile('image')) {
+            $data['image'] = $this->handleImageUpload($request->file('image'), $variation?->image);
+        }
+
+        return $data;
+    }
+
+    public function formatAttributeValues(Product $product, array $attributeValues): array
+    {
+        return collect($attributeValues)->map(function ($value, $name) use ($product) {
+            $attribute = $product->productAttributes()
+                ->whereHas('attribute', fn($q) => $q->where('attribute_name', $name))
+                ->first()?->attribute;
+
+            if ($attribute?->attribute_type === 'color') {
+                return $this->validateColorValue($value);
+            }
+
+            return $value;
+        })->toArray();
+    }
+
+    public function handleImageUpload($image, ?string $oldImage = null): string
+    {
+        $this->ensureUploadDirectoryExists();
+        $this->deleteImage($oldImage);
+
+        $manager = new ImageManager(new Driver());
+        $imageName = uniqid() . '.' . $image->getClientOriginalExtension();
+        $path = 'upload/variation_images/' . $imageName;
+
+        $manager->read($image)
+            ->cover(600, 600)
+            ->toJpeg(80)
+            ->save(public_path($path));
+
+        return $path;
+    }
+
+    public function validateRequest(Request $request, Product $product, ?ProductVariation $variation = null): array
     {
         $rules = [
             'sku' => 'required|unique:product_variations,sku' . ($variation ? ',' . $variation->id : ''),
@@ -290,50 +196,52 @@ class ProductVariationController extends Controller
             'image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5120'
         ];
 
-        // Get configured attributes from the product
-        $configuredAttributes = $product->activeProductAttributes()->with('attribute')->get();
+        $product->activeProductAttributes()
+            ->with('attribute')
+            ->get()
+            ->each(function ($productAttribute) use (&$rules) {
+                if ($productAttribute->attribute && !empty($productAttribute->values)) {
+                    $rules["attribute_values.{$productAttribute->attribute->attribute_name}"] = [
+                        'required',
+                        'in:' . implode(',', $productAttribute->values)
+                    ];
+                }
+            });
 
-        // Add validation rules for each configured attribute
-        foreach ($configuredAttributes as $productAttribute) {
-            if ($productAttribute->attribute && !empty($productAttribute->values)) {
-                $attributeName = $productAttribute->attribute->attribute_name;
-                $rules["attribute_values.{$attributeName}"] = [
-                    'required',
-                    'in:' . implode(',', $productAttribute->values)
-                ];
-            }
-        }
-
-        // Custom validation messages
-        $messages = [
+        return $request->validate($rules, [
             'sale_price.lt' => 'Sale price must be less than the regular price.'
-        ];
-
-        return $request->validate($rules, $messages);
+        ]);
     }
 
-    private function handleImageUpload($image, $oldImage = null)
+    public function validateProductAttributes(Product $product): void
     {
-        $this->ensureUploadDirectoryExists();
-
-        if ($oldImage && file_exists(public_path($oldImage))) {
-            unlink(public_path($oldImage));
+        if ($product->activeProductAttributes()->doesntExist()) {
+            throw ValidationException::withMessages([
+                'attributes' => 'This product has no configured attributes. Please add attributes before creating variations.'
+            ]);
         }
+    }
 
-        $manager = new ImageManager(new Driver());
-        $imageName = uniqid() . '.' . $image->getClientOriginalExtension();
+    public function ensureUploadDirectoryExists(): void
+    {
+        $path = public_path('upload/variation_images');
+        if (!file_exists($path)) {
+            mkdir($path, 0777, true);
+        }
+    }
 
-        $img = $manager->read($image);
+    public function deleteImage(?string $image): void
+    {
+        if ($image && file_exists(public_path($image))) {
+            unlink(public_path($image));
+        }
+    }
 
-        // Resize to 600x600 maintaining aspect ratio and cropping if needed
-        $img->cover(600, 600);
-
-        // Optimize image quality
-        $img->toJpeg(80);
-
-        $path = 'upload/variation_images/' . $imageName;
-        $img->save(public_path($path));
-
-        return $path;
+    public function handleException(\Exception $e)
+    {
+        return redirect()
+            ->back()
+            ->withErrors($e instanceof ValidationException ? $e->errors() : ['error' => $e->getMessage()])
+            ->withInput();
     }
 }
