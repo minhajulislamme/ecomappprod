@@ -1,199 +1,250 @@
 @extends('admin.admin_dashboard')
 
 @section('admin_content')
+    <!-- start data table  -->
     <div class="p-6">
-        <div class="bg-white shadow-md rounded-md border border-gray-100 p-6">
-            <!-- Header -->
-            <div class="flex justify-between mb-6">
+        <div class="p-6 bg-white items-center shadow-md shadow-black/5 rounded-md border border-gray-100 mb-6">
+
+            <div class="flex justify-between mb-4 items-start">
                 <div>
-                    <h2 class="text-lg font-semibold">Products</h2>
-                    <p class="text-sm text-gray-500">Manage your products</p>
+                    <div class="text-lg font-semibold">Product Data Table </div>
+                    <div class="text-sm font-medium text-gray-400">All Product list </div>
                 </div>
-                <a href="{{ route('product.add') }}" class="btn-primary">
-                    <i class="ri-add-line mr-1"></i>Add Product
-                </a>
+                <div class="dropdown">
+                    <button type="button"
+                        class="dropdown-toggle text-gray-400 w-8 h-8 rounded flex items-center justify-center hover:bg-gray-50 hover:text-gray-600">
+                        <i class="ri-more-2-fill"></i>
+                    </button>
+                    <div
+                        class="dropdown-menu hidden shadow-md shadow-black/5 z-30 w-full max-w-[140px] bg-white rounded-md border border-gray-100">
+                        <ul>
+
+                            <li>
+                                <a href="{{ route('product.add') }}"
+                                    class="py-2 px-4 text-[13px] flex items-center hover:bg-gray-50 group">
+                                    <i class="ri-menu-add-line text-gray-400 mr-3"></i>
+                                    <span class="text-gray-600 group-hover:text-orange-500 font-medium">Add Products</span>
+                                </a>
+                            </li>
+                            
+
+
+
+                        </ul>
+                    </div>
+
+                </div>
+            </div>
+            <div class="flex justify-between mb-4 items-start">
+                <div>
+                    <!-- <label for="perPage" class="mr-2 text-sm text-blue-500">show per page</label> -->
+                    <select id="perPage"
+                        class="border border-gray-100 p-2 mr-2 bg-gray-50 rounded-md text-sm focus:border-orange-500 focus:ring-2 focus:ring-orange-200 outline-none transition-all appearance-none bg-[url('data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M11.9997%2013.1714L16.9495%208.22168L18.3637%209.63589L11.9997%2015.9999L5.63574%209.63589L7.04996%208.22168L11.9997%2013.1714Z%22%20fill%3D%22%23A3A3A3%22%2F%3E%3C%2Fsvg%3E')] bg-no-repeat bg-right-0.5 pr-5">
+                        <option value="10">10</option>
+                        <option value="25">25</option>
+                        <option value="50">50</option>
+                        <option value="100">100</option>
+                        <option value="200">200</option>
+                    </select>
+                </div>
+                <div>
+                    <div class="relative w-full mr-2">
+                        <input id="searchInput" type="text"
+                            class="py-2 pr-4 pl-10 bg-gray-50 outline-none border border-gray-100 w-full rounded-md text-sm transition-all focus:border-orange-500 focus:ring-2 focus:ring-orange-200"
+                            placeholder="Search...">
+                        <i class="ri-search-line absolute top-1/2 left-4 -translate-y-1/2 text-gray-400"></i>
+                    </div>
+                </div>
             </div>
 
-            <!-- Filters -->
-            <div class="flex justify-between mb-4">
-                <select id="perPage" class="form-select w-32">
-                    <option value="10">10 per page</option>
-                    <option value="25">25 per page</option>
-                    <option value="50">50 per page</option>
-                </select>
+            <!-- data table  -->
 
-                <div class="relative w-64">
-                    <input id="searchInput" type="text" class="form-input pl-10" placeholder="Search products...">
-                    <i class="ri-search-line absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
-                </div>
-            </div>
-
-            <!-- Products Table -->
             <div class="overflow-x-auto">
-                <table class="w-full min-w-[800px]" id="productsTable">
+                <table class="w-full min-w-[540px]" id="dataTable">
                     <thead>
                         <tr>
-                            <th class="table-th">#</th>
-                            <th class="table-th">Product</th>
-                            <th class="table-th">Category</th>
-                            <th class="table-th">Price</th>
-                            <th class="table-th">Stock</th>
-                            <th class="table-th">Attributes</th>
-                            <th class="table-th">Status</th>
-                            <th class="table-th">Actions</th>
+                            <th
+                                class="text-[12px] uppercase tracking-wide font-medium text-gray-400 py-2 px-4 bg-gray-50 text-left">
+                                SI
+                            </th>
+                            <th
+                                class="text-[12px] uppercase tracking-wide font-medium text-gray-400 py-2 px-4 bg-gray-50 text-left">
+                                Product
+                            </th>
+                            <th
+                                class="text-[12px] uppercase tracking-wide font-medium text-gray-400 py-2 px-4 bg-gray-50 text-left">
+                                Category
+                            </th>
+                            <th
+                                class="text-[12px] uppercase tracking-wide font-medium text-gray-400 py-2 px-4 bg-gray-50 text-left">
+                                Sub Category
+                            </th>
+                            <th
+                                class="text-[12px] uppercase tracking-wide font-medium text-gray-400 py-2 px-4 bg-gray-50 text-left">
+                                Price
+                            </th>
+                            <th
+                                class="text-[12px] uppercase tracking-wide font-medium text-gray-400 py-2 px-4 bg-gray-50 text-left">
+                                Stock
+                            </th>
+                            <th
+                                class="text-[12px] uppercase tracking-wide font-medium text-gray-400 py-2 px-4 bg-gray-50 text-left">
+                                Attribute
+                            </th>
+                            <th
+                                class="text-[12px] uppercase tracking-wide font-medium text-gray-400 py-2 px-4 bg-gray-50 text-left">
+                                Status
+                            </th>
+                            <th
+                                class="text-[12px] uppercase tracking-wide font-medium text-gray-400 py-2 px-4 bg-gray-50 text-left">
+                                Action
+                            </th>
                         </tr>
                     </thead>
-                    <tbody>
-                        @forelse ($products as $key => $product)
-                            <tr class="border-b border-gray-100">
-                                <td class="table-td">{{ $key + 1 }}</td>
-                                <td class="table-td">
-                                    <div class="flex items-center">
-                                        <img src="{{ asset($product->thumbnail_image) }}" alt="{{ $product->name }}"
-                                            class="w-10 h-10 rounded-md object-cover">
-                                        <div class="ml-3">
-                                            <div class="font-medium">{{ $product->name }}</div>
-                                            <div class="text-sm text-gray-500">{{ Str::limit($product->description, 50) }}
-                                            </div>
-                                        </div>
+                    <tbody id="tableBody">
+                        @foreach ($products as $key => $item)
+                            <tr class="data-row">
+                                <td class="py-2 px-4 border-b border-b-gray-50">
+                                    <span class="text-[13px] font-medium text-gray-400">{{ $key + 1 }}</span>
+                                </td>
+                                <td class="py-2 px-4 border-b border-b-gray-50">
+                                    <div class="flex items-center max-w-xs">
+                                        <img src="{{ asset($item->thumbnail_image) }}" alt=""
+                                            class="w-8 h-8 rounded object-cover block flex-shrink-0">
+                                        <span
+                                            class="text-[13px] font-medium text-gray-400 ml-3 truncate">{{ $item->name }}</span>
                                     </div>
                                 </td>
-                                <td class="table-td">
-                                    <div>{{ $product->category->category_name }}</div>
-                                    <div class="text-sm text-gray-500">{{ $product->subcategory->subcategory_name }}</div>
+                                <td class="py-2 px-4 border-b border-b-gray-50">
+                                    <span
+                                        class="text-[13px] font-medium text-gray-400 block truncate max-w-[150px]">{{ $item->category->category_name }}</span>
                                 </td>
-                                <td class="table-td">${{ number_format($product->price, 2) }}</td>
-                                <td class="table-td">
-                                    <span class="@if ($product->stock < 10) text-red-500 @endif">
-                                        {{ $product->stock }}
+                                <td class="py-2 px-4 border-b border-b-gray-50">
+                                    <span
+                                        class="text-[13px] font-medium text-gray-400 block truncate max-w-[150px]">{{ $item->subcategory->subcategory_name }}</span>
+                                </td>
+                                <td class="py-2 px-4 border-b border-b-gray-50">
+                                    <span
+                                        class="text-[13px] font-medium text-gray-400">${{ number_format($item->price, 2) }}</span>
+                                </td>
+                                <td class="py-2 px-4 border-b border-b-gray-50">
+                                    <span
+                                        class="@if ($item->stock < 10) text-red-500 @else text-gray-400 @endif text-[13px] font-medium">
+                                        {{ $item->stock }}
                                     </span>
                                 </td>
-                                <td class="table-td">
-                                    @forelse ($product->productAttributes as $productAttribute)
-                                        <div class="mb-1">
-                                            <span class="font-medium">
+                                <td class="py-2 px-4 border-b border-b-gray-50">
+                                    <div class="flex items-center overflow-hidden max-w-[200px]">
+                                        @forelse ($item->productAttributes as $productAttribute)
+                                            <span class="text-[13px] font-medium text-gray-400 whitespace-nowrap">
                                                 {{ optional($productAttribute->attribute)->attribute_name ?? 'N/A' }}:
-                                            </span>
-                                            <div class="flex flex-wrap gap-1 mt-1">
                                                 @if (is_array($productAttribute->values))
                                                     @foreach ($productAttribute->values as $value)
                                                         @if (optional($productAttribute->attribute)->attribute_type === 'color')
                                                             <span
-                                                                class="inline-block w-4 h-4 rounded-full border border-gray-200"
+                                                                class="inline-block w-4 h-4 rounded-full border border-gray-200 align-middle"
                                                                 style="background-color: {{ $value }}"
                                                                 title="{{ $value }}">
                                                             </span>
                                                         @else
-                                                            <span
-                                                                class="inline-block px-2 py-1 text-xs bg-gray-100 rounded">
-                                                                {{ $value }}
-                                                            </span>
+                                                            {{ $value }}@if (!$loop->last)
+                                                                ,
+                                                            @endif
                                                         @endif
                                                     @endforeach
                                                 @endif
-                                            </div>
+                                            </span>
+                                            @if (!$loop->last)
+                                                ,
+                                            @endif
+                                            @empty
+                                                <span class="text-[13px] text-gray-400 italic truncate">No attributes</span>
+                                            @endforelse
                                         </div>
-                                    @empty
-                                        <span class="text-gray-400">No attributes</span>
-                                    @endforelse
-                                </td>
-                                <td class="table-td">
-                                    <span class="status-badge status-{{ $product->status }}">
-                                        {{ ucfirst($product->status) }}
-                                    </span>
-                                </td>
-                                <td class="table-td">
-                                    <div class="flex items-center gap-2">
-                                        <a href="{{ route('admin.products.variations.index', $product->id) }}"
-                                            class="btn-icon text-blue-500" title="Manage Variations">
-                                            <i class="ri-stack-line"></i>
-                                        </a>
-                                        <a href="{{ route('product.edit', $product->id) }}" class="btn-icon"
-                                            title="Edit">
-                                            <i class="ri-edit-line"></i>
-                                        </a>
-                                        <button onclick="deleteProduct({{ $product->id }})" class="btn-icon text-red-500"
-                                            title="Delete">
-                                            <i class="ri-delete-bin-line"></i>
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="8" class="table-td text-center py-8">
-                                    No products found
-                                </td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
+                                    </td>
+                                    <td class="py-2 px-4 border-b border-b-gray-50">
+                                        @if ($item->status === 'active')
+                                            <span
+                                                class="inline-block p-1 rounded bg-emerald-500/10 text-emerald-500 font-medium text-[12px] leading-none">
+                                                {{ $item->status }}
+                                            </span>
+                                        @else
+                                            <span
+                                                class="inline-block p-1 rounded bg-rose-500/10 text-rose-500 font-medium text-[12px] leading-none">
+                                                {{ $item->status }}
+                                            </span>
+                                        @endif
+                                    </td>
+                                    <td class="py-2 px-4 border-b border-b-gray-50">
+                                        <div class="ml-2 dropdown">
+                                            <button type="button"
+                                                class="dropdown-toggle text-gray-400 hover:text-gray-600 text-sm w-6 h-6 rounded flex items-center justify-center bg-gray-50">
+                                                <i class="ri-more-2-fill"></i>
+                                            </button>
+                                            <ul
+                                                class="dropdown-menu shadow-md shadow-black/5 z-30 hidden py-1.5 rounded-md bg-white border border-gray-100 w-full max-w-[140px]">
+                                                <li>
+                                                    <a href="{{ route('admin.products.variations.index', $item->id) }}"
+                                                        class="flex items-center text-[13px] py-1.5 px-4 text-gray-600 hover:text-orange-500 hover:bg-gray-50">
+                                                        <i class="ri-edit-line mr-2"></i>Edit Variations
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <a href="{{ route('product.edit', $item->id) }}"
+                                                        class="flex items-center text-[13px] py-1.5 px-4 text-gray-600 hover:text-orange-500 hover:bg-gray-50">
+                                                        <i class="ri-edit-line mr-2"></i>Edit
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <a href="#"
+                                                        onclick="confirmDelete('{{ route('product.delete', $item->id) }}')"
+                                                        class="flex items-center text-[13px] py-1.5 px-4 text-gray-600 hover:text-orange-500 hover:bg-gray-50">
+                                                        <i class="ri-delete-bin-line mr-2"></i>Delete
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+                <!-- end table  -->
+                <div id="noResults" class="mt-4 text-center text-gray-500" style="display: none;">
+                    No results found
+                </div>
+                <!-- pagination  -->
+                <div class="flex justify-between items-center mt-4">
+                    <div>
+                        <span id="pageInfo" class="text-gray-400"></span>
+                    </div>
+                    <div>
+                        <button id="prevPage" type="button"
+                            class="text-orange-400 hover:text-orange-600 px-2 py-1 items-center  rounded-md border border-gray-100">
+                            <i class="ri-arrow-left-s-line"></i>pre
+                        </button>
+                        <button id="nextPage" type="button"
+                            class="text-orange-400 hover:text-orange-600 px-2 py-1 items-center rounded-md border border-gray-100">
+                            next<i class="ri-arrow-right-s-line"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- print and export button  -->
+                <div class="flex justify-between items-center mt-4 hidden lg:block">
+                    <div>
+                        <button id="printBtn" type="button"
+                            class="text-orange-400 hover:text-orange-600 px-2 py-1 items-center  rounded-md border border-gray-100">
+                            <i class="ri-printer-line"></i>Print
+                        </button>
+                        <button id="exportBtn" type="button"
+                            class="text-orange-400 hover:text-orange-600 px-2 py-1 items-center  rounded-md border border-gray-100">
+                            <i class="ri-file-download-line"></i>Export
+                        </button>
+                    </div>
+                </div>
+
             </div>
         </div>
-    </div>
-
-    @push('scripts')
-        <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                // Search functionality
-                const searchInput = document.getElementById('searchInput');
-                const table = document.getElementById('productsTable');
-                const rows = Array.from(table.getElementsByTagName('tr')).slice(1);
-
-                searchInput.addEventListener('keyup', function() {
-                    const query = this.value.toLowerCase();
-                    rows.forEach(row => {
-                        const shouldShow = Array.from(row.cells).some(cell =>
-                            cell.textContent.toLowerCase().includes(query)
-                        );
-                        row.style.display = shouldShow ? '' : 'none';
-                    });
-                });
-
-                // Delete confirmation with error handling
-                window.deleteProduct = function(productId) {
-                    if (confirm('Are you sure you want to delete this product?')) {
-                        try {
-                            window.location.href = `/product/delete/${productId}`;
-                        } catch (error) {
-                            console.error('Error deleting product:', error);
-                            alert('Failed to delete product. Please try again.');
-                        }
-                    }
-                };
-            });
-        </script>
-    @endpush
-
-    @push('styles')
-        <style>
-            .table-th {
-                @apply text-sm font-medium text-gray-500 px-4 py-2 text-left bg-gray-50;
-            }
-
-            .table-td {
-                @apply px-4 py-3 text-sm;
-            }
-
-            .btn-icon {
-                @apply p-1 rounded-md hover:bg-gray-100 transition-colors;
-            }
-
-            .status-badge {
-                @apply px-2 py-1 text-xs rounded-full font-medium;
-            }
-
-            .status-active {
-                @apply bg-green-100 text-green-700;
-            }
-
-            .status-inactive {
-                @apply bg-gray-100 text-gray-700;
-            }
-
-            .status-draft {
-                @apply bg-yellow-100 text-yellow-700;
-            }
-        </style>
-    @endpush
-@endsection
+    @endsection

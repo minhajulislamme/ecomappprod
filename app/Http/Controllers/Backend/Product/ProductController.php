@@ -11,7 +11,7 @@ use App\Models\Attribute;
 use Illuminate\Http\Request;
 use Intervention\Image\ImageManager;
 use Intervention\Image\Drivers\Gd\Driver;
-
+use Illuminate\Support\Facades\DB;
 
 class ProductController extends Controller
 {
@@ -239,28 +239,38 @@ class ProductController extends Controller
     public function ProductDelete($id)
     {
         try {
-            $product = Product::findOrFail($id);
+            $product = Product::with(['variations', 'productAttributes'])->findOrFail($id);
 
-            // Delete images
-            $this->deleteImage($product->thumbnail_image);
+            // Delete product attributes
+            $product->productAttributes()->delete();
 
-            if ($product->gallery_images) {
+            // Delete all variations and their images
+            foreach ($product->variations as $variation) {
+                if ($variation->variation_image) {
+                    $this->deleteImage($variation->variation_image);
+                }
+                $variation->delete();
+            }
+
+            // Delete product images
+            if ($product->thumbnail_image) {
+                $this->deleteImage($product->thumbnail_image);
+            }
+
+            if (!empty($product->gallery_images)) {
                 foreach ($product->gallery_images as $image) {
                     $this->deleteImage($image);
                 }
             }
 
-            // Delete product attributes using the model
-            ProductAttribute::where('product_id', $product->id)->delete();
-
             // Delete the product
             $product->delete();
 
-            return redirect()
-                ->route('all.product')
-                ->with('success', 'Product Deleted Successfully');
+            return redirect()->route('all.product')
+                ->with('success', 'Product and all related data deleted successfully');
         } catch (\Exception $e) {
-            return back()->with('error', 'Failed to delete product: ' . $e->getMessage());
+            \Log::error('Product deletion failed: ' . $e->getMessage());
+            return back()->with('error', 'Failed to delete product. Please try again.');
         }
     }
 }
