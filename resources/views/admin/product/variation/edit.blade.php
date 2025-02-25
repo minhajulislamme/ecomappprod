@@ -32,37 +32,50 @@
                     <!-- Basic Information -->
                     <div class="space-y-4">
                         <div class="form-group">
-                            <label>SKU</label>
-                            <input type="text" name="sku" value="{{ old('sku', $variation->sku) }}" required
-                                class="form-input">
-                        </div>
-
-                        <div class="form-group">
-                            <label>Price</label>
-                            <input type="number" step="0.01" name="price"
-                                value="{{ old('price', $variation->price) }}" required class="form-input">
+                            <label>Price <span class="text-red-500">*</span></label>
+                            <div class="relative">
+                                <span class="absolute left-3 top-2 text-gray-500">$</span>
+                                <input type="number" step="0.01" min="0" max="999999.99" name="price"
+                                    value="{{ old('price', $variation->price) }}" required class="form-input pl-8">
+                            </div>
+                            @error('price')
+                                <span class="text-red-500 text-sm">{{ $message }}</span>
+                            @enderror
                         </div>
 
                         <div class="form-group">
                             <label>Sale Price (Optional)</label>
-                            <input type="number" step="0.01" name="sale_price"
-                                value="{{ old('sale_price', $variation->sale_price) }}" class="form-input">
+                            <div class="relative">
+                                <span class="absolute left-3 top-2 text-gray-500">$</span>
+                                <input type="number" step="0.01" name="discount_price"
+                                    value="{{ old('discount_price', $variation->discount_price) }}" class="form-input pl-8">
+                            </div>
+                            @error('discount_price')
+                                <span class="text-red-500 text-sm">{{ $message }}</span>
+                            @enderror
                         </div>
 
                         <div class="form-group">
-                            <label>Stock Quantity</label>
-                            <input type="number" name="stock_quantity"
-                                value="{{ old('stock_quantity', $variation->stock_quantity) }}" required class="form-input">
+                            <label>Stock Quantity <span class="text-red-500">*</span></label>
+                            <input type="number" min="0" name="stock"
+                                value="{{ old('stock', $variation->stock) }}" required class="form-input">
+                            @error('stock')
+                                <span class="text-red-500 text-sm">{{ $message }}</span>
+                            @enderror
                         </div>
 
                         <div class="form-group">
                             <label>Status</label>
-                            <select name="is_active" class="form-select">
-                                <option value="1" {{ old('is_active', $variation->is_active) ? 'selected' : '' }}>
-                                    Active</option>
-                                <option value="0" {{ !old('is_active', $variation->is_active) ? 'selected' : '' }}>
-                                    Inactive</option>
+                            <select name="status" class="form-select">
+                                <option value="active"
+                                    {{ old('status', $variation->status) === 'active' ? 'selected' : '' }}>Active</option>
+                                <option value="inactive"
+                                    {{ old('status', $variation->status) === 'inactive' ? 'selected' : '' }}>Inactive
+                                </option>
                             </select>
+                            @error('status')
+                                <span class="text-red-500 text-sm">{{ $message }}</span>
+                            @enderror
                         </div>
                     </div>
 
@@ -70,18 +83,27 @@
                     <div class="space-y-4">
                         <div class="form-group">
                             <label>Variation Image</label>
-                            @if ($variation->image)
+                            @if ($variation->variation_image)
                                 <div class="mb-2">
-                                    <img src="{{ asset($variation->image) }}" alt="Current Image"
+                                    <img src="{{ asset($variation->variation_image) }}" alt="Current Image"
                                         class="max-w-[200px] max-h-[200px] object-contain rounded border">
                                 </div>
                             @endif
-                            <input type="file" name="image" accept="image/*" class="form-input"
+                            <input type="file" name="variation_image" accept="image/*"
+                                class="form-input file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0
+                                file:text-sm file:font-semibold file:bg-orange-50 file:text-orange-700
+                                hover:file:bg-orange-100"
                                 onchange="previewImage(this)">
+                            <p class="text-sm text-gray-500 mt-1">
+                                Minimum 400x400px, Maximum 5MB. Supported formats: JPG, PNG, WebP
+                            </p>
                             <div class="mt-2">
                                 <img id="image-preview"
                                     class="hidden max-w-[200px] max-h-[200px] object-contain rounded border">
                             </div>
+                            @error('variation_image')
+                                <span class="text-red-500 text-sm">{{ $message }}</span>
+                            @enderror
                         </div>
 
                         <div class="form-group">

@@ -30,24 +30,25 @@ class SliderController extends Controller
 
         try {
             $image = $request->file('image');
-            $name_gen = hexdec(uniqid()) . '.' . $image->getClientOriginalExtension();
+            $name_gen = hexdec(uniqid()) . '.webp';
             $save_url = 'upload/slider/' . $name_gen;
 
             // Create directory if it doesn't exist
             if (!file_exists(public_path('upload/slider'))) {
-                mkdir(public_path('upload/slider'), 0755, true); 
+                mkdir(public_path('upload/slider'), 0755, true);
             }
 
             // Initialize Intervention Image with GD driver
             $manager = new ImageManager(new Driver());
 
-            // Load, resize and save the image
+            // Load, resize, optimize and save the image as WebP
             $manager->read($image)
                 ->resize(1920, 720, function ($constraint) {
                     $constraint->aspectRatio();
                     $constraint->upsize();
                 })
-                ->save(public_path($save_url), 80);
+                ->toWebp(80)  // Convert to WebP with quality setting
+                ->save(public_path($save_url));
 
             MainSlider::create([
                 'title' => $request->title,
@@ -95,19 +96,20 @@ class SliderController extends Controller
                 }
 
                 $image = $request->file('image');
-                $name_gen = hexdec(uniqid()) . '.' . $image->getClientOriginalExtension();
+                $name_gen = hexdec(uniqid()) . '.webp';
                 $save_url = 'upload/slider/' . $name_gen;
 
                 // Initialize Intervention Image with GD driver
                 $manager = new ImageManager(new Driver());
 
-                // Load, resize and save the image
+                // Load, resize, optimize and save the image as WebP
                 $manager->read($image)
                     ->resize(1920, 720, function ($constraint) {
                         $constraint->aspectRatio();
                         $constraint->upsize();
                     })
-                    ->save(public_path($save_url), 80);
+                    ->toWebp(80)  // Convert to WebP with quality setting
+                    ->save(public_path($save_url));
 
                 $slider->image = $save_url;
             }

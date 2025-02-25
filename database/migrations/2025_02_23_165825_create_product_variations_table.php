@@ -14,14 +14,16 @@ return new class extends Migration
         Schema::create('product_variations', function (Blueprint $table) {
             $table->id();
             $table->foreignId('product_id')->constrained()->onDelete('cascade');
-            $table->string('sku')->unique();
             $table->decimal('price', 10, 2);
-            $table->decimal('sale_price', 10, 2)->nullable();
-            $table->integer('stock_quantity')->default(0);
-            $table->string('image')->nullable();
-            $table->boolean('is_active')->default(true);
+            $table->decimal('discount_price', 10, 2)->nullable();
+            $table->integer('stock')->default(0);
+            $table->string('variation_image')->nullable();
+            $table->enum('status', ['active', 'inactive'])->default('active');
             $table->json('attribute_values');
             $table->timestamps();
+            $table->index(['product_id', 'status']);
+            $table->index('price');
+            $table->index('stock');
         });
     }
 

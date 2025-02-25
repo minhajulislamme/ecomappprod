@@ -28,34 +28,112 @@ class ProductController extends Controller
         return view('admin.product.add_product', compact('categories', 'attributes'));
     }
 
+    protected function uploadImage($image, $type)
+    {
+        if (!$image) return '';
+
+        $filename = uniqid() . '.webp';
+        $path = "upload/products/$type";
+
+        // Ensure upload directory exists
+        if (!file_exists(public_path($path))) {
+            mkdir(public_path($path), 0755, true);
+        }
+
+        $manager = new ImageManager(new Driver());
+        $img = $manager->read($image);
+
+        // Standardize all images to 800x800
+        $img->cover(800, 800);
+
+        // Convert to WebP with quality optimization
+        $img->toWebp(85);
+
+        $img->save(public_path("$path/$filename"));
+        return "$path/$filename";
+    }
+
+    protected function handleGalleryImages($images)
+    {
+        if (!is_array($images)) return [];
+
+        $galleryImages = [];
+        foreach ($images as $image) {
+            if ($image && $image->isValid()) {
+                $galleryImages[] = $this->uploadImage($image, 'gallery');
+            }
+        }
+        return array_filter($galleryImages);
+    }
+
+    protected function handleImages($product, $request)
+    {
+        // Handle thumbnail image
+        if ($request->hasFile('thumbnail_image')) {
+            // Delete old thumbnail if exists
+            if ($product && !empty($product->thumbnail_image)) {
+                $this->deleteImage($product->thumbnail_image);
+            }
+            $thumbnailPath = $this->uploadImage($request->file('thumbnail_image'), 'thumbnail');
+        } else {
+            $thumbnailPath = $product ? $product->thumbnail_image : '';
+        }
+
+        // Handle gallery images
+        $galleryImages = [];
+        if ($request->hasFile('gallery_images')) {
+            // Delete old gallery images if they exist
+            if ($product && !empty($product->gallery_images)) {
+                foreach ($product->gallery_images as $oldImage) {
+                    $this->deleteImage($oldImage);
+                }
+            }
+            $galleryImages = $this->handleGalleryImages($request->file('gallery_images'));
+        } else {
+            $galleryImages = $product ? $product->gallery_images : [];
+        }
+
+        return [
+            'thumbnail_image' => $thumbnailPath,
+            'gallery_images' => $galleryImages
+        ];
+    }
+
     public function ProductStore(Request $request)
     {
-        $request->validate([
+        $validated = $request->validate([
             'name' => 'required|string|max:255',
             'price' => 'required|numeric|min:0',
             'category_id' => 'required|exists:categories,id',
             'subcategory_id' => 'required|exists:sub_categories,id',
             'stock' => 'required|integer|min:0',
-            'thumbnail_image' => 'required|image|mimes:jpeg,png,jpg,webp|max:5120',
-            'gallery_images.*' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5120',
+            'thumbnail_image' => 'required|image|max:5120',
+            'gallery_images.*' => 'nullable|image|max:5120',
             'attributes' => 'nullable|array',
-            'attributes.*' => 'nullable|array'
         ]);
 
         try {
-            $product = Product::create([
-                'name' => $request->name,
-                'description' => $request->description,
-                'price' => $request->price,
-                'category_id' => $request->category_id,
-                'subcategory_id' => $request->subcategory_id,
-                'stock' => $request->stock,
-                'thumbnail_image' => $this->uploadImage($request->file('thumbnail_image'), 'thumbnail'),
-                'gallery_images' => $this->handleGalleryImages($request->file('gallery_images') ?? []),
-                'status' => $request->status
-            ]);
+            // Check if we're updating an existing product
+            $existingProduct = Product::find($request->id);
 
-            // Handle attributes
+            // Handle image uploads
+            $images = $this->handleImages($existingProduct, $request);
+
+            $product = Product::updateOrCreate(
+                ['id' => $request->id],
+                [
+                    'name' => $validated['name'],
+                    'description' => $request->description,
+                    'price' => $validated['price'],
+                    'category_id' => $validated['category_id'],
+                    'subcategory_id' => $validated['subcategory_id'],
+                    'stock' => $validated['stock'],
+                    'thumbnail_image' => $images['thumbnail_image'],
+                    'gallery_images' => $images['gallery_images'],
+                    'status' => $request->status ?? 'draft'
+                ]
+            );
+
             if ($request->has('attributes')) {
                 $this->saveProductAttributes($product, $request->input('attributes', []));
             }
@@ -79,46 +157,6 @@ class ProductController extends Controller
         }
     }
 
-    protected function uploadImage($image, $type)
-    {
-        if (!$image) return '';
-
-        $filename = uniqid() . '.' . $image->getClientOriginalExtension();
-        $path = "upload/products/$type";
-
-        // Ensure upload directory exists
-        if (!file_exists(public_path($path))) {
-            mkdir(public_path($path), 0755, true);
-        }
-
-        $manager = new ImageManager(new Driver());
-        $img = $manager->read($image);
-
-        // Standardize all images to 600x600
-        $img->cover(600, 600);
-
-        // Optimize image quality for web
-        $img->toJpeg(80);
-
-        $img->save(public_path("$path/$filename"));
-        return "$path/$filename";
-    }
-
-    protected function handleGalleryImages($images)
-    {
-        if (!is_array($images)) return [];
-
-        // Create gallery directory if it doesn't exist
-        $path = "upload/products/gallery";
-        if (!file_exists(public_path($path))) {
-            mkdir(public_path($path), 0755, true);
-        }
-
-        return array_filter(array_map(function ($image) {
-            return $image && $image->isValid() ? $this->uploadImage($image, 'gallery') : null;
-        }, $images));
-    }
-
     protected function deleteImage($path)
     {
         $fullPath = public_path($path);
@@ -137,68 +175,39 @@ class ProductController extends Controller
 
     public function ProductUpdate(Request $request, $id)
     {
-        $request->validate([
+        $validated = $request->validate([
             'name' => 'required|string|max:255',
             'price' => 'required|numeric|min:0',
             'category_id' => 'required|exists:categories,id',
             'subcategory_id' => 'required|exists:sub_categories,id',
             'stock' => 'required|integer|min:0',
-            'thumbnail_image' => 'nullable|image|max:2048',
-            'gallery_images.*' => 'nullable|image|max:2048',
-            'attributes' => 'nullable|array',
-            'status' => 'required|in:active,inactive,draft'
+            'thumbnail_image' => 'nullable|image|max:5120',
+            'gallery_images.*' => 'nullable|image|max:5120',
         ]);
 
         try {
             $product = Product::findOrFail($id);
 
-            // Update basic product information
-            $product->update([
-                'name' => $request->name,
-                'description' => $request->description,
-                'price' => $request->price,
-                'category_id' => $request->category_id,
-                'subcategory_id' => $request->subcategory_id,
-                'stock' => $request->stock,
-                'status' => $request->status,
-            ]);
+            // Handle image uploads
+            $images = $this->handleImages($product, $request);
 
-            // Handle thumbnail image
-            if ($request->hasFile('thumbnail_image')) {
-                if ($product->thumbnail_image) {
-                    $this->deleteImage($product->thumbnail_image);
-                }
-                $product->thumbnail_image = $this->uploadImage($request->file('thumbnail_image'), 'thumbnail');
-                $product->save();
-            }
+            // Update product with new data
+            $product->fill($validated);
+            $product->description = $request->description;
+            $product->status = $request->status ?? 'draft';
+            $product->thumbnail_image = $images['thumbnail_image'];
+            $product->gallery_images = $images['gallery_images'];
+            $product->save();
 
-            // Handle gallery images
-            if ($request->hasFile('gallery_images')) {
-                if ($product->gallery_images) {
-                    foreach ($product->gallery_images as $oldImage) {
-                        $this->deleteImage($oldImage);
-                    }
-                }
-                $product->gallery_images = $this->handleGalleryImages($request->file('gallery_images'));
-                $product->save();
-            }
-
-            // Handle attributes
-            // First, delete existing attributes
+            // Update attributes
             ProductAttribute::where('product_id', $product->id)->delete();
-
-            // Then create new attributes if any
             if ($request->has('attributes')) {
                 $this->saveProductAttributes($product, $request->input('attributes', []));
             }
 
-            return redirect()
-                ->route('all.product')
-                ->with('success', 'Product updated successfully');
+            return redirect()->route('all.product')->with('success', 'Product updated successfully');
         } catch (\Exception $e) {
-            return back()
-                ->withInput()
-                ->with('error', 'Error updating product: ' . $e->getMessage());
+            return back()->with('error', 'Error updating product: ' . $e->getMessage());
         }
     }
 

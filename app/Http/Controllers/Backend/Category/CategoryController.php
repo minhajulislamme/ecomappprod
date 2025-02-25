@@ -30,7 +30,7 @@ class CategoryController extends Controller
 
         try {
             $image = $request->file('category_image');
-            $name_gen = hexdec(uniqid()) . '.' . $image->getClientOriginalExtension();
+            $name_gen = hexdec(uniqid()) . '.webp';
             $save_url = 'upload/category/' . $name_gen;
 
             // Create directory if it doesn't exist
@@ -41,13 +41,14 @@ class CategoryController extends Controller
             // Initialize Intervention Image with GD driver
             $manager = new ImageManager(new Driver());
 
-            // Load, resize and save the image
+            // Load, resize, optimize and save the image as WebP
             $manager->read($image)
-                ->resize(600, 600, function ($constraint) {
+                ->resize(800, 800, function ($constraint) {
                     $constraint->aspectRatio();
                     $constraint->upsize();
                 })
-                ->save(public_path($save_url), 80);
+                ->toWebp(75)  // Convert to WebP with quality setting
+                ->save(public_path($save_url));
 
             Category::create([
                 'category_name' => $request->category_name,
@@ -71,6 +72,7 @@ class CategoryController extends Controller
             return back()->with($notification)->withInput();
         }
     }
+
     public function CategoryEdit($id)
     {
         $category = Category::findOrFail($id);
@@ -102,7 +104,7 @@ class CategoryController extends Controller
                 }
 
                 $image = $request->file('category_image');
-                $name_gen = hexdec(uniqid()) . '.' . $image->getClientOriginalExtension();
+                $name_gen = hexdec(uniqid()) . '.webp';
                 $save_url = 'upload/category/' . $name_gen;
 
                 // Ensure directory exists
@@ -113,11 +115,12 @@ class CategoryController extends Controller
                 // Process and save new image
                 $manager = new ImageManager(new Driver());
                 $manager->read($image)
-                    ->resize(600, 600, function ($constraint) {
+                    ->resize(800, 800, function ($constraint) {
                         $constraint->aspectRatio();
                         $constraint->upsize();
                     })
-                    ->save(public_path($save_url), 80);
+                    ->toWebp(75)  // Convert to WebP with quality setting
+                    ->save(public_path($save_url));
 
                 $category->category_image = $save_url;
             }

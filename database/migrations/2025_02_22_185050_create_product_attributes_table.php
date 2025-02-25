@@ -18,7 +18,7 @@ return new class extends Migration
             $table->json('values')->nullable();
             $table->timestamps();
 
-            // Add unique constraint to prevent duplicate attribute assignments
+            // Unique constraint already creates an index internally
             $table->unique(['product_id', 'attribute_id']);
         });
     }

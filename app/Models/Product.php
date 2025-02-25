@@ -11,11 +11,10 @@ class Product extends Model
     use SoftDeletes;
 
     protected $guarded = [];
-
     protected $casts = [
-        'gallery_images' => 'array',
-        'price' => 'decimal:2',
+        'price' => 'integer',
         'stock' => 'integer',
+        'gallery_images' => 'array'
     ];
 
     protected static function boot()
@@ -31,28 +30,20 @@ class Product extends Model
         });
     }
 
-    // Relationships with eager loading defaults
+    // Essential relationships
     public function category()
     {
-        return $this->belongsTo(Category::class)->withDefault();
+        return $this->belongsTo(Category::class);
     }
 
     public function subcategory()
     {
-        return $this->belongsTo(SubCategory::class)->withDefault();
+        return $this->belongsTo(SubCategory::class);
     }
 
     public function productAttributes()
     {
-        return $this->hasMany(ProductAttribute::class)
-            ->with('attribute:id,attribute_name,attribute_type');
-    }
-
-    public function activeProductAttributes()
-    {
-        return $this->productAttributes()
-            ->whereNotNull('values')
-            ->with('attribute:id,attribute_name,attribute_type');
+        return $this->hasMany(ProductAttribute::class);
     }
 
     public function variations()
@@ -60,7 +51,12 @@ class Product extends Model
         return $this->hasMany(ProductVariation::class);
     }
 
-    // Optimized helper methods
+    // Helper methods
+    public function activeProductAttributes()
+    {
+        return $this->productAttributes()->whereNotNull('values');
+    }
+
     public function hasConfiguredAttributes(): bool
     {
         return $this->activeProductAttributes()->exists();

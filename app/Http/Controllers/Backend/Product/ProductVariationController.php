@@ -6,9 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Models\Product;
 use App\Models\ProductVariation;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Intervention\Image\ImageManager;
 use Intervention\Image\Drivers\Gd\Driver;
-use Illuminate\Validation\ValidationException;
 
 class ProductVariationController extends Controller
 {
@@ -82,7 +82,7 @@ class ProductVariationController extends Controller
 
     public function destroy(Product $product, ProductVariation $variation)
     {
-        $this->deleteImage($variation->image);
+        $this->deleteImage($variation->variation_image);
         $variation->delete();
 
         return redirect()
@@ -143,11 +143,11 @@ class ProductVariationController extends Controller
 
     public function prepareVariationData(Request $request, Product $product, ?ProductVariation $variation = null): array
     {
-        $data = $request->except('image');
+        $data = $request->except('variation_image');
         $data['attribute_values'] = $this->formatAttributeValues($product, $request->attribute_values);
 
-        if ($request->hasFile('image')) {
-            $data['image'] = $this->handleImageUpload($request->file('image'), $variation?->image);
+        if ($request->hasFile('variation_image')) {
+            $data['variation_image'] = $this->handleImageUpload($request->file('variation_image'), $variation?->variation_image);
         }
 
         return $data;
@@ -170,30 +170,42 @@ class ProductVariationController extends Controller
 
     public function handleImageUpload($image, ?string $oldImage = null): string
     {
-        $this->ensureUploadDirectoryExists();
-        $this->deleteImage($oldImage);
+        try {
+            $this->ensureUploadDirectoryExists();
 
-        $manager = new ImageManager(new Driver());
-        $imageName = uniqid() . '.' . $image->getClientOriginalExtension();
-        $path = 'upload/variation_images/' . $imageName;
+            // First attempt to delete the old image if it exists
+            if ($oldImage) {
+                $this->deleteImage($oldImage);
+            }
 
-        $manager->read($image)
-            ->cover(600, 600)
-            ->toJpeg(80)
-            ->save(public_path($path));
+            $manager = new ImageManager(new Driver());
+            $imageName = uniqid() . '.webp';
+            $path = 'upload/variation_images/' . $imageName;
 
-        return $path;
+            $manager->read($image)
+                ->cover(800, 800)
+                ->toWebp(85)
+                ->save(public_path($path));
+
+            return $path;
+        } catch (\Exception $e) {
+            // If something goes wrong, keep the old image
+            if ($oldImage && file_exists(public_path($oldImage))) {
+                return $oldImage;
+            }
+            throw $e;
+        }
     }
 
     public function validateRequest(Request $request, Product $product, ?ProductVariation $variation = null): array
     {
         $rules = [
-            'sku' => 'required|unique:product_variations,sku' . ($variation ? ',' . $variation->id : ''),
             'price' => 'required|numeric|min:0',
-            'sale_price' => 'nullable|numeric|min:0|lt:price',
-            'stock_quantity' => 'required|integer|min:0',
+            'discount_price' => 'nullable|numeric|min:0|lt:price',
+            'stock' => 'required|integer|min:0',
+            'status' => 'required|in:active,inactive',
             'attribute_values' => 'required|array',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5120'
+            'variation_image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5120'
         ];
 
         $product->activeProductAttributes()
@@ -216,9 +228,10 @@ class ProductVariationController extends Controller
     public function validateProductAttributes(Product $product): void
     {
         if ($product->activeProductAttributes()->doesntExist()) {
-            throw ValidationException::withMessages([
-                'attributes' => 'This product has no configured attributes. Please add attributes before creating variations.'
-            ]);
+            redirect()
+                ->back()
+                ->with('error', 'This product has no configured attributes. Please add attributes before creating variations.')
+                ->throwResponse();
         }
     }
 
@@ -233,7 +246,12 @@ class ProductVariationController extends Controller
     public function deleteImage(?string $image): void
     {
         if ($image && file_exists(public_path($image))) {
-            unlink(public_path($image));
+            try {
+                unlink(public_path($image));
+            } catch (\Exception $e) {
+                // Log error but don't throw to prevent disrupting the main flow
+                Log::error("Failed to delete image: {$image}", ['error' => $e->getMessage()]);
+            }
         }
     }
 
@@ -241,7 +259,7 @@ class ProductVariationController extends Controller
     {
         return redirect()
             ->back()
-            ->withErrors($e instanceof ValidationException ? $e->errors() : ['error' => $e->getMessage()])
+            ->with('error', $e->getMessage())
             ->withInput();
     }
 }

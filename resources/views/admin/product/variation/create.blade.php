@@ -25,53 +25,71 @@
             @endif
 
             <form action="{{ route('admin.products.variations.store', $product->id) }}" method="POST"
-                enctype="multipart/form-data">
+                enctype="multipart/form-data" id="variation-form" class="needs-validation" novalidate>
                 @csrf
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <!-- Basic Information -->
                     <div class="space-y-4">
-                        <div class="form-group">
-                            <label>SKU</label>
-                            <input type="text" name="sku" value="{{ old('sku') }}" required class="form-input">
-                        </div>
+                        <!-- Removed SKU input field -->
 
                         <div class="form-group">
-                            <label>Price</label>
-                            <input type="number" step="0.01" name="price" value="{{ old('price') }}" required
-                                class="form-input">
+                            <label for="price">Price <span class="text-red-500">*</span></label>
+                            <div class="relative">
+                                <span class="absolute left-3 top-2 text-gray-500">$</span>
+                                <input type="number" id="price" step="0.01" min="0" max="999999.99"
+                                    name="price" value="{{ old('price') }}" required class="form-input pl-8">
+                            </div>
+                            @error('price')
+                                <span class="text-red-500 text-sm">{{ $message }}</span>
+                            @enderror
                         </div>
 
                         <div class="form-group">
                             <label>Sale Price (Optional)</label>
-                            <input type="number" step="0.01" name="sale_price" value="{{ old('sale_price') }}"
+                            <input type="number" step="0.01" name="discount_price" value="{{ old('discount_price') }}"
                                 class="form-input">
                         </div>
 
                         <div class="form-group">
                             <label>Stock Quantity</label>
-                            <input type="number" name="stock_quantity" value="{{ old('stock_quantity', 0) }}" required
-                                class="form-input">
+                            <input type="number" name="stock" value="{{ old('stock', 0) }}" required class="form-input">
                         </div>
 
                         <div class="form-group">
                             <label>Status</label>
-                            <select name="is_active" class="form-select">
-                                <option value="1" {{ old('is_active', '1') == '1' ? 'selected' : '' }}>Active</option>
-                                <option value="0" {{ old('is_active') == '0' ? 'selected' : '' }}>Inactive</option>
+                            <select name="status" class="form-select" required>
+                                <option value="active" {{ old('status', 'active') === 'active' ? 'selected' : '' }}>Active
+                                </option>
+                                <option value="inactive" {{ old('status') === 'inactive' ? 'selected' : '' }}>Inactive
+                                </option>
                             </select>
+                            @error('status')
+                                <span class="text-red-500 text-sm">{{ $message }}</span>
+                            @enderror
                         </div>
                     </div>
 
                     <!-- Images and Attributes -->
                     <div class="space-y-4">
                         <div class="form-group">
-                            <label>Variation Image</label>
-                            <input type="file" name="image" accept="image/*" class="form-input"
-                                onchange="previewImage(this)">
+                            <label for="image">Variation Image <span class="text-red-500">*</span></label>
+                            <div class="mt-2">
+                                <input type="file" id="image" name="variation_image" accept="image/*"
+                                    class="form-input file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0
+                                    file:text-sm file:font-semibold file:bg-orange-50 file:text-orange-700
+                                    hover:file:bg-orange-100"
+                                    required onchange="previewImage(this)">
+                                <p class="text-sm text-gray-500 mt-1">
+                                    Minimum 400x400px, Maximum 5MB. Supported formats: JPG, PNG, WebP
+                                </p>
+                            </div>
                             <div class="mt-2">
                                 <img id="image-preview"
                                     class="hidden max-w-[200px] max-h-[200px] object-contain rounded border">
                             </div>
+                            @error('image')
+                                <span class="text-red-500 text-sm">{{ $message }}</span>
+                            @enderror
                         </div>
 
                         <div class="form-group">
@@ -126,10 +144,13 @@
                     </div>
                 </div>
 
-                <div class="mt-6">
-                    <button type="submit" class="btn-primary">Create Variation</button>
-                    <a href="{{ route('admin.products.variations.index', $product->id) }}"
-                        class="btn-secondary ml-2">Cancel</a>
+                <div class="mt-6 flex items-center justify-end space-x-3">
+                    <button type="button" onclick="history.back()" class="btn-secondary">
+                        <i class="ri-arrow-left-line mr-1"></i>Cancel
+                    </button>
+                    <button type="submit" class="btn-primary">
+                        <i class="ri-save-line mr-1"></i>Create Variation
+                    </button>
                 </div>
             </form>
         </div>
@@ -219,15 +240,47 @@
 
     @push('scripts')
         <script>
+            // Enhanced form validation
+            document.getElementById('variation-form').addEventListener('submit', function(event) {
+                if (!this.checkValidity()) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                this.classList.add('was-validated');
+            });
+
+            // Enhanced image preview with validation
             function previewImage(input) {
                 const preview = document.getElementById('image-preview');
-                if (input.files && input.files[0]) {
+                const file = input.files[0];
+
+                if (file) {
+                    // Validate file size
+                    if (file.size > 5 * 1024 * 1024) {
+                        alert('File size must be less than 5MB');
+                        input.value = '';
+                        preview.classList.add('hidden');
+                        return;
+                    }
+
+                    // Create preview
                     const reader = new FileReader();
                     reader.onload = function(e) {
                         preview.src = e.target.result;
                         preview.classList.remove('hidden');
-                    }
-                    reader.readAsDataURL(input.files[0]);
+
+                        // Validate dimensions
+                        const img = new Image();
+                        img.onload = function() {
+                            if (this.width < 400 || this.height < 400) {
+                                alert('Image dimensions must be at least 400x400 pixels');
+                                input.value = '';
+                                preview.classList.add('hidden');
+                            }
+                        };
+                        img.src = e.target.result;
+                    };
+                    reader.readAsDataURL(file);
                 }
             }
 

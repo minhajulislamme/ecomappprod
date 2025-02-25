@@ -81,8 +81,8 @@
                                 <tr class="border-b border-gray-100">
                                     <td class="table-td">{{ $key + 1 }}</td>
                                     <td class="table-td">
-                                        @if ($variation->image)
-                                            <img src="{{ asset($variation->image) }}" alt="Variation"
+                                        @if ($variation->variation_image)
+                                            <img src="{{ asset($variation->variation_image) }}" alt="Variation"
                                                 class="w-16 h-16 object-cover rounded">
                                         @else
                                             <div class="w-16 h-16 bg-gray-100 rounded flex items-center justify-center">
@@ -137,8 +137,8 @@
                                     </td>
                                     <td class="table-td">
                                         <span
-                                            class="status-badge {{ $variation->is_active ? 'status-active' : 'status-inactive' }}">
-                                            {{ $variation->is_active ? 'Active' : 'Inactive' }}
+                                            class="status-badge {{ $variation->status === 'active' ? 'status-active' : 'status-inactive' }}">
+                                            {{ ucfirst($variation->status) }}
                                         </span>
                                     </td>
                                     <td class="table-td">
