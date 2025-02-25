@@ -148,6 +148,35 @@ class CategoryController extends Controller
         try {
             $category = Category::findOrFail($id);
 
+            // Delete all related products and their files
+            foreach ($category->products as $product) {
+                // Delete product attributes
+                $product->productAttributes()->delete();
+
+                // Delete variations and their images
+                foreach ($product->variations as $variation) {
+                    if ($variation->variation_image && file_exists(public_path($variation->variation_image))) {
+                        unlink(public_path($variation->variation_image));
+                    }
+                    $variation->delete();
+                }
+
+                // Delete product images
+                if ($product->thumbnail_image && file_exists(public_path($product->thumbnail_image))) {
+                    unlink(public_path($product->thumbnail_image));
+                }
+
+                if (!empty($product->gallery_images)) {
+                    foreach ($product->gallery_images as $image) {
+                        if (file_exists(public_path($image))) {
+                            unlink(public_path($image));
+                        }
+                    }
+                }
+
+                $product->delete();
+            }
+
             // Delete all related subcategories
             foreach ($category->subcategories as $subcategory) {
                 if ($subcategory->subcategory_image && file_exists(public_path($subcategory->subcategory_image))) {
@@ -164,11 +193,11 @@ class CategoryController extends Controller
             $category->delete();
 
             $notification = [
-                'message' => 'Category and Related Subcategories Deleted Successfully',
+                'message' => 'Category, Products, and Related Data Deleted Successfully',
                 'alert-type' => 'success'
             ];
 
-            return redirect()->route('all.category')->with($notification);
+            return redirect()->back()->with($notification);
         } catch (\Exception $e) {
             $notification = [
                 'message' => 'Error: ' . $e->getMessage(),

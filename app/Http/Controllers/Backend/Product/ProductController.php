@@ -11,7 +11,6 @@ use App\Models\Attribute;
 use Illuminate\Http\Request;
 use Intervention\Image\ImageManager;
 use Intervention\Image\Drivers\Gd\Driver;
-use Illuminate\Support\Facades\DB;
 
 class ProductController extends Controller
 {
@@ -241,36 +240,43 @@ class ProductController extends Controller
         try {
             $product = Product::with(['variations', 'productAttributes'])->findOrFail($id);
 
-            // Delete product attributes
+            // Delete all related attributes
             $product->productAttributes()->delete();
 
-            // Delete all variations and their images
+            // Delete variations and their images
             foreach ($product->variations as $variation) {
-                if ($variation->variation_image) {
-                    $this->deleteImage($variation->variation_image);
+                if ($variation->variation_image && file_exists(public_path($variation->variation_image))) {
+                    unlink(public_path($variation->variation_image));
                 }
                 $variation->delete();
             }
 
             // Delete product images
-            if ($product->thumbnail_image) {
-                $this->deleteImage($product->thumbnail_image);
+            if ($product->thumbnail_image && file_exists(public_path($product->thumbnail_image))) {
+                unlink(public_path($product->thumbnail_image));
             }
 
             if (!empty($product->gallery_images)) {
                 foreach ($product->gallery_images as $image) {
-                    $this->deleteImage($image);
+                    if (file_exists(public_path($image))) {
+                        unlink(public_path($image));
+                    }
                 }
             }
 
             // Delete the product
+            // $product->forceDelete();
             $product->delete();
 
-            return redirect()->route('all.product')
-                ->with('success', 'Product and all related data deleted successfully');
+            return redirect()->route('all.product')->with([
+                'message' => 'Product and all related data successfully deleted',
+                'alert-type' => 'success'
+            ]);
         } catch (\Exception $e) {
-            \Log::error('Product deletion failed: ' . $e->getMessage());
-            return back()->with('error', 'Failed to delete product. Please try again.');
+            return back()->with([
+                'message' => 'Failed to delete product',
+                'alert-type' => 'error'
+            ]);
         }
     }
 }

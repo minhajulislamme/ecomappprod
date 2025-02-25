@@ -16,8 +16,8 @@ return new class extends Migration
             $table->text('short_description')->nullable();
             $table->decimal('price', 10, 2);
             $table->decimal('discount_price', 10, 2)->nullable();
-            $table->foreignId('category_id')->constrained()->onDelete('restrict');
-            $table->foreignId('subcategory_id')->constrained('sub_categories')->onDelete('restrict')->nullable();
+            $table->foreignId('category_id')->constrained()->onDelete('cascade');
+            $table->foreignId('subcategory_id')->constrained('sub_categories')->onDelete('cascade')->nullable();
             $table->string('thumbnail_image');
             $table->json('gallery_images')->nullable();
             $table->integer('stock')->default(0);
@@ -27,7 +27,7 @@ return new class extends Migration
             $table->enum('is_offer', ['yes', 'no'])->default('no');
             $table->enum('status', ['active', 'inactive'])->default('active');
             $table->timestamps();
-            $table->softDeletes();
+
 
             $table->index(['category_id', 'subcategory_id']);
             $table->index(['is_featured', 'status']);
