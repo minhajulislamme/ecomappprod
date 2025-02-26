@@ -1,6 +1,116 @@
 @extends('admin.admin_dashboard')
 
 @section('admin_content')
+    <!-- Add Quill CSS in head with custom styles -->
+    @push('styles')
+        <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+        <style>
+            .ql-toolbar.ql-snow {
+                border: 1px solid #e5e7eb;
+                border-top-left-radius: 0.5rem;
+                border-top-right-radius: 0.5rem;
+                background-color: #f9fafb;
+                padding: 0.75rem;
+            }
+
+            .ql-container.ql-snow {
+                border: 1px solid #e5e7eb;
+                border-bottom-left-radius: 0.5rem;
+                border-bottom-right-radius: 0.5rem;
+                border-top: none;
+                font-family: inherit;
+                font-size: 0.875rem;
+                min-height: 200px;
+            }
+
+            .ql-editor {
+                padding: 1rem;
+                min-height: 200px;
+            }
+
+            .ql-editor p {
+                margin-bottom: 0.5rem;
+            }
+
+            .ql-snow .ql-toolbar button,
+            .ql-snow.ql-toolbar button {
+                padding: 4px 6px;
+            }
+
+            .ql-snow .ql-tooltip {
+                border-radius: 0.375rem;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+                padding: 0.5rem;
+            }
+
+            .ql-snow .ql-picker {
+                font-size: 0.875rem;
+            }
+
+            .ql-editor:focus {
+                border-color: #f97316;
+                box-shadow: 0 0 0 1px #f97316;
+            }
+
+            /* Style toolbar buttons on hover */
+            .ql-snow.ql-toolbar button:hover,
+            .ql-snow .ql-toolbar button:hover,
+            .ql-snow.ql-toolbar button.ql-active,
+            .ql-snow .ql-toolbar button.ql-active,
+            .ql-snow.ql-toolbar .ql-picker-label:hover,
+            .ql-snow .ql-toolbar .ql-picker-label:hover,
+            .ql-snow.ql-toolbar .ql-picker-label.ql-active,
+            .ql-snow .ql-toolbar .ql-picker-label.ql-active,
+            .ql-snow.ql-toolbar .ql-picker-item:hover,
+            .ql-snow .ql-toolbar .ql-picker-item:hover,
+            .ql-snow.ql-toolbar .ql-picker-item.ql-selected,
+            .ql-snow .ql-toolbar .ql-picker-item.ql-selected {
+                color: #f97316;
+            }
+
+            .ql-snow.ql-toolbar button:hover .ql-fill,
+            .ql-snow .ql-toolbar button:hover .ql-fill,
+            .ql-snow.ql-toolbar button.ql-active .ql-fill,
+            .ql-snow .ql-toolbar button.ql-active .ql-fill,
+            .ql-snow.ql-toolbar .ql-picker-label:hover .ql-fill,
+            .ql-snow .ql-toolbar .ql-picker-label:hover .ql-fill,
+            .ql-snow.ql-toolbar .ql-picker-label.ql-active .ql-fill,
+            .ql-snow .ql-toolbar .ql-picker-label.ql-active .ql-fill,
+            .ql-snow.ql-toolbar .ql-picker-item:hover .ql-fill,
+            .ql-snow .ql-toolbar .ql-picker-item:hover .ql-fill,
+            .ql-snow.ql-toolbar .ql-picker-item.ql-selected .ql-fill,
+            .ql-snow.ql-toolbar .ql-picker-item.ql-selected .ql-fill,
+            .ql-snow.ql-toolbar button:hover .ql-stroke,
+            .ql-snow .ql-toolbar button:hover .ql-stroke,
+            .ql-snow.ql-toolbar button.ql-active .ql-stroke,
+            .ql-snow .ql-toolbar button.ql-active .ql-stroke,
+            .ql-snow.ql-toolbar .ql-picker-label:hover .ql-stroke,
+            .ql-snow .ql-toolbar .ql-picker-label:hover .ql-stroke,
+            .ql-snow.ql-toolbar .ql-picker-label.ql-active .ql-stroke,
+            .ql-snow.ql-toolbar .ql-picker-label.ql-active .ql-stroke,
+            .ql-snow.ql-toolbar .ql-picker-item:hover .ql-stroke,
+            .ql-snow .ql-toolbar .ql-picker-item:hover .ql-stroke,
+            .ql-snow.ql-toolbar .ql-picker-item.ql-selected .ql-stroke,
+            .ql-snow.ql-toolbar .ql-picker-item.ql-selected .ql-stroke {
+                stroke: #f97316 !important;
+            }
+
+            /* Custom placeholder styling */
+            .ql-editor.ql-blank::before {
+                font-style: normal;
+                color: #9ca3af;
+            }
+
+            /* Editor wrapper styling */
+            .editor-wrapper {
+                background: white;
+                border-radius: 0.5rem;
+                box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+                margin-bottom: 1rem;
+            }
+        </style>
+    @endpush
+
     <div class="p-6">
         <div class="p-6 bg-white items-center shadow-md shadow-black/5 rounded-md border border-gray-100 mb-6">
             <div class="flex  justify-between mb-6">
@@ -63,10 +173,9 @@
 
                         {{-- sub category  --}}
                         <div class="w-full">
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Sub Category Name</label>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Sub Category Name (Optional)</label>
                             <select id="subcategory_id" name="subcategory_id"
-                                class="w-full px-4 py-2 border @error('subcategory_id') border-red-500 @enderror border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none transition"
-                                disabled>
+                                class="w-full px-4 py-2 border @error('subcategory_id') border-red-500 @enderror border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none transition">
                                 <option value="">Select Subcategory</option>
                                 @foreach ($subcategories as $subcategory)
                                     <option value="{{ $subcategory->id }}"
@@ -79,14 +188,25 @@
                                 <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                             @enderror
                         </div>
+
+                        <script>
+                            document.getElementById('subcategory_id').addEventListener('change', function() {
+                                // Ensure empty string is sent when "Select Subcategory" is chosen
+                                if (!this.value) {
+                                    this.value = '';
+                                }
+                            });
+                        </script>
+
                         {{-- price  --}}
                         <div class="w-full">
                             <label class="block text-sm font-medium text-gray-700 mb-1">Product Price</label>
                             <div class="relative">
                                 <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">$</span>
-                                <input type="text" name="price" value="{{ old('price') }}"
-                                    placeholder="Enter product price"
-                                    class="w-full pl-8 px-4 py-2 border @error('price') border-red-500 @enderror border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none transition">
+                                <input type="number" name="price" value="{{ old('price') }}"
+                                    placeholder="Enter product price" min="0" step="0.01"
+                                    class="w-full pl-8 px-4 py-2 border @error('price') border-red-500 @enderror border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none transition"
+                                    oninput="this.value = this.value.replace(/[^0-9.]/g, '');">
                             </div>
                             @error('price')
                                 <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
@@ -97,9 +217,10 @@
                             <label class="block text-sm font-medium text-gray-700 mb-1">Product Discount Price</label>
                             <div class="relative">
                                 <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">$</span>
-                                <input type="text" name="discount_price" value="{{ old('discount_price') }}"
-                                    placeholder="Enter discount price"
-                                    class="w-full pl-8 px-4 py-2 border @error('discount_price') border-red-500 @enderror border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none transition">
+                                <input type="number" name="discount_price" value="{{ old('discount_price') }}"
+                                    placeholder="Enter discount price" min="0" step="0.01"
+                                    class="w-full pl-8 px-4 py-2 border @error('discount_price') border-red-500 @enderror border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none transition"
+                                    oninput="this.value = this.value.replace(/[^0-9.]/g, '');">
                             </div>
                             @error('discount_price')
                                 <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
@@ -108,9 +229,10 @@
 
                         <div class="w-full">
                             <label class="block text-sm font-medium text-gray-700 mb-1">Product Stock</label>
-                            <input type="text" name="stock" value="{{ old('stock') }}"
-                                placeholder="Enter stock quantity"
-                                class="w-full px-4 py-2 border @error('stock') border-red-500 @enderror border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none transition">
+                            <input type="number" name="stock" value="{{ old('stock') }}"
+                                placeholder="Enter stock quantity" min="0"
+                                class="w-full px-4 py-2 border @error('stock') border-red-500 @enderror border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none transition"
+                                oninput="this.value = this.value.replace(/[^0-9]/g, '');">
                             @error('stock')
                                 <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                             @enderror
@@ -118,14 +240,14 @@
 
                         <div class="col-span-1 md:col-span-2">
                             <label class="block text-sm font-medium text-gray-700 mb-1">Short Description</label>
-                            <div class="editor-container">
-                                <div id="short-description-editor" class="min-h-[150px] md:min-h-[200px]"></div>
-                                <input type="hidden" name="short_description" id="short-description-content"
-                                    value="{{ old('short_description') }}">
-                                @error('short_description')
-                                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                                @enderror
+                            <div class="editor-wrapper">
+                                <div id="short_description_editor"></div>
                             </div>
+                            <input type="hidden" name="short_description" id="short_description_input"
+                                value="{{ old('short_description') }}">
+                            @error('short_description')
+                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                            @enderror
                         </div>
 
                         <!-- Attributes Section -->
@@ -181,14 +303,14 @@
                         {{-- long description --}}
                         <div class="col-span-1 md:col-span-2">
                             <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
-                            <div class="editor-container">
-                                <div id="long-description-editor" class="min-h-[150px] md:min-h-[200px]"></div>
-                                <input type="hidden" name="description" id="long-description-content"
-                                    value="{{ old('description') }}">
-                                @error('description')
-                                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                                @enderror
+                            <div class="editor-wrapper">
+                                <div id="description_editor"></div>
                             </div>
+                            <input type="hidden" name="description" id="description_input"
+                                value="{{ old('description') }}">
+                            @error('description')
+                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                            @enderror
                         </div>
 
                         {{-- product status --}}
@@ -357,133 +479,105 @@
             </div>
         </div>
     </div>
-@endsection
 
-@push('scripts')
-    <!-- Include Quill JS and CSS -->
-    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
-    <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const categorySelect = document.getElementById('category_id');
-            const subcategorySelect = document.getElementById('subcategory_id');
-
-            // Initialize Quill editors
-            const initializeQuill = (editorId, contentInputId) => {
-                const editor = document.getElementById(editorId);
-                if (!editor) return null;
-
-                const quill = new Quill(`#${editorId}`, {
+    <!-- Add Quill JS before closing body -->
+    @push('scripts')
+        <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const commonConfig = {
                     theme: 'snow',
                     modules: {
-                        toolbar: [
-                            [{
-                                'header': [1, 2, 3, 4, 5, 6, false]
-                            }],
-                            ['bold', 'italic', 'underline', 'strike'],
-                            [{
-                                'color': []
-                            }, {
-                                'background': []
-                            }],
-                            [{
-                                'list': 'ordered'
-                            }, {
-                                'list': 'bullet'
-                            }],
-                            [{
-                                'align': []
-                            }],
-                            ['link', 'image', 'code-block'],
-                            ['clean']
-                        ]
+                        toolbar: {
+                            container: [
+                                [{
+                                    'header': [1, 2, 3, false]
+                                }],
+                                ['bold', 'italic', 'underline', 'strike'],
+                                [{
+                                    'color': []
+                                }, {
+                                    'background': []
+                                }],
+                                [{
+                                    'align': []
+                                }],
+                                [{
+                                    'list': 'ordered'
+                                }, {
+                                    'list': 'bullet'
+                                }],
+                                ['link'],
+                                ['clean']
+                            ]
+                        }
                     },
-                    placeholder: 'Write your content here...'
+                    bounds: document.body,
+                    scrollingContainer: 'html'
+                };
+
+                // Initialize Short Description Quill with custom config
+                const shortDescriptionQuill = new Quill('#short_description_editor', {
+                    ...commonConfig,
+                    placeholder: 'Enter a brief product description...'
                 });
 
-                const contentInput = document.getElementById(contentInputId);
-                if (contentInput) {
-                    // Load existing content if available
-                    if (contentInput.value) {
-                        quill.root.innerHTML = contentInput.value;
-                    }
+                // Initialize Description Quill with custom config
+                const descriptionQuill = new Quill('#description_editor', {
+                    ...commonConfig,
+                    placeholder: 'Enter detailed product description...'
+                });
 
-                    // Update hidden input when content changes
-                    quill.on('text-change', function() {
-                        // Save only the text content, not HTML
-                        contentInput.value = quill.getText();
-                    });
-                    
-                    // Ensure content is saved even if no changes were made
-                    quill.root.addEventListener('blur', function() {
-                        // Save only the text content, not HTML
-                        contentInput.value = quill.getText();
+                // Set initial content if exists
+                const shortDescriptionContent = document.getElementById('short_description_input').value;
+                if (shortDescriptionContent) {
+                    shortDescriptionQuill.root.innerHTML = shortDescriptionContent;
+                }
+
+                const descriptionContent = document.getElementById('description_input').value;
+                if (descriptionContent) {
+                    descriptionQuill.root.innerHTML = descriptionContent;
+                }
+
+                // Function to handle editor focus states
+                function handleEditorFocus(editor, wrapper) {
+                    editor.on('selection-change', function(range) {
+                        if (range) {
+                            wrapper.classList.add('focused');
+                        } else {
+                            wrapper.classList.remove('focused');
+                        }
                     });
                 }
 
-                return quill;
-            };
+                // Add focus handling to both editors
+                handleEditorFocus(shortDescriptionQuill, shortDescriptionQuill.container.closest('.editor-wrapper'));
+                handleEditorFocus(descriptionQuill, descriptionQuill.container.closest('.editor-wrapper'));
 
-            // Initialize both editors
-            const shortDescEditor = initializeQuill('short-description-editor', 'short-description-content');
-            const longDescEditor = initializeQuill('long-description-editor', 'long-description-content');
-
-            // Make sure form captures editor content on submit
-            const form = document.getElementById('productForm');
-            if (form) {
-                form.addEventListener('submit', function() {
-                    if (shortDescEditor) {
-                        document.getElementById('short-description-content').value = shortDescEditor.getText();
-                    }
-                    if (longDescEditor) {
-                        document.getElementById('long-description-content').value = longDescEditor.getText();
-                    }
+                // Update hidden inputs before form submission
+                document.getElementById('productForm').addEventListener('submit', function() {
+                    document.getElementById('short_description_input').value = shortDescriptionQuill.root
+                        .innerHTML;
+                    document.getElementById('description_input').value = descriptionQuill.root.innerHTML;
                 });
-            }
 
-            // Handle category change
-            categorySelect.addEventListener('change', async function() {
-                const categoryId = this.value;
-                subcategorySelect.disabled = !categoryId;
+                // Make sure editors are responsive
+                const adjustEditorHeight = () => {
+                    const isMobile = window.innerWidth < 768;
 
-                if (categoryId) {
-                    try {
-                        const response = await fetch(`/product/get-subcategories/${categoryId}`);
-                        const subcategories = await response.json();
-
-                        subcategorySelect.innerHTML = '<option value="">Select Subcategory</option>' +
-                            subcategories.map(sub =>
-                                `<option value="${sub.id}">${sub.subcategory_name}</option>`
-                            ).join('');
-                    } catch (error) {
-                        console.error('Error loading subcategories:', error);
-                        subcategorySelect.innerHTML =
-                            '<option value="">Error loading subcategories</option>';
+                    if (isMobile) {
+                        shortDescriptionQuill.container.style.height = '200px';
+                        descriptionQuill.container.style.height = '300px';
+                    } else {
+                        shortDescriptionQuill.container.style.height = '200px';
+                        descriptionQuill.container.style.height = '400px';
                     }
-                } else {
-                    subcategorySelect.innerHTML = '<option value="">Select Subcategory</option>';
-                }
+                };
+
+                // Adjust on load and resize
+                adjustEditorHeight();
+                window.addEventListener('resize', adjustEditorHeight);
             });
-
-            // Make sure editors are responsive
-            const adjustEditorHeight = () => {
-                const isMobile = window.innerWidth < 768;
-                const shortEditor = document.getElementById('short-description-editor');
-                const longEditor = document.getElementById('long-description-editor');
-
-                if (shortEditor) {
-                    shortEditor.style.minHeight = isMobile ? '150px' : '200px';
-                }
-
-                if (longEditor) {
-                    longEditor.style.minHeight = isMobile ? '150px' : '200px';
-                }
-            };
-
-            // Adjust on load and resize
-            adjustEditorHeight();
-            window.addEventListener('resize', adjustEditorHeight);
-        });
-    </script>
-@endpush
+        </script>
+    @endpush
+@endsection

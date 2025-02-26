@@ -3,18 +3,25 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-
 use Illuminate\Support\Str;
 
 class Product extends Model
 {
-    
-
     protected $guarded = [];
     protected $casts = [
         'price' => 'integer',
         'stock' => 'integer',
-        'gallery_images' => 'array'
+        'gallery_images' => 'array',
+        'subcategory_id' => 'integer', // Ensures proper conversion to integer or null
+    ];
+
+    // Set attributes that can be null
+    protected $attributes = [
+        'subcategory_id' => null,
+        'discount_price' => null,
+        'description' => null,
+        'short_description' => null,
+        'gallery_images' => '[]'
     ];
 
     protected static function boot()
@@ -23,6 +30,11 @@ class Product extends Model
 
         static::creating(function ($product) {
             $product->slug = Str::slug($product->name);
+
+            // Ensure subcategory_id is properly set to null if empty
+            if (empty($product->subcategory_id)) {
+                $product->subcategory_id = null;
+            }
         });
 
         static::deleting(function ($product) {
@@ -38,7 +50,7 @@ class Product extends Model
 
     public function subcategory()
     {
-        return $this->belongsTo(SubCategory::class);
+        return $this->belongsTo(SubCategory::class)->withDefault();
     }
 
     public function productAttributes()

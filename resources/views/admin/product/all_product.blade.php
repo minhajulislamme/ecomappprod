@@ -26,7 +26,7 @@
                                     <span class="text-gray-600 group-hover:text-orange-500 font-medium">Add Products</span>
                                 </a>
                             </li>
-                            
+
 
 
 
@@ -121,7 +121,7 @@
                                 </td>
                                 <td class="py-2 px-4 border-b border-b-gray-50">
                                     <span
-                                        class="text-[13px] font-medium text-gray-400 block truncate max-w-[150px]">{{ $item->subcategory->subcategory_name }}</span>
+                                        class="text-[13px] font-medium text-gray-400 block truncate max-w-[150px]">{{ $item->subcategory->subcategory_name ?? 'No Subcategory' }}</span>
                                 </td>
                                 <td class="py-2 px-4 border-b border-b-gray-50">
                                     <span

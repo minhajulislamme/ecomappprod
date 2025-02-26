@@ -66,114 +66,105 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // end image handler for profile
 
+// Custom dropdown functionality
+document.querySelectorAll('.dropdown-toggle').forEach(button => {
+    button.addEventListener('click', e => {
+        e.stopPropagation();
+        const dropdown = button.nextElementSibling;
+        dropdown.classList.toggle('hidden');
+    });
+});
 
-// text editor for admin panel
-// document.addEventListener('DOMContentLoaded', function() {
-//     // Add a small delay to ensure DOM is fully ready
-//     setTimeout(() => {
-//         // Function to initialize Quill for a specific editor
-//         function initializeQuill(editorId, contentInputId) {
-//             // Check if editor element exists before initializing Quill
-//             const editorElement = document.getElementById(editorId);
-//             if (!editorElement) {
-//                 console.warn(`Editor element with ID "${editorId}" not found`);
-//                 return null;
-//             }
+// Close dropdowns when clicking outside
+document.addEventListener('click', () => {
+    document.querySelectorAll('.dropdown-menu').forEach(menu => {
+        menu.classList.add('hidden');
+    });
+});
 
-//             // Add a custom class to ensure unique styling
-//             editorElement.classList.add('quill-editor-custom');
+// Toggle switches update text
+document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+    checkbox.addEventListener('change', function() {
+        const statusText = this.closest('label').querySelector('.status-text');
+        if (statusText) {
+            statusText.textContent = this.checked ? 'Active' : 'Inactive';
+        }
+    });
+});
 
-//             try {
-//                 // Initialize Quill with proper configuration
-//                 const quill = new Quill(`#${editorId}`, {
-//                     theme: 'snow',
-//                     modules: {
-//                         table: false,
-//                         'better-table': {
-//                             operationMenu: {
-//                                 items: {
-//                                     insertColumnRight: {
-//                                         text: 'Insert Column Right'
-//                                     },
-//                                     insertColumnLeft: {
-//                                         text: 'Insert Column Left'
-//                                     },
-//                                     insertRowUp: {
-//                                         text: 'Insert Row Up'
-//                                     },
-//                                     insertRowDown: {
-//                                         text: 'Insert Row Down'
-//                                     },
-//                                     deleteColumn: {
-//                                         text: 'Delete Column'
-//                                     },
-//                                     deleteRow: {
-//                                         text: 'Delete Row'
-//                                     }
-//                                 }
-//                             }
-//                         },
-//                         toolbar: [
-//                             [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
-//                             ['bold', 'italic', 'underline', 'strike'],
-//                             [{ 'color': [] }, { 'background': [] }],
-//                             [{ 'list': 'ordered' }, { 'list': 'bullet' }],
-//                             [{ 'align': [] }],
-//                             ['link', 'code-block'],
-//                             ['clean']
-//                         ]
-//                     },
-//                     placeholder: 'Write your content here...'
-//                 });
+// Handle products table bulk actions
+const bulkActionsHandler = () => {
+    const checkAll = document.getElementById('check-all');
+    const checkboxes = document.querySelectorAll('input[name="selected_products[]"]');
+    const bulkActionsCount = document.getElementById('bulk-actions-count');
+    const bulkActionsBar = document.getElementById('bulk-actions-bar');
 
-//                 console.log(`Quill editor initialized for ${editorId}`);
+    if (!checkAll || !checkboxes.length) return;
 
-//                 // Save content to hidden input when editor changes
-//                 const contentInput = document.getElementById(contentInputId);
-//                 if (contentInput) {
-//                     // Load old value into Quill editor if available (for form validation failures)
-//                     if (contentInput.value) {
-//                         quill.root.innerHTML = contentInput.value;
-//                     }
+    const updateBulkActionsBar = () => {
+        const selectedCount = document.querySelectorAll('input[name="selected_products[]"]:checked').length;
+        if (selectedCount > 0) {
+            bulkActionsCount.textContent = selectedCount;
+            bulkActionsBar.classList.remove('hidden');
+        } else {
+            bulkActionsBar.classList.add('hidden');
+        }
+    };
 
-//                     // Update hidden input when content changes
-//                     quill.on('text-change', function() {
-//                         contentInput.value = quill.root.innerHTML;
-//                     });
-//                 } else {
-//                     console.warn(`Hidden input with ID "${contentInputId}" not found`);
-//                 }
+    checkAll.addEventListener('change', function() {
+        checkboxes.forEach(checkbox => checkbox.checked = this.checked);
+        updateBulkActionsBar();
+    });
 
-//                 return quill;
-//             } catch (error) {
-//                 console.error(`Error initializing Quill for ${editorId}:`, error);
-//                 return null;
-//             }
-//         }
+    checkboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', updateBulkActionsBar);
+    });
+};
 
-//         // Clear any existing Quill instances that might be cached
-//         document.querySelectorAll('.ql-toolbar').forEach(toolbar => {
-//             if (toolbar.parentNode) {
-//                 toolbar.parentNode.removeChild(toolbar);
-//             }
-//         });
+// Initialize bulk actions handler
+document.addEventListener('DOMContentLoaded', bulkActionsHandler);
 
-//         console.log('Initializing Quill editors...');
+// Handle status toggle buttons
+document.querySelectorAll('.status-toggle').forEach(button => {
+    button.addEventListener('click', async function() {
+        const productId = this.dataset.productId;
+        const currentStatus = this.dataset.status;
+        const newStatus = currentStatus === 'active' ? 'inactive' : 'active';
+        const baseUrl = this.dataset.url;
 
-//         // Initialize both editors with a slight delay between them
-//         const shortDescEditor = initializeQuill('short-description-editor', 'short-description-content');
+        try {
+            const response = await fetch(`${baseUrl}/${productId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                },
+                body: JSON.stringify({ status: newStatus })
+            });
 
-//         // Small delay before initializing the second editor to avoid conflicts
-//         setTimeout(() => {
-//             const longDescEditor = initializeQuill('long-description-editor', 'long-description-content');
-//         }, 100);
+            if (response.ok) {
+                // Update button state
+                this.dataset.status = newStatus;
+                this.classList.toggle('bg-green-500');
+                this.classList.toggle('bg-red-500');
 
-//         // For backward compatibility (if there are any old editor instances)
-//         setTimeout(() => {
-//             initializeQuill('editor', 'content');
-//         }, 200);
-//     }, 50);
-// });
+                // Update status text and icon
+                const statusText = this.querySelector('.status-text');
+                const statusIcon = this.querySelector('.status-icon');
+
+                if (statusText) {
+                    statusText.textContent = newStatus.charAt(0).toUpperCase() + newStatus.slice(1);
+                }
+
+                if (statusIcon) {
+                    statusIcon.className = `status-icon fas fa-${newStatus === 'active' ? 'check' : 'times'} mr-2`;
+                }
+            }
+        } catch (error) {
+            console.error('Error updating status:', error);
+        }
+    });
+});
 
 
 

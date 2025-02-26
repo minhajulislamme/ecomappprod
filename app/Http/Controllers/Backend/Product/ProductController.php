@@ -53,16 +53,34 @@ class ProductController extends Controller
         return "$path/$filename";
     }
 
-    protected function handleGalleryImages($images)
+    protected function handleGalleryImages($newImages, $existingImages = [], $removedIndices = [])
     {
-        if (!is_array($images)) return [];
+        // Convert existing images to array if it's not already
+        $galleryImages = is_array($existingImages) ? $existingImages : [];
 
-        $galleryImages = [];
-        foreach ($images as $image) {
-            if ($image && $image->isValid()) {
-                $galleryImages[] = $this->uploadImage($image, 'gallery');
+        // Remove images that were marked for deletion
+        if (!empty($removedIndices)) {
+            foreach ($removedIndices as $index) {
+                if (isset($galleryImages[$index])) {
+                    // Delete the physical image file
+                    $this->deleteImage($galleryImages[$index]);
+                    // Remove from the array
+                    unset($galleryImages[$index]);
+                }
+            }
+            // Reindex the array
+            $galleryImages = array_values($galleryImages);
+        }
+
+        // Add any new gallery images
+        if (is_array($newImages)) {
+            foreach ($newImages as $image) {
+                if ($image && $image->isValid()) {
+                    $galleryImages[] = $this->uploadImage($image, 'gallery');
+                }
             }
         }
+
         return array_filter($galleryImages);
     }
 
@@ -101,52 +119,53 @@ class ProductController extends Controller
 
     public function ProductStore(Request $request)
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'price' => 'required|numeric|min:0',
-            'category_id' => 'required|exists:categories,id',
-            'subcategory_id' => 'required|exists:sub_categories,id',
-            'stock' => 'required|integer|min:0',
-            'thumbnail_image' => 'required|image|max:5120',
-            'gallery_images.*' => 'nullable|image|max:5120',
-            'attributes' => 'nullable|array',
-        ]);
-
         try {
-            // Check if we're updating an existing product
-            $existingProduct = Product::find($request->id);
+            $validated = $request->validate([
+                'name' => 'required|string|max:255',
+                'price' => 'required|numeric|min:0',
+                'discount_price' => 'nullable|numeric|min:0',
+                'category_id' => 'required|exists:categories,id',
+                'subcategory_id' => 'nullable|exists:sub_categories,id',
+                'stock' => 'required|integer|min:0',
+                'thumbnail_image' => 'required|image|max:5120',
+                'gallery_images.*' => 'nullable|image|max:5120',
+                'attributes' => 'nullable|array',
+            ]);
 
             // Handle image uploads
-            $images = $this->handleImages($existingProduct, $request);
+            $images = $this->handleImages(null, $request);
 
-            $product = Product::updateOrCreate(
-                ['id' => $request->id],
-                [
-                    'name' => $validated['name'],
-                    'short_description' => $request->short_description,
-                    'description' => $request->description,
-                    'price' => $validated['price'],
-                    'discount_price' => $request->discount_price,
-                    'category_id' => $validated['category_id'],
-                    'subcategory_id' => $validated['subcategory_id'],
-                    'stock' => $validated['stock'],
-                    'is_featured' => $request->is_featured ?? 'no',
-                    'is_trending' => $request->is_trending ?? 'no',
-                    'is_best_selling' => $request->is_best_selling ?? 'no',
-                    'is_offer' => $request->is_offer ?? 'no',
-                    'thumbnail_image' => $images['thumbnail_image'],
-                    'gallery_images' => $images['gallery_images'],
-                    'status' => 'active',
-                ]
-            );
+            // Create the product
+            $product = Product::create([
+                'name' => $validated['name'],
+                'short_description' => $request->short_description,
+                'description' => $request->description,
+                'price' => $validated['price'],
+                'discount_price' => $request->discount_price,
+                'category_id' => $validated['category_id'],
+                'subcategory_id' => $request->subcategory_id ?: null,
+                'stock' => $validated['stock'],
+                'status' => 'active',
+                'is_featured' => $request->is_featured ?? 'no',
+                'is_trending' => $request->is_trending ?? 'no',
+                'is_best_selling' => $request->is_best_selling ?? 'no',
+                'is_offer' => $request->is_offer ?? 'no',
+                'thumbnail_image' => $images['thumbnail_image'],
+                'gallery_images' => $images['gallery_images'],
+            ]);
 
+            // Save product attributes if any
             if ($request->has('attributes')) {
                 $this->saveProductAttributes($product, $request->input('attributes', []));
             }
 
-            return redirect()->route('all.product')->with('success', 'Product Added Successfully');
+            return redirect()
+                ->route('all.product')
+                ->with(['message' => 'Product Added Successfully', 'alert-type' => 'success']);
         } catch (\Exception $e) {
-            return back()->with('error', 'Failed to add product: ' . $e->getMessage());
+            return back()
+                ->withInput()
+                ->with(['message' => 'Failed to add product: ' . $e->getMessage(), 'alert-type' => 'error']);
         }
     }
 
@@ -181,29 +200,57 @@ class ProductController extends Controller
 
     public function ProductUpdate(Request $request, $id)
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'price' => 'required|numeric|min:0',
-            'category_id' => 'required|exists:categories,id',
-            'subcategory_id' => 'required|exists:sub_categories,id',
-            'stock' => 'required|integer|min:0',
-            'thumbnail_image' => 'nullable|image|max:5120',
-            'gallery_images.*' => 'nullable|image|max:5120',
-        ]);
-
         try {
+            $validated = $request->validate([
+                'name' => 'required|string|max:255',
+                'price' => 'required|numeric|min:0',
+                'discount_price' => 'nullable|numeric|min:0',
+                'category_id' => 'required|exists:categories,id',
+                'subcategory_id' => 'nullable|exists:sub_categories,id',
+                'stock' => 'required|integer|min:0',
+                'thumbnail_image' => 'nullable|image|max:5120',
+                'gallery_images.*' => 'nullable|image|max:5120',
+            ]);
+
             $product = Product::findOrFail($id);
 
-            // Handle image uploads
-            $images = $this->handleImages($product, $request);
+            // Handle thumbnail image
+            if ($request->hasFile('thumbnail_image')) {
+                // Delete old thumbnail if exists
+                if (!empty($product->thumbnail_image)) {
+                    $this->deleteImage($product->thumbnail_image);
+                }
+                $thumbnailPath = $this->uploadImage($request->file('thumbnail_image'), 'thumbnail');
+            } else {
+                $thumbnailPath = $product->thumbnail_image;
+            }
 
-            // Update product with new data
-            $product->fill($validated);
-            $product->description = $request->description;
-            $product->status = $request->status ?? 'draft';
-            $product->thumbnail_image = $images['thumbnail_image'];
-            $product->gallery_images = $images['gallery_images'];
-            $product->save();
+            // Handle gallery images with proper removal
+            $removedIndices = $request->input('removed_gallery_images', []);
+            $galleryImages = $this->handleGalleryImages(
+                $request->file('gallery_images'),
+                $product->gallery_images,
+                $removedIndices
+            );
+
+            // Update product with all data in a cleaner way
+            $product->update([
+                'name' => $validated['name'],
+                'price' => $validated['price'],
+                'discount_price' => $validated['discount_price'] ?? null,
+                'category_id' => $validated['category_id'],
+                'subcategory_id' => $request->subcategory_id ?: null,
+                'stock' => $validated['stock'],
+                'description' => $request->description,
+                'short_description' => $request->short_description,
+                'status' => $request->status ?? 'active',
+                'is_featured' => $request->is_featured ?? 'no',
+                'is_trending' => $request->is_trending ?? 'no',
+                'is_best_selling' => $request->is_best_selling ?? 'no',
+                'is_offer' => $request->is_offer ?? 'no',
+                'thumbnail_image' => $thumbnailPath,
+                'gallery_images' => $galleryImages,
+            ]);
 
             // Update attributes
             ProductAttribute::where('product_id', $product->id)->delete();
@@ -211,9 +258,14 @@ class ProductController extends Controller
                 $this->saveProductAttributes($product, $request->input('attributes', []));
             }
 
-            return redirect()->route('all.product')->with('success', 'Product updated successfully');
+            return redirect()->route('all.product')->with([
+                'message' => 'Product updated successfully',
+                'alert-type' => 'success'
+            ]);
         } catch (\Exception $e) {
-            return back()->with('error', 'Error updating product: ' . $e->getMessage());
+            return back()
+                ->withInput()
+                ->with(['message' => 'Failed to update product: ' . $e->getMessage(), 'alert-type' => 'error']);
         }
     }
 
