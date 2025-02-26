@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
+use Intervention\Image\ImageManager;
+use Intervention\Image\Drivers\Gd\Driver;
 
 class UserController extends Controller
 {
@@ -69,9 +71,18 @@ class UserController extends Controller
                 }
             }
 
-            // Generate unique filename and store image
-            $filename = date('YmdHi') . uniqid() . '.' . $file->getClientOriginalExtension();
-            $file->move($uploadPath, $filename);
+            // Generate unique filename
+            $filename = date('YmdHi') . uniqid() . '.webp';
+
+            // Create image manager instance
+            $manager = new ImageManager(new Driver());
+
+            // Process and save the image
+            $image = $manager->read($file);
+            $image->resize(800, 800) // Fixed size 800x800
+                ->toWebp(70)  // Convert to WebP with 70% quality
+                ->save($uploadPath . '/' . $filename);
+
             $user->photo = $filename;
         }
 

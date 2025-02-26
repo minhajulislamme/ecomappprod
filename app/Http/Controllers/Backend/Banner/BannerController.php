@@ -30,7 +30,7 @@ class BannerController extends Controller
 
         try {
             $image = $request->file('image');
-            $name_gen = hexdec(uniqid()) . '.' . $image->getClientOriginalExtension();
+            $name_gen = hexdec(uniqid()) . '.webp';
             $save_url = 'upload/banner/' . $name_gen;
 
             // Create directory if it doesn't exist
@@ -41,13 +41,14 @@ class BannerController extends Controller
             // Initialize Intervention Image with GD driver
             $manager = new ImageManager(new Driver());
 
-            // Load, resize and save the image
+            // Load, resize, optimize and save the image as WebP
             $manager->read($image)
                 ->resize(800, 300, function ($constraint) {
                     $constraint->aspectRatio();
                     $constraint->upsize();
                 })
-                ->save(public_path($save_url), 80);
+                ->toWebp(75)  // Convert to WebP with quality setting
+                ->save(public_path($save_url));
 
             Banner::create([
                 'title' => $request->title,
@@ -95,19 +96,20 @@ class BannerController extends Controller
                 }
 
                 $image = $request->file('image');
-                $name_gen = hexdec(uniqid()) . '.' . $image->getClientOriginalExtension();
+                $name_gen = hexdec(uniqid()) . '.webp';
                 $save_url = 'upload/banner/' . $name_gen;
 
                 // Initialize Intervention Image with GD driver
                 $manager = new ImageManager(new Driver());
 
-                // Load, resize and save the image
+                // Load, resize, optimize and save the image as WebP
                 $manager->read($image)
                     ->resize(800, 300, function ($constraint) {
                         $constraint->aspectRatio();
                         $constraint->upsize();
                     })
-                    ->save(public_path($save_url), 80);
+                    ->toWebp(75)  // Convert to WebP with quality setting
+                    ->save(public_path($save_url));
 
                 $banner->image = $save_url;
             }

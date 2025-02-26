@@ -16,6 +16,33 @@
                 <span class="ml-2">Dashboard</span>
             </a>
         </li>
+
+        {{-- Products Menu --}}
+        <li class="mb-1 group {{ request()->is('product*') ? 'selected active' : '' }}">
+            <a href="javascript:void()"
+                class="flex items-center py-2 px-4 text-gray-300 hover:bg-gray-800 hover:text-orange-500 rounded-md sidebar-link sidebar-dropdown-toggle {{ request()->is('product*') ? 'bg-gray-800 text-orange-500' : '' }}">
+                <i class="ri-shopping-bag-3-line mr-3 text-lg"></i>
+                <span class="ml-2">Products</span>
+                <i class="ri-arrow-right-s-line ml-auto group-[.selected]:rotate-90"></i>
+            </a>
+            <ul class="ml-7 mt-2 hidden group-[.selected]:block">
+                <li class="mb-4">
+                    <a href="{{ route('all.product') }}"
+                        class="text-gray-300 text-sm flex items-center hover:text-orange-500 sidebar-link {{ request()->routeIs('all.product') ? 'text-orange-500 active' : '' }}">
+                        <span class="w-1 h-1 rounded-full bg-gray-300 mr-3"></span>
+                        All Products
+                    </a>
+                </li>
+                <li class="mb-4">
+                    <a href="{{ route('product.add') }}"
+                        class="text-gray-300 text-sm flex items-center hover:text-orange-500 sidebar-link {{ request()->routeIs('product.add') ? 'text-orange-500 active' : '' }}">
+                        <span class="w-1 h-1 rounded-full bg-gray-300 mr-3"></span>
+                        Add Product
+                    </a>
+                </li>
+            </ul>
+        </li>
+
         <li
             class="mb-1 group {{ request()->is('category*') || request()->is('subcategory*') ? 'selected active' : '' }}">
             <a href="javascript:void()"

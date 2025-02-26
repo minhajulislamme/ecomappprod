@@ -30,7 +30,7 @@ class CategoryController extends Controller
 
         try {
             $image = $request->file('category_image');
-            $name_gen = hexdec(uniqid()) . '.' . $image->getClientOriginalExtension();
+            $name_gen = hexdec(uniqid()) . '.webp';
             $save_url = 'upload/category/' . $name_gen;
 
             // Create directory if it doesn't exist
@@ -41,13 +41,14 @@ class CategoryController extends Controller
             // Initialize Intervention Image with GD driver
             $manager = new ImageManager(new Driver());
 
-            // Load, resize and save the image
+            // Load, resize, optimize and save the image as WebP
             $manager->read($image)
-                ->resize(600, 600, function ($constraint) {
+                ->resize(800, 800, function ($constraint) {
                     $constraint->aspectRatio();
                     $constraint->upsize();
                 })
-                ->save(public_path($save_url), 80);
+                ->toWebp(75)  // Convert to WebP with quality setting
+                ->save(public_path($save_url));
 
             Category::create([
                 'category_name' => $request->category_name,
@@ -71,6 +72,7 @@ class CategoryController extends Controller
             return back()->with($notification)->withInput();
         }
     }
+
     public function CategoryEdit($id)
     {
         $category = Category::findOrFail($id);
@@ -102,7 +104,7 @@ class CategoryController extends Controller
                 }
 
                 $image = $request->file('category_image');
-                $name_gen = hexdec(uniqid()) . '.' . $image->getClientOriginalExtension();
+                $name_gen = hexdec(uniqid()) . '.webp';
                 $save_url = 'upload/category/' . $name_gen;
 
                 // Ensure directory exists
@@ -113,11 +115,12 @@ class CategoryController extends Controller
                 // Process and save new image
                 $manager = new ImageManager(new Driver());
                 $manager->read($image)
-                    ->resize(600, 600, function ($constraint) {
+                    ->resize(800, 800, function ($constraint) {
                         $constraint->aspectRatio();
                         $constraint->upsize();
                     })
-                    ->save(public_path($save_url), 80);
+                    ->toWebp(75)  // Convert to WebP with quality setting
+                    ->save(public_path($save_url));
 
                 $category->category_image = $save_url;
             }
@@ -145,6 +148,35 @@ class CategoryController extends Controller
         try {
             $category = Category::findOrFail($id);
 
+            // Delete all related products and their files
+            foreach ($category->products as $product) {
+                // Delete product attributes
+                $product->productAttributes()->delete();
+
+                // Delete variations and their images
+                foreach ($product->variations as $variation) {
+                    if ($variation->variation_image && file_exists(public_path($variation->variation_image))) {
+                        unlink(public_path($variation->variation_image));
+                    }
+                    $variation->delete();
+                }
+
+                // Delete product images
+                if ($product->thumbnail_image && file_exists(public_path($product->thumbnail_image))) {
+                    unlink(public_path($product->thumbnail_image));
+                }
+
+                if (!empty($product->gallery_images)) {
+                    foreach ($product->gallery_images as $image) {
+                        if (file_exists(public_path($image))) {
+                            unlink(public_path($image));
+                        }
+                    }
+                }
+
+                $product->delete();
+            }
+
             // Delete all related subcategories
             foreach ($category->subcategories as $subcategory) {
                 if ($subcategory->subcategory_image && file_exists(public_path($subcategory->subcategory_image))) {
@@ -161,11 +193,11 @@ class CategoryController extends Controller
             $category->delete();
 
             $notification = [
-                'message' => 'Category and Related Subcategories Deleted Successfully',
+                'message' => 'Category, Products, and Related Data Deleted Successfully',
                 'alert-type' => 'success'
             ];
 
-            return redirect()->route('all.category')->with($notification);
+            return redirect()->back()->with($notification);
         } catch (\Exception $e) {
             $notification = [
                 'message' => 'Error: ' . $e->getMessage(),

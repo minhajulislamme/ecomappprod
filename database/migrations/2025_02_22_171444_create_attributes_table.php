@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('attributes', function (Blueprint $table) {
             $table->id();
-            $table->string('attribute_name');
-            $table->enum('attribute_type', ['text', 'color'])->default('text');
+            $table->string('attribute_name')->unique();
+            $table->enum('attribute_type', ['text', 'color', 'number'])->default('text');
             $table->json('attribute_value');
             $table->enum('status', ['active', 'inactive'])->default('active');
             $table->timestamps();

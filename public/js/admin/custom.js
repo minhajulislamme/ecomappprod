@@ -1,4 +1,4 @@
-// image handel for profile 
+// image handel for profile
 
 function handleFile(file) {
     // Validate file type
@@ -66,61 +66,104 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // end image handler for profile
 
-
-// text editor for admin panel
-
-
- // Move summernote initialization to after vite loads
- var quill = new Quill('#editor', {
-    theme: 'snow',
-    modules: {
-        toolbar: [
-            [{
-                'header': [1, 2, 3, 4, 5, 6, false]
-            }],
-            ['bold', 'italic', 'underline', 'strike'],
-            [{
-                'color': []
-            }, {
-                'background': []
-            }],
-            [{
-                'list': 'ordered'
-            }, {
-                'list': 'bullet'
-            }],
-            [{
-                'align': []
-            }],
-            ['link', 'image'],
-            ['clean']
-        ]
-    },
-    placeholder: 'Write your content here...'
+// Custom dropdown functionality
+document.querySelectorAll('.dropdown-toggle').forEach(button => {
+    button.addEventListener('click', e => {
+        e.stopPropagation();
+        const dropdown = button.nextElementSibling;
+        dropdown.classList.toggle('hidden');
+    });
 });
 
-// Save content to hidden input when editor changes
-quill.on('text-change', function() {
-    var content = quill.root.innerHTML;
-    document.getElementById('content').value = content;
+// Close dropdowns when clicking outside
+document.addEventListener('click', () => {
+    document.querySelectorAll('.dropdown-menu').forEach(menu => {
+        menu.classList.add('hidden');
+    });
 });
 
-// Auto-save functionality
-let autoSaveTimeout;
-quill.on('text-change', function() {
-    clearTimeout(autoSaveTimeout);
-    autoSaveTimeout = setTimeout(function() {
-        localStorage.setItem('quill-content', quill.root.innerHTML);
-        console.log('Content auto-saved');
-    }, 1000);
+// Toggle switches update text
+document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+    checkbox.addEventListener('change', function() {
+        const statusText = this.closest('label').querySelector('.status-text');
+        if (statusText) {
+            statusText.textContent = this.checked ? 'Active' : 'Inactive';
+        }
+    });
 });
 
-// Load saved content if exists
-document.addEventListener('DOMContentLoaded', function() {
-    const savedContent = localStorage.getItem('quill-content');
-    if (savedContent) {
-        quill.root.innerHTML = savedContent;
-    }
+// Handle products table bulk actions
+const bulkActionsHandler = () => {
+    const checkAll = document.getElementById('check-all');
+    const checkboxes = document.querySelectorAll('input[name="selected_products[]"]');
+    const bulkActionsCount = document.getElementById('bulk-actions-count');
+    const bulkActionsBar = document.getElementById('bulk-actions-bar');
+
+    if (!checkAll || !checkboxes.length) return;
+
+    const updateBulkActionsBar = () => {
+        const selectedCount = document.querySelectorAll('input[name="selected_products[]"]:checked').length;
+        if (selectedCount > 0) {
+            bulkActionsCount.textContent = selectedCount;
+            bulkActionsBar.classList.remove('hidden');
+        } else {
+            bulkActionsBar.classList.add('hidden');
+        }
+    };
+
+    checkAll.addEventListener('change', function() {
+        checkboxes.forEach(checkbox => checkbox.checked = this.checked);
+        updateBulkActionsBar();
+    });
+
+    checkboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', updateBulkActionsBar);
+    });
+};
+
+// Initialize bulk actions handler
+document.addEventListener('DOMContentLoaded', bulkActionsHandler);
+
+// Handle status toggle buttons
+document.querySelectorAll('.status-toggle').forEach(button => {
+    button.addEventListener('click', async function() {
+        const productId = this.dataset.productId;
+        const currentStatus = this.dataset.status;
+        const newStatus = currentStatus === 'active' ? 'inactive' : 'active';
+        const baseUrl = this.dataset.url;
+
+        try {
+            const response = await fetch(`${baseUrl}/${productId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                },
+                body: JSON.stringify({ status: newStatus })
+            });
+
+            if (response.ok) {
+                // Update button state
+                this.dataset.status = newStatus;
+                this.classList.toggle('bg-green-500');
+                this.classList.toggle('bg-red-500');
+
+                // Update status text and icon
+                const statusText = this.querySelector('.status-text');
+                const statusIcon = this.querySelector('.status-icon');
+
+                if (statusText) {
+                    statusText.textContent = newStatus.charAt(0).toUpperCase() + newStatus.slice(1);
+                }
+
+                if (statusIcon) {
+                    statusIcon.className = `status-icon fas fa-${newStatus === 'active' ? 'check' : 'times'} mr-2`;
+                }
+            }
+        } catch (error) {
+            console.error('Error updating status:', error);
+        }
+    });
 });
 
 

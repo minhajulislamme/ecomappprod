@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
+use Intervention\Image\ImageManager;
+use Intervention\Image\Drivers\Gd\Driver;
 
 class AdminController extends Controller
 {
@@ -97,15 +99,28 @@ class AdminController extends Controller
                 }
             }
 
-            $filename = date('YmdHi') . $file->getClientOriginalName();
-            $file->move($uploadPath, $filename);
+            // Generate unique filename
+            $filename = date('YmdHi') . uniqid() . '.webp';
+
+            // Create image manager instance
+            $manager = new ImageManager(new Driver());
+
+            // Process and save the image
+            $image = $manager->read($file);
+            $image->resize(800, 800) // Fixed size 800x800
+                ->toWebp(70)  // Convert to WebP with 70% quality
+                ->save($uploadPath . '/' . $filename);
+
             $adminData['photo'] = $filename;
         }
+
         $adminData->save();
+
         $notification = array(
             'message' => 'Profile Updated Successfully',
-            'alert-type' => 'success'  // 'success' or 'error' only
+            'alert-type' => 'success'
         );
+
         return redirect()->back()->with($notification);
     }
 
