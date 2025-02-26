@@ -159,7 +159,78 @@
 
     @push('scripts')
         <script>
-            // Same JavaScript code as add_product.blade.php
+            // Initialize Quill editors
+            const initializeQuill = (editorId, contentInputId) => {
+                const editor = document.getElementById(editorId);
+                if (!editor) return null;
+
+                const quill = new Quill(`#${editorId}`, {
+                    theme: 'snow',
+                    modules: {
+                        toolbar: [
+                            [{
+                                'header': [1, 2, 3, 4, 5, 6, false]
+                            }],
+                            ['bold', 'italic', 'underline', 'strike'],
+                            [{
+                                'color': []
+                            }, {
+                                'background': []
+                            }],
+                            [{
+                                'list': 'ordered'
+                            }, {
+                                'list': 'bullet'
+                            }],
+                            [{
+                                'align': []
+                            }],
+                            ['link', 'image', 'code-block'],
+                            ['clean']
+                        ]
+                    },
+                    placeholder: 'Write your content here...'
+                });
+
+                const contentInput = document.getElementById(contentInputId);
+                if (contentInput) {
+                    // Load existing content if available
+                    if (contentInput.value) {
+                        quill.root.innerHTML = contentInput.value;
+                    }
+
+                    // Update hidden input when content changes
+                    quill.on('text-change', function() {
+                        // Save only the text content, not HTML
+                        contentInput.value = quill.getText();
+                    });
+
+                    // Ensure content is saved even if no changes were made
+                    quill.root.addEventListener('blur', function() {
+                        // Save only the text content, not HTML
+                        contentInput.value = quill.getText();
+                    });
+                }
+
+                return quill;
+            };
+
+            // Initialize both editors
+            const shortDescEditor = initializeQuill('short-description-editor', 'short-description-content');
+            const longDescEditor = initializeQuill('long-description-editor', 'long-description-content');
+
+            // Make sure form captures editor content on submit
+            const form = document.getElementById('productForm');
+            if (form) {
+                form.addEventListener('submit', function() {
+                    if (shortDescEditor) {
+                        document.getElementById('short-description-content').value = shortDescEditor.getText();
+                    }
+                    if (longDescEditor) {
+                        document.getElementById('long-description-content').value = longDescEditor.getText();
+                    }
+                });
+            }
         </script>
     @endpush
 

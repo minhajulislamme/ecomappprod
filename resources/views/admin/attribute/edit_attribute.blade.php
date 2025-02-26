@@ -53,6 +53,8 @@
                                 </option>
                                 <option value="color" {{ $attribute->attribute_type === 'color' ? 'selected' : '' }}>Color
                                 </option>
+                                <option value="number" {{ $attribute->attribute_type === 'number' ? 'selected' : '' }}>Number
+                                </option>
                             </select>
                         </div>
                     </div>
@@ -64,9 +66,9 @@
                             @foreach (json_decode($attribute->attribute_value) as $value)
                                 <div class="flex gap-2 w-full sm:w-auto">
                                     <div class="flex gap-2 items-center value-input-group w-full sm:w-auto">
-                                        <input type="text" name="attribute_values[]" required value="{{ $value }}"
+                                        <input type="{{ $attribute->attribute_type === 'number' ? 'number' : 'text' }}" name="attribute_values[]" required value="{{ $value }}"
                                             class="w-full sm:w-32 px-4 py-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none transition value-input"
-                                            placeholder="{{ $attribute->attribute_type === 'color' ? 'Enter color name' : 'Enter value' }}">
+                                            placeholder="{{ $attribute->attribute_type === 'color' ? 'Enter color name' : ($attribute->attribute_type === 'number' ? 'Enter numeric value' : 'Enter value') }}">
                                         <input type="color" value="{{ $value }}"
                                             class="color-picker {{ $attribute->attribute_type !== 'color' ? 'hidden' : '' }} h-9 w-14 cursor-pointer"
                                             onchange="updateColorValue(this)">
@@ -113,52 +115,70 @@
         </div>
     </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const container = document.getElementById('values-container');
-            const attributeType = document.getElementById('attribute_type');
 
-            function toggleColorPickers() {
-                const isColor = attributeType.value === 'color';
-                document.querySelectorAll('.color-picker').forEach(picker => {
-                    picker.classList.toggle('hidden', !isColor);
-                });
-                document.querySelectorAll('.value-input').forEach(input => {
-                    input.setAttribute('placeholder', isColor ? 'Enter color name' : 'Enter value');
-                });
-            }
+@endsection
 
-            attributeType.addEventListener('change', toggleColorPickers);
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const container = document.getElementById('values-container');
+        const attributeType = document.getElementById('attribute_type');
 
-            container.addEventListener('click', function(e) {
-                if (e.target.classList.contains('add-value')) {
-                    const isColor = attributeType.value === 'color';
-                    const newRow = document.createElement('div');
-                    newRow.className = 'flex gap-2 w-full sm:w-auto';
-                    newRow.innerHTML = `
-                        <div class="flex gap-2 items-center value-input-group w-full sm:w-auto">
-                            <input type="text" name="attribute_values[]" required
-                                class="w-full sm:w-32 px-4 py-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none transition value-input"
-                                placeholder="${isColor ? 'Enter color name' : 'Enter value'}">
-                            <input type="color"
-                                class="color-picker ${!isColor ? 'hidden' : ''} h-9 w-14 cursor-pointer"
-                                onchange="updateColorValue(this)">
-                            <button type="button" class="remove-value px-2 py-1 text-sm bg-red-500 text-white rounded-md">-</button>
-                            <button type="button" class="add-value px-2 py-1 text-sm bg-green-500 text-white rounded-md">+</button>
-                        </div>
-                    `;
-                    container.appendChild(newRow);
-                }
-
-                if (e.target.classList.contains('remove-value')) {
-                    e.target.closest('.flex.gap-2').remove();
+        function toggleColorPickers() {
+            const isColor = attributeType.value === 'color';
+            document.querySelectorAll('.color-picker').forEach(picker => {
+                picker.classList.toggle('hidden', !isColor);
+            });
+            document.querySelectorAll('.value-input').forEach(input => {
+                if (attributeType.value === 'color') {
+                    input.setAttribute('placeholder', 'Enter color name');
+                    input.setAttribute('type', 'text');
+                } else if (attributeType.value === 'number') {
+                    input.setAttribute('placeholder', 'Enter numeric value');
+                    input.setAttribute('type', 'number');
+                } else {
+                    input.setAttribute('placeholder', 'Enter value');
+                    input.setAttribute('type', 'text');
                 }
             });
-        });
-
-        function updateColorValue(colorPicker) {
-            const valueInput = colorPicker.previousElementSibling;
-            valueInput.value = colorPicker.value;
         }
-    </script>
-@endsection
+
+        attributeType.addEventListener('change', toggleColorPickers);
+
+        container.addEventListener('click', function(e) {
+            if (e.target.classList.contains('add-value')) {
+                const isColor = attributeType.value === 'color';
+                const isNumber = attributeType.value === 'number';
+                const placeholder = isColor ? 'Enter color name' : (isNumber ? 'Enter numeric value' : 'Enter value');
+                const inputType = isNumber ? 'number' : 'text';
+
+                const newRow = document.createElement('div');
+                newRow.className = 'flex gap-2 w-full sm:w-auto';
+                newRow.innerHTML = `
+                    <div class="flex gap-2 items-center value-input-group w-full sm:w-auto">
+                        <input type="${inputType}" name="attribute_values[]" required
+                            class="w-full sm:w-32 px-4 py-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none transition value-input"
+                            placeholder="${placeholder}">
+                        <input type="color"
+                            class="color-picker ${!isColor ? 'hidden' : ''} h-9 w-14 cursor-pointer"
+                            onchange="updateColorValue(this)">
+                        <button type="button" class="remove-value px-2 py-1 text-sm bg-red-500 text-white rounded-md">-</button>
+                        <button type="button" class="add-value px-2 py-1 text-sm bg-green-500 text-white rounded-md">+</button>
+                    </div>
+                `;
+                container.appendChild(newRow);
+            }
+
+            if (e.target.classList.contains('remove-value')) {
+                e.target.closest('.flex.gap-2').remove();
+            }
+        });
+    });
+
+    function updateColorValue(colorPicker) {
+        const valueInput = colorPicker.previousElementSibling;
+        valueInput.value = colorPicker.value;
+    }
+</script>
+
+@endpush

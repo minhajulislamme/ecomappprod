@@ -51,6 +51,7 @@
                                 class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none transition">
                                 <option value="text">Text</option>
                                 <option value="color">Color</option>
+                                <option value="number">Number</option>
                             </select>
                         </div>
                     </div>
@@ -99,7 +100,16 @@
                     picker.classList.toggle('hidden', !isColor);
                 });
                 document.querySelectorAll('.value-input').forEach(input => {
-                    input.setAttribute('placeholder', isColor ? 'Enter color name' : 'Enter value');
+                    if (attributeType.value === 'color') {
+                        input.setAttribute('placeholder', 'Enter color name');
+                        input.setAttribute('type', 'text');
+                    } else if (attributeType.value === 'number') {
+                        input.setAttribute('placeholder', 'Enter numeric value');
+                        input.setAttribute('type', 'number');
+                    } else {
+                        input.setAttribute('placeholder', 'Enter value');
+                        input.setAttribute('type', 'text');
+                    }
                 });
             }
 
@@ -108,13 +118,18 @@
             container.addEventListener('click', function(e) {
                 if (e.target.classList.contains('add-value')) {
                     const isColor = attributeType.value === 'color';
+                    const isNumber = attributeType.value === 'number';
+                    const placeholder = isColor ? 'Enter color name' : (isNumber ? 'Enter numeric value' :
+                        'Enter value');
+                    const inputType = isNumber ? 'number' : 'text';
+
                     const newRow = document.createElement('div');
                     newRow.className = 'flex gap-2 w-full sm:w-auto';
                     newRow.innerHTML = `
                         <div class="flex gap-2 items-center value-input-group w-full sm:w-auto">
-                            <input type="text" name="attribute_values[]" required
+                            <input type="${inputType}" name="attribute_values[]" required
                                 class="w-full sm:w-32 px-4 py-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none transition value-input"
-                                placeholder="${isColor ? 'Enter color name' : 'Enter value'}">
+                                placeholder="${placeholder}">
                             <input type="color" class="color-picker ${!isColor ? 'hidden' : ''} h-9 w-14 cursor-pointer"
                                 onchange="updateColorValue(this)">
                             <button type="button" class="remove-value px-2 py-1 text-sm bg-red-500 text-white rounded-md">-</button>
@@ -128,6 +143,9 @@
                     e.target.closest('.flex.gap-2').remove();
                 }
             });
+
+            // Initialize the first input based on selected type
+            toggleColorPickers();
         });
 
         function updateColorValue(colorPicker) {

@@ -24,7 +24,8 @@ class ProductController extends Controller
     {
         $categories = Category::active()->get();
         $attributes = Attribute::where('status', 'active')->get();
-        return view('admin.product.add_product', compact('categories', 'attributes'));
+        $subcategories = []; // Initialize empty subcategories array
+        return view('admin.product.add_product', compact('categories', 'attributes', 'subcategories'));
     }
 
     protected function uploadImage($image, $type)
@@ -122,14 +123,20 @@ class ProductController extends Controller
                 ['id' => $request->id],
                 [
                     'name' => $validated['name'],
+                    'short_description' => $request->short_description,
                     'description' => $request->description,
                     'price' => $validated['price'],
+                    'discount_price' => $request->discount_price,
                     'category_id' => $validated['category_id'],
                     'subcategory_id' => $validated['subcategory_id'],
                     'stock' => $validated['stock'],
+                    'is_featured' => $request->is_featured ?? 'no',
+                    'is_trending' => $request->is_trending ?? 'no',
+                    'is_best_selling' => $request->is_best_selling ?? 'no',
+                    'is_offer' => $request->is_offer ?? 'no',
                     'thumbnail_image' => $images['thumbnail_image'],
                     'gallery_images' => $images['gallery_images'],
-                    'status' => $request->status ?? 'draft'
+                    'status' => 'active',
                 ]
             );
 
