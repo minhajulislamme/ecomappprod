@@ -578,6 +578,53 @@
                 adjustEditorHeight();
                 window.addEventListener('resize', adjustEditorHeight);
             });
+
+            // Handle category change
+            const categorySelect = document.getElementById('category_id');
+                const subcategorySelect = document.getElementById('subcategory_id');
+
+                categorySelect.addEventListener('change', async function() {
+                    const categoryId = this.value;
+
+                    // Reset subcategory select
+                    subcategorySelect.innerHTML = '<option value="">Select Subcategory (Optional)</option>';
+                    subcategorySelect.disabled = !categoryId;
+
+                    if (categoryId) {
+                        try {
+                            const response = await fetch(`/product/get-subcategories/${categoryId}`);
+                            const subcategories = await response.json();
+
+                            if (subcategories.length > 0) {
+                                subcategories.forEach(sub => {
+                                    const option = document.createElement('option');
+                                    option.value = sub.id;
+                                    option.textContent = sub.subcategory_name;
+                                    subcategorySelect.appendChild(option);
+                                });
+                            }
+                        } catch (error) {
+                            console.error('Error loading subcategories:', error);
+                        }
+                    }
+                });
+
+                // Check if a subcategory should be selected based on the product data
+                if (categorySelect.value) {
+                    const productSubcategoryId = '{{ $product->subcategory_id ?? '' }}';
+                    if (productSubcategoryId) {
+                        setTimeout(() => {
+                            const options = subcategorySelect.querySelectorAll('option');
+                            for (let option of options) {
+                                if (option.value == productSubcategoryId) {
+                                    option.selected = true;
+                                    break;
+                                }
+                            }
+                        }, 100);
+                    }
+                }
+
         </script>
     @endpush
 @endsection
