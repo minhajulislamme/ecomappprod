@@ -110,15 +110,15 @@
                             <label class="block font-medium mb-2">Attributes</label>
                             @foreach ($attributesWithValues as $attribute)
                                 <div class="mb-4 p-3 border rounded">
-                                    <label class="block font-medium mb-2">{{ $attribute['name'] }}</label>
+                                    <label class="block font-medium mb-2">{{ $attribute['name'] }} <span
+                                            class="text-gray-500 text-sm">(Optional)</span></label>
                                     @if ($attribute['type'] === 'color')
                                         <div class="grid grid-cols-6 gap-2">
                                             @foreach ($attribute['values'] as $value)
                                                 <label class="color-option" data-value="{{ $value }}">
                                                     <input type="radio" name="attribute_values[{{ $attribute['name'] }}]"
                                                         value="{{ $value }}" class="sr-only color-radio"
-                                                        {{ old('attribute_values.' . $attribute['name'], $attribute['selected']) == $value ? 'checked' : '' }}
-                                                        required>
+                                                        {{ old('attribute_values.' . $attribute['name'], $attribute['selected'] ?? '') == $value ? 'checked' : '' }}>
                                                     <div class="color-swatch-wrapper" title="{{ $value }}">
                                                         <div class="color-preview"
                                                             style="background-color: {{ $value }}">
@@ -130,23 +130,42 @@
                                                     </div>
                                                 </label>
                                             @endforeach
+                                            <!-- Add option to remove existing color selection -->
+                                            @if (isset($attribute['selected']) && !empty($attribute['selected']))
+                                                <label class="color-option clear-option" data-value="">
+                                                    <input type="radio" name="attribute_values[{{ $attribute['name'] }}]"
+                                                        value="" class="sr-only color-radio">
+                                                    <div class="color-swatch-wrapper clear-selection"
+                                                        title="Clear selection">
+                                                        <div class="color-preview clear-preview">
+                                                            <div class="color-name">Clear</div>
+                                                        </div>
+                                                        <span class="color-check">
+                                                            <i class="ri-close-line"></i>
+                                                        </span>
+                                                    </div>
+                                                </label>
+                                            @endif
                                         </div>
                                         <div class="mt-2">
-                                            <div class="selected-color-preview hidden">
-                                                Current color: <span class="font-medium selected-color-name"></span>
-                                                <div class="selected-color-box mt-1"></div>
+                                            <div
+                                                class="selected-color-preview {{ old('attribute_values.' . $attribute['name'], $attribute['selected'] ?? '') ? '' : 'hidden' }}">
+                                                Selected color: <span
+                                                    class="font-medium selected-color-name">{{ old('attribute_values.' . $attribute['name'], $attribute['selected'] ?? '') }}</span>
+                                                <div class="selected-color-box mt-1"
+                                                    style="background-color: {{ old('attribute_values.' . $attribute['name'], $attribute['selected'] ?? '') }}">
+                                                </div>
                                             </div>
                                         </div>
                                         @error('attribute_values.' . $attribute['name'])
                                             <span class="text-red-500 text-sm mt-1">{{ $message }}</span>
                                         @enderror
                                     @else
-                                        <select name="attribute_values[{{ $attribute['name'] }}]" class="form-select"
-                                            required>
-                                            <option value="">Select {{ $attribute['name'] }}</option>
+                                        <select name="attribute_values[{{ $attribute['name'] }}]" class="form-select">
+                                            <option value="">Select {{ $attribute['name'] }} (Optional)</option>
                                             @foreach ($attribute['values'] as $value)
                                                 <option value="{{ $value }}"
-                                                    {{ old('attribute_values.' . $attribute['name'], $attribute['selected']) == $value ? 'selected' : '' }}>
+                                                    {{ old('attribute_values.' . $attribute['name'], $attribute['selected'] ?? '') == $value ? 'selected' : '' }}>
                                                     {{ $value }}
                                                 </option>
                                             @endforeach

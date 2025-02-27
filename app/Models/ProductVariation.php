@@ -20,7 +20,7 @@ class ProductVariation extends Model
         return $this->belongsTo(Product::class);
     }
 
-    protected function formatColorValue($color)
+    public function formatColorValue($color)
     {
         if (empty($color)) return null;
         if (preg_match('/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/', $color)) return $color;

@@ -96,15 +96,15 @@
                             <label class="block font-medium mb-2">Attributes</label>
                             @foreach ($attributesWithValues as $attribute)
                                 <div class="mb-4 p-3 border rounded">
-                                    <label class="block font-medium mb-2">{{ $attribute['name'] }}</label>
+                                    <label class="block font-medium mb-2">{{ $attribute['name'] }} <span
+                                            class="text-gray-500 text-sm">(Optional)</span></label>
                                     @if ($attribute['type'] === 'color')
                                         <div class="grid grid-cols-6 gap-2">
                                             @foreach ($attribute['values'] as $value)
                                                 <label class="color-option" data-value="{{ $value }}">
                                                     <input type="radio" name="attribute_values[{{ $attribute['name'] }}]"
                                                         value="{{ $value }}" class="sr-only color-radio"
-                                                        {{ old('attribute_values.' . $attribute['name']) == $value ? 'checked' : '' }}
-                                                        required>
+                                                        {{ old('attribute_values.' . $attribute['name']) == $value ? 'checked' : '' }}>
                                                     <div class="color-swatch-wrapper" title="{{ $value }}">
                                                         <div class="color-preview"
                                                             style="background-color: {{ $value }}">
@@ -124,9 +124,8 @@
                                             </div>
                                         </div>
                                     @else
-                                        <select name="attribute_values[{{ $attribute['name'] }}]" class="form-select"
-                                            required>
-                                            <option value="">Select {{ $attribute['name'] }}</option>
+                                        <select name="attribute_values[{{ $attribute['name'] }}]" class="form-select">
+                                            <option value="">Select {{ $attribute['name'] }} (Optional)</option>
                                             @foreach ($attribute['values'] as $value)
                                                 <option value="{{ $value }}"
                                                     {{ old('attribute_values.' . $attribute['name']) == $value ? 'selected' : '' }}>

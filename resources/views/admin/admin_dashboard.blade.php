@@ -22,9 +22,7 @@
 
     <!-- QuillJS CSS -->
     <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
-    <style>
-
-    </style>
+    @stack('styles')
 </head>
 
 <body class="text-gray-900 font-inter">

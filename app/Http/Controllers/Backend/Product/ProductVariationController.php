@@ -15,7 +15,7 @@ class ProductVariationController extends Controller
     public function index(Product $product)
     {
         $variations = $product->variations()->with('product')->get();
-        return view('admin.product.variation.index', compact('product', 'variations'));
+        return view('admin.product.variation.all_variation', compact('product', 'variations'));
     }
 
     public function create(Product $product)
@@ -35,6 +35,15 @@ class ProductVariationController extends Controller
         try {
             $this->validateProductAttributes($product);
             $this->validateRequest($request, $product);
+
+            // Check if a variation with the same attribute combination already exists
+            $attributeValues = $this->formatAttributeValues($product, $request->attribute_values);
+            if ($this->isDuplicateVariation($product, $attributeValues)) {
+                return redirect()
+                    ->back()
+                    ->with('error', 'A variation with these exact attributes already exists.')
+                    ->withInput();
+            }
 
             $data = $this->prepareVariationData($request, $product);
             $product->variations()->create($data);
@@ -68,6 +77,17 @@ class ProductVariationController extends Controller
         try {
             $this->validateProductAttributes($product);
             $this->validateRequest($request, $product, $variation);
+
+            // Format the new attribute values
+            $attributeValues = $this->formatAttributeValues($product, $request->attribute_values);
+
+            // Check if this would create a duplicate variation (excluding current variation)
+            if ($this->isDuplicateVariationExcludingCurrent($product, $attributeValues, $variation->id)) {
+                return redirect()
+                    ->back()
+                    ->with('error', 'A variation with these exact attributes already exists.')
+                    ->withInput();
+            }
 
             $data = $this->prepareVariationData($request, $product, $variation);
             $variation->update($data);
@@ -197,24 +217,25 @@ class ProductVariationController extends Controller
         }
     }
 
-    public function validateRequest(Request $request, Product $product, ?ProductVariation $variation = null): array
+    protected function validateRequest(Request $request, Product $product, ?ProductVariation $variation = null): array
     {
         $rules = [
             'price' => 'required|numeric|min:0',
             'discount_price' => 'nullable|numeric|min:0|lt:price',
             'stock' => 'required|integer|min:0',
             'status' => 'required|in:active,inactive',
-            'attribute_values' => 'required|array',
+            'attribute_values' => 'array', // Changed from required|array to just array
             'variation_image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5120'
         ];
 
+        // Make individual attribute fields optional instead of required
         $product->activeProductAttributes()
             ->with('attribute')
             ->get()
             ->each(function ($productAttribute) use (&$rules) {
                 if ($productAttribute->attribute && !empty($productAttribute->values)) {
                     $rules["attribute_values.{$productAttribute->attribute->attribute_name}"] = [
-                        'required',
+                        'nullable', // Changed from required to nullable
                         'in:' . implode(',', $productAttribute->values)
                     ];
                 }
@@ -261,5 +282,44 @@ class ProductVariationController extends Controller
             ->back()
             ->with('error', $e->getMessage())
             ->withInput();
+    }
+
+    protected function isDuplicateVariation(Product $product, array $attributeValues): bool
+    {
+        // Get all existing variations for this product
+        $existingVariations = $product->variations()->get();
+
+        // Check if any existing variation has the same attribute values combination
+        foreach ($existingVariations as $variation) {
+            // Only check for exact matches across all attributes
+            $existingAttrs = $variation->attribute_values;
+            if (
+                empty(array_diff_assoc($existingAttrs, $attributeValues)) &&
+                empty(array_diff_assoc($attributeValues, $existingAttrs))
+            ) {
+                return true; // Found a duplicate
+            }
+        }
+
+        return false;
+    }
+
+    protected function isDuplicateVariationExcludingCurrent(Product $product, array $attributeValues, int $currentVariationId): bool
+    {
+        // Get all existing variations for this product except the current one
+        $existingVariations = $product->variations()->where('id', '!=', $currentVariationId)->get();
+
+        // Check if any existing variation has the same attribute values combination
+        foreach ($existingVariations as $variation) {
+            $existingAttrs = $variation->attribute_values;
+            if (
+                empty(array_diff_assoc($existingAttrs, $attributeValues)) &&
+                empty(array_diff_assoc($attributeValues, $existingAttrs))
+            ) {
+                return true; // Found a duplicate
+            }
+        }
+
+        return false;
     }
 }
