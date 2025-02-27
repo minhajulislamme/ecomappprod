@@ -24,7 +24,10 @@ class ProductVariationController extends Controller
 
         if (empty($attributesWithValues)) {
             return redirect()->route('admin.products.variations.index', $product)
-                ->with('error', 'Please add attributes to the product before creating variations.');
+                ->with([
+                    'message' => 'Unable to create variation: This product has no attributes configured. Please add product attributes first.',
+                    'alert-type' => 'error'
+                ]);
         }
 
         return view('admin.product.variation.create', compact('product', 'attributesWithValues'));
@@ -41,7 +44,10 @@ class ProductVariationController extends Controller
             if ($this->isDuplicateVariation($product, $attributeValues)) {
                 return redirect()
                     ->back()
-                    ->with('error', 'A variation with these exact attributes already exists.')
+                    ->with([
+                        'message' => 'Unable to create variation: A variation with identical attributes already exists for this product.',
+                        'alert-type' => 'error'
+                    ])
                     ->withInput();
             }
 
@@ -50,7 +56,10 @@ class ProductVariationController extends Controller
 
             return redirect()
                 ->route('admin.products.variations.index', $product)
-                ->with('success', 'Variation created successfully');
+                ->with([
+                    'message' => 'Product variation has been created successfully! You can now manage it from the variations list.',
+                    'alert-type' => 'success'
+                ]);
         } catch (\Exception $e) {
             return $this->handleException($e);
         }
@@ -62,7 +71,10 @@ class ProductVariationController extends Controller
 
         if (empty($attributesWithValues)) {
             return redirect()->route('admin.products.variations.index', $product)
-                ->with('error', 'No attributes found for this product.');
+                ->with([
+                    'message' => 'Unable to edit variation: No attributes are configured for this product. Please add attributes first.',
+                    'alert-type' => 'error'
+                ]);
         }
 
         foreach ($attributesWithValues as &$attribute) {
@@ -85,7 +97,10 @@ class ProductVariationController extends Controller
             if ($this->isDuplicateVariationExcludingCurrent($product, $attributeValues, $variation->id)) {
                 return redirect()
                     ->back()
-                    ->with('error', 'A variation with these exact attributes already exists.')
+                    ->with([
+                        'message' => 'Unable to update variation: Another variation with these exact attributes already exists.',
+                        'alert-type' => 'error'
+                    ])
                     ->withInput();
             }
 
@@ -94,7 +109,10 @@ class ProductVariationController extends Controller
 
             return redirect()
                 ->route('admin.products.variations.index', $product)
-                ->with('success', 'Variation updated successfully');
+                ->with([
+                    'message' => 'Product variation has been updated successfully! All changes have been saved.',
+                    'alert-type' => 'success'
+                ]);
         } catch (\Exception $e) {
             return $this->handleException($e);
         }
@@ -107,7 +125,10 @@ class ProductVariationController extends Controller
 
         return redirect()
             ->route('admin.products.variations.index', $product)
-            ->with('success', 'Variation deleted successfully');
+            ->with([
+                'message' => 'Product variation has been permanently deleted.',
+                'alert-type' => 'success'
+            ]);
     }
 
     public function getProductAttributes(Product $product): array
@@ -251,7 +272,10 @@ class ProductVariationController extends Controller
         if ($product->activeProductAttributes()->doesntExist()) {
             redirect()
                 ->back()
-                ->with('error', 'This product has no configured attributes. Please add attributes before creating variations.')
+                ->with([
+                    'message' => 'Unable to proceed: This product has no active attributes. Please configure product attributes before managing variations.',
+                    'alert-type' => 'error'
+                ])
                 ->throwResponse();
         }
     }
@@ -278,9 +302,13 @@ class ProductVariationController extends Controller
 
     public function handleException(\Exception $e)
     {
+        Log::error('Product variation error: ' . $e->getMessage());
         return redirect()
             ->back()
-            ->with('error', $e->getMessage())
+            ->with([
+                'message' => 'An error occurred while processing your request. Please try again or contact support if the problem persists.',
+                'alert-type' => 'error'
+            ])
             ->withInput();
     }
 
