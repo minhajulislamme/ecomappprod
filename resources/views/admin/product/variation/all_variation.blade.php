@@ -113,13 +113,19 @@
                                     </td>
                                     <td class="py-2 px-4 border-b border-b-gray-50">
                                         <div class="flex items-center overflow-hidden max-w-[200px]">
-                                            @if (is_array($variation->attribute_values) && count($variation->attribute_values) > 0)
-                                                @foreach ($variation->attribute_values as $attrName => $value)
+                                            @php
+                                                $validAttributes = collect($variation->attribute_values)->filter(
+                                                    function ($value, $key) {
+                                                        return !is_null($value) && $value !== '';
+                                                    },
+                                                );
+                                            @endphp
+                                            @if ($validAttributes->isNotEmpty())
+                                                @foreach ($validAttributes as $attrName => $value)
                                                     <span class="text-[13px] font-medium text-gray-400 whitespace-nowrap">
                                                         {{ $attrName }}:
                                                         @if (strtolower($attrName) === 'color' || strtolower($attrName) === 'colour')
                                                             <span class="inline-flex items-center">
-
                                                                 <span
                                                                     class="inline-block w-4 h-4 rounded-full border border-gray-300"
                                                                     style="background-color: {{ $variation->formatColorValue($value) }};"
@@ -131,11 +137,12 @@
                                                         @endif
                                                     </span>
                                                     @if (!$loop->last)
-                                                    <span class="mx-1">|</span>
+                                                        <span class="mx-1">|</span>
                                                     @endif
                                                 @endforeach
                                             @else
-                                                <span class="text-[13px] text-gray-400 italic truncate">No attributes</span>
+                                                <span class="text-[13px] text-gray-400 italic truncate">No attributes
+                                                    selected</span>
                                             @endif
                                         </div>
                                     </td>
@@ -169,16 +176,16 @@
                                                 </li>
                                                 <li>
                                                     <form
-                                                action="{{ route('admin.products.variations.destroy', [$product->id, $variation->id]) }}"
-                                                method="POST"
-                                                onsubmit="return confirm('Are you sure you want to delete this variation?')"
-                                                class="inline">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="btn-icon text-red-500" title="Delete">
-                                                    <i class="ri-delete-bin-line"></i>
-                                                </button>
-                                            </form>
+                                                        action="{{ route('admin.products.variations.destroy', [$product->id, $variation->id]) }}"
+                                                        method="POST"
+                                                        onsubmit="return confirm('Are you sure you want to delete this variation?')"
+                                                        class="inline">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button type="submit" class="btn-icon text-red-500" title="Delete">
+                                                            <i class="ri-delete-bin-line"></i>
+                                                        </button>
+                                                    </form>
                                                 </li>
                                             </ul>
                                         </div>
