@@ -155,7 +155,7 @@
                                                 @endif
                                             </span>
                                             @if (!$loop->last)
-                                                ,
+                                            <span class="mx-1">|</span>
                                             @endif
                                             @empty
                                                 <span class="text-[13px] text-gray-400 italic truncate">No attributes</span>

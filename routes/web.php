@@ -50,7 +50,7 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
         Route::post('/category/store', 'CategoryStore')->name('category.store');
         Route::get('/category/edit/{id}', 'CategoryEdit')->name('category.edit');
         Route::post('/category/update', 'CategoryUpdate')->name('category.update');
-        Route::get('/category/delete/{id}', 'CategoryDelete')->name('category.delete');
+        Route::post('/category/delete/{id}', 'CategoryDelete')->name('category.delete');
     });
 
     // All SubCategory Routes
@@ -60,7 +60,7 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
         Route::post('/subcategory/store', 'SubCategoryStore')->name('subcategory.store');
         Route::get('/subcategory/edit/{id}', 'SubCategoryEdit')->name('subcategory.edit');
         Route::post('/subcategory/update/{id}', 'SubCategoryUpdate')->name('subcategory.update');
-        Route::get('/subcategory/delete/{id}', 'SubCategoryDelete')->name('subcategory.delete');
+        Route::post('/subcategory/delete/{id}', 'SubCategoryDelete')->name('subcategory.delete');
         Route::get('/get-subcategories/{category_id}', 'getSubcategories')->name('get.subcategories');
     });
 
@@ -71,7 +71,7 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
         Route::post('/slider/store', 'SliderStore')->name('slider.store');
         Route::get('/slider/edit/{id}', 'SliderEdit')->name('slider.edit');
         Route::post('/slider/update/{id}', 'SliderUpdate')->name('slider.update');
-        Route::get('/slider/delete/{id}', 'SliderDelete')->name('slider.delete');
+        Route::post('/slider/delete/{id}', 'SliderDelete')->name('slider.delete');
     });
 
     // All Banner Routes
@@ -81,7 +81,7 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
         Route::post('/banner/store', 'BannerStore')->name('banner.store');
         Route::get('/banner/edit/{id}', 'BannerEdit')->name('banner.edit');
         Route::post('/banner/update/{id}', 'BannerUpdate')->name('banner.update');
-        Route::get('/banner/delete/{id}', 'BannerDelete')->name('banner.delete');
+        Route::post('/banner/delete/{id}', 'BannerDelete')->name('banner.delete');
     });
 
     // All Attribute Routes
@@ -91,7 +91,7 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
         Route::post('/attribute/store', 'AttributeStore')->name('attribute.store');
         Route::get('/attribute/edit/{id}', 'AttributeEdit')->name('attribute.edit');
         Route::post('/attribute/update/{id}', 'AttributeUpdate')->name('attribute.update');
-        Route::get('/attribute/delete/{id}', 'AttributeDelete')->name('attribute.delete');
+        Route::post('/attribute/delete/{id}', 'AttributeDelete')->name('attribute.delete');
     });
 
     // All Product Routes
@@ -101,7 +101,7 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
         Route::post('/product/store', 'ProductStore')->name('product.store');
         Route::get('/product/edit/{id}', 'ProductEdit')->name('product.edit');
         Route::post('/product/update/{id}', 'ProductUpdate')->name('product.update');
-        Route::get('/product/delete/{id}', 'ProductDelete')->name('product.delete');
+        Route::post('/product/delete/{id}', 'ProductDelete')->name('product.delete');
         Route::get('/product/get-subcategories/{category_id}', 'GetSubcategories')->name('product.subcategories');
     });
 
@@ -111,8 +111,8 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
         Route::get('/products/{product}/variations/create', 'create')->name('admin.products.variations.create');
         Route::post('/products/{product}/variations', 'store')->name('admin.products.variations.store');
         Route::get('/products/{product}/variations/{variation}/edit', 'edit')->name('admin.products.variations.edit');
-        Route::put('/products/{product}/variations/{variation}', 'update')->name('admin.products.variations.update');
-        Route::delete('/products/{product}/variations/{variation}', 'destroy')->name('admin.products.variations.destroy');
+        Route::post('/products/{product}/variations/{variation}/update', 'update')->name('admin.products.variations.update');
+        Route::get('/products/{product}/variations/{variation}/delete', 'destroy')->name('admin.products.variations.destroy');
     });
 });
 

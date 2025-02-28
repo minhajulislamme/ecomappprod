@@ -96,16 +96,20 @@
 
             function toggleColorPickers() {
                 const isColor = attributeType.value === 'color';
+                const isNumber = attributeType.value === 'number';
+
                 document.querySelectorAll('.color-picker').forEach(picker => {
                     picker.classList.toggle('hidden', !isColor);
                 });
+
                 document.querySelectorAll('.value-input').forEach(input => {
-                    if (attributeType.value === 'color') {
+                    if (isColor) {
                         input.setAttribute('placeholder', 'Enter color name');
                         input.setAttribute('type', 'text');
-                    } else if (attributeType.value === 'number') {
+                    } else if (isNumber) {
                         input.setAttribute('placeholder', 'Enter numeric value');
                         input.setAttribute('type', 'number');
+                        input.setAttribute('step', 'any'); // Allow decimal numbers
                     } else {
                         input.setAttribute('placeholder', 'Enter value');
                         input.setAttribute('type', 'text');
@@ -122,6 +126,7 @@
                     const placeholder = isColor ? 'Enter color name' : (isNumber ? 'Enter numeric value' :
                         'Enter value');
                     const inputType = isNumber ? 'number' : 'text';
+                    const stepAttr = isNumber ? 'step="any"' : '';
 
                     const newRow = document.createElement('div');
                     newRow.className = 'flex gap-2 w-full sm:w-auto';
@@ -129,7 +134,7 @@
                         <div class="flex gap-2 items-center value-input-group w-full sm:w-auto">
                             <input type="${inputType}" name="attribute_values[]" required
                                 class="w-full sm:w-32 px-4 py-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none transition value-input"
-                                placeholder="${placeholder}">
+                                placeholder="${placeholder}" ${stepAttr}>
                             <input type="color" class="color-picker ${!isColor ? 'hidden' : ''} h-9 w-14 cursor-pointer"
                                 onchange="updateColorValue(this)">
                             <button type="button" class="remove-value px-2 py-1 text-sm bg-red-500 text-white rounded-md">-</button>
@@ -140,7 +145,10 @@
                 }
 
                 if (e.target.classList.contains('remove-value')) {
-                    e.target.closest('.flex.gap-2').remove();
+                    const rows = container.querySelectorAll('.flex.gap-2');
+                    if (rows.length > 1) { // Ensure at least one input remains
+                        e.target.closest('.flex.gap-2').remove();
+                    }
                 }
             });
 
