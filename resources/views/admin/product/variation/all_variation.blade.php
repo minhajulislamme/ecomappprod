@@ -175,18 +175,14 @@
                                                     </a>
                                                 </li>
                                                 <li>
-                                                    <form
-                                                        action="{{ route('admin.products.variations.destroy', [$product->id, $variation->id]) }}"
-                                                        method="POST"
-                                                        onsubmit="return confirm('Are you sure you want to delete this variation?')"
-                                                        class="inline">
-                                                        @csrf
-                                                        @method('DELETE')
-                                                        <button type="submit" class="btn-icon text-red-500" title="Delete">
-                                                            <i class="ri-delete-bin-line"></i>
-                                                        </button>
-                                                    </form>
+                                                    <a href="#"
+                                                        onclick="confirmDelete('{{ route('admin.products.variations.destroy', [$product->id, $variation->id]) }}')"
+                                                        class="flex items-center text-[13px] py-1.5 px-4 text-gray-600 hover:text-orange-500 hover:bg-gray-50">
+                                                        <i class="ri-delete-bin-line mr-2"></i>Delete
+                                                    </a>
                                                 </li>
+                                                
+
                                             </ul>
                                         </div>
                                     </td>

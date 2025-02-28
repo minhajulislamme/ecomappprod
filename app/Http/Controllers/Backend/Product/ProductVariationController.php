@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Models\Product;
 use App\Models\ProductVariation;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 use Intervention\Image\ImageManager;
 use Intervention\Image\Drivers\Gd\Driver;
 
@@ -30,7 +29,7 @@ class ProductVariationController extends Controller
                 ]);
         }
 
-        return view('admin.product.variation.create', compact('product', 'attributesWithValues'));
+        return view('admin.product.variation.add_variation', compact('product', 'attributesWithValues'));
     }
 
     public function store(Request $request, Product $product)
@@ -81,7 +80,7 @@ class ProductVariationController extends Controller
             $attribute['selected'] = $variation->attribute_values[$attribute['name']] ?? null;
         }
 
-        return view('admin.product.variation.edit', compact('product', 'variation', 'attributesWithValues'));
+        return view('admin.product.variation.edit_variation', compact('product', 'variation', 'attributesWithValues'));
     }
 
     public function update(Request $request, Product $product, ProductVariation $variation)
@@ -120,15 +119,19 @@ class ProductVariationController extends Controller
 
     public function destroy(Product $product, ProductVariation $variation)
     {
-        $this->deleteImage($variation->variation_image);
-        $variation->delete();
+        try {
+            $this->deleteImage($variation->variation_image);
+            $variation->delete();
 
-        return redirect()
-            ->route('admin.products.variations.index', $product)
-            ->with([
-                'message' => 'Product variation has been permanently deleted.',
-                'alert-type' => 'success'
-            ]);
+            return redirect()
+                ->route('admin.products.variations.index', $product)
+                ->with([
+                    'message' => 'Product variation has been deleted successfully.',
+                    'alert-type' => 'success'
+                ]);
+        } catch (\Exception $e) {
+            return $this->handleException($e);
+        }
     }
 
     public function getProductAttributes(Product $product): array
@@ -245,26 +248,33 @@ class ProductVariationController extends Controller
             'discount_price' => 'nullable|numeric|min:0|lt:price',
             'stock' => 'required|integer|min:0',
             'status' => 'required|in:active,inactive',
-            'attribute_values' => 'array', // Changed from required|array to just array
-            'variation_image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5120'
+            'attribute_values' => 'array',
+            'variation_image' => [
+                $variation ? 'nullable' : 'required',
+                'image',
+                'mimes:jpeg,png,jpg,webp',
+                'max:5120'
+            ]
         ];
 
-        // Make individual attribute fields optional instead of required
-        $product->activeProductAttributes()
-            ->with('attribute')
-            ->get()
-            ->each(function ($productAttribute) use (&$rules) {
-                if ($productAttribute->attribute && !empty($productAttribute->values)) {
-                    $rules["attribute_values.{$productAttribute->attribute->attribute_name}"] = [
-                        'nullable', // Changed from required to nullable
-                        'in:' . implode(',', $productAttribute->values)
-                    ];
-                }
-            });
+        // Make all attribute fields optional
+        foreach ($this->getProductAttributes($product) as $attribute) {
+            $attributeName = "attribute_values.{$attribute['name']}";
+            if (!empty($attribute['values'])) {
+                $rules[$attributeName] = [
+                    'nullable',
+                    'in:' . implode(',', $attribute['values'])
+                ];
+            }
+        }
 
-        return $request->validate($rules, [
-            'sale_price.lt' => 'Sale price must be less than the regular price.'
-        ]);
+        $messages = [
+            'variation_image.required' => 'The product variation image is required.',
+            'variation_image.max' => 'The image must not be larger than 5MB.',
+            'discount_price.lt' => 'The discount price must be less than the regular price.'
+        ];
+
+        return $request->validate($rules, $messages);
     }
 
     public function validateProductAttributes(Product $product): void
@@ -294,15 +304,13 @@ class ProductVariationController extends Controller
             try {
                 unlink(public_path($image));
             } catch (\Exception $e) {
-                // Log error but don't throw to prevent disrupting the main flow
-                Log::error("Failed to delete image: {$image}", ['error' => $e->getMessage()]);
+                // Silently continue if image deletion fails
             }
         }
     }
 
     public function handleException(\Exception $e)
     {
-        Log::error('Product variation error: ' . $e->getMessage());
         return redirect()
             ->back()
             ->with([
