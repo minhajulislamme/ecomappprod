@@ -313,6 +313,17 @@
                             @enderror
                         </div>
 
+                       
+
+                        <div class="w-full">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Product Video URL</label>
+                            <input type="text" name="product_video" value="{{ old('product_video') }}"
+                                placeholder="Enter product video URL"
+                                class="w-full px-4 py-2 border @error('product_video') border-red-500 @enderror border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none transition">
+                            @error('product_video')
+                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                            @enderror
+                        </div>
                         {{-- product status --}}
                         <div class="md:col-span-2">
                             <div class="grid grid-cols-2 md:grid-cols-4 gap-4">

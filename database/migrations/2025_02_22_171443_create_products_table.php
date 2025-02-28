@@ -21,6 +21,7 @@ return new class extends Migration
             $table->string('thumbnail_image');
             $table->json('gallery_images')->nullable();
             $table->integer('stock')->default(0);
+            $table->string('product_video')->nullable();
             $table->enum('is_featured', ['yes', 'no'])->default('no');
             $table->enum('is_trending', ['yes', 'no'])->default('no');
             $table->enum('is_best_selling', ['yes', 'no'])->default('no');
