@@ -11,6 +11,8 @@ use App\Http\Controllers\Backend\Attribute\AttributeController;
 use App\Http\Controllers\Backend\Product\ProductController;
 use App\Http\Controllers\Backend\Product\ProductVariationController;
 
+use App\Http\Controllers\Frontend\HomeController;
+
 
 use Illuminate\Support\Facades\Route;
 
@@ -19,9 +21,13 @@ use Illuminate\Support\Facades\Route;
 // });
 
 // Frontend Routes
-Route::get('/', function () {
-    return view('frontend.index');
-})->name('home');
+// Route::get('/', function () {
+//     return view('frontend.index');
+// })->name('home');
+
+//Home Page Route
+Route::get('/', [HomeController::class, 'index'])->name('home');
+
 
 
 
