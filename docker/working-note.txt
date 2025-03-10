@@ -3,8 +3,17 @@ docker-compose exec app bash
 docker-compose up 
 docker-compose down
 
+docker stop $(docker ps -a -q)
+docker rm $(docker ps -a -q)
+docker rmi $(docker images -q)
+docker volume rm $(docker volume ls -q)
+docker network rm $(docker network ls -q)
+docker system prune -a --volumes
 
 
+sudo systemctl stop docker
+sudo rm -rf /var/lib/docker/*
+sudo systemctl start docker
 
 
 
