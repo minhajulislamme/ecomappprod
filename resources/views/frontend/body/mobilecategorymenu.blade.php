@@ -11,43 +11,37 @@
 
         <!-- Category Items -->
         <div class="overflow-y-auto h-full pb-20">
-            <!-- Electronics Category -->
-            <div class="">
-                <div class="flex items-center justify-between p-4 hover:bg-orange-50 cursor-pointer"
-                    onclick="toggleSubcategory('electronics')">
-                    <div class="flex items-center space-x-3">
-                        <img src="https://placehold.co/32x32" class="w-8 h-8 rounded" alt="Electronics">
-                        <h3 class="font-semibold">Electronics</h3>
+            <!-- Dynamic Categories -->
+            @foreach ($Categories as $category)
+                @php
+                    $subcategories = $Subcategories->where('category_id', $category->id);
+                    $hasSubcategories = !$subcategories->isEmpty();
+                    $categoryId = 'category-' . $category->id;
+                @endphp
+                <div class="">
+                    <div class="flex items-center justify-between p-4 hover:bg-orange-50 cursor-pointer"
+                        @if ($hasSubcategories) onclick="toggleSubcategory('{{ $categoryId }}')" @endif>
+                        <div class="flex items-center space-x-3">
+                            <img src="{{ !empty($category->category_image) ? asset($category->category_image) : 'https://placehold.co/32x32' }}"
+                                class="w-8 h-8 rounded" alt="{{ $category->category_name }}">
+                            <h3 class="font-semibold">{{ $category->category_name }}</h3>
+                        </div>
+                        @if ($hasSubcategories)
+                            <i class="ri-arrow-down-s-line transition-transform duration-200"
+                                id="{{ $categoryId }}-icon"></i>
+                        @endif
                     </div>
-                    <i class="ri-arrow-down-s-line transition-transform duration-200" id="electronics-icon"></i>
+                    @if ($hasSubcategories)
+                        <div class="max-h-0 overflow-hidden transition-all duration-300 bg-gray-50"
+                            id="{{ $categoryId }}-sub">
+                            @foreach ($subcategories as $subcategory)
+                                <a href="#"
+                                    class="block px-4 py-2 pl-16 hover:bg-orange-50">{{ $subcategory->subcategory_name }}</a>
+                            @endforeach
+                        </div>
+                    @endif
                 </div>
-                <div class="max-h-0 overflow-hidden transition-all duration-300 bg-gray-50" id="electronics-sub">
-                    <a href="#" class="block px-4 py-2 pl-16 hover:bg-orange-50">Smartphones</a>
-                    <a href="#" class="block px-4 py-2 pl-16 hover:bg-orange-50">Laptops</a>
-                    <a href="#" class="block px-4 py-2 pl-16 hover:bg-orange-50">Tablets</a>
-                    <a href="#" class="block px-4 py-2 pl-16 hover:bg-orange-50">Accessories</a>
-                </div>
-            </div>
-
-            <!-- Fashion Category -->
-            <div class="">
-                <div class="flex items-center justify-between p-4 hover:bg-orange-50 cursor-pointer"
-                    onclick="toggleSubcategory('fashion')">
-                    <div class="flex items-center space-x-3">
-                        <img src="https://placehold.co/32x32" class="w-8 h-8 rounded" alt="Fashion">
-                        <h3 class="font-semibold">Fashion</h3>
-                    </div>
-                    <i class="ri-arrow-down-s-line transition-transform duration-200" id="fashion-icon"></i>
-                </div>
-                <div class="max-h-0 overflow-hidden transition-all duration-300 bg-gray-50" id="fashion-sub">
-                    <a href="#" class="block px-4 py-2 pl-16 hover:bg-orange-50">Men's Wear</a>
-                    <a href="#" class="block px-4 py-2 pl-16 hover:bg-orange-50">Women's Wear</a>
-                    <a href="#" class="block px-4 py-2 pl-16 hover:bg-orange-50">Kids</a>
-                    <a href="#" class="block px-4 py-2 pl-16 hover:bg-orange-50">Accessories</a>
-                </div>
-            </div>
-
-            <!-- Add more categories with the same pattern -->
+            @endforeach
         </div>
     </div>
 </div>

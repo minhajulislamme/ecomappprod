@@ -22,10 +22,10 @@
                         </div>
                     @endif
                     <div class="w-full h-full rounded-lg overflow-hidden">
-                        <a href="./product-details.html">
+                        <a href="{{ route('product.details', ['id' => $Product->id, 'slug' => $Product->slug]) }}">
                             <img src="{{ asset($Product->thumbnail_image) }}"
                                 class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500"
-                                alt="Product">
+                                alt="{{ $Product->name }}">
                         </a>
                     </div>
                 </div>
@@ -45,7 +45,11 @@
 
                 <!-- Product Info -->
                 <div class=" mt-2 text-center">
-                    <h3 class="font-semibold text-gray-800 mb-1 hover:text-orange-500 transition-colors truncate"> <a href="#">{{$Product->name}}</a> </h3>
+                    <h3 class="font-semibold text-gray-800 mb-1 hover:text-orange-500 transition-colors truncate">
+                        <a href="{{ route('product.details', ['id' => $Product->id, 'slug' => $Product->slug]) }}">
+                            {{ $Product->name }}
+                        </a>
+                    </h3>
                     <div class="flex items-center justify-center mb-2">
                         <div class="flex text-yellow-400 text-sm">
                             <i class="ri-star-fill"></i>
@@ -65,7 +69,7 @@
                                 <span class="text-orange-500 font-semibold">৳{{ $Product->price }}</span>
                             @endif
                         </div>
-                        <a href="./product-details.html"
+                        <a href="{{ route('product.details', ['id' => $Product->id, 'slug' => $Product->slug]) }}"
                             class="w-full flex items-center justify-center space-x-2 bg-orange-500 text-white px-4 py-2 rounded-full text-sm hover:bg-orange-600 transition-colors">
                             <i class="ri-shopping-bag-line"></i>
                             <span>Buy Now</span>

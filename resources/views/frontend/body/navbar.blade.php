@@ -11,45 +11,37 @@
                 </button>
                 <div
                     class="absolute z-10 hidden group-hover:block w-[250px] bg-white text-gray-700 shadow-lg rounded-bl-md rounded-br-md">
-                    <!-- Electronics Category -->
-                    <div class="relative group/sub py-2">
-                        <div class="flex items-center justify-between px-4 py-2 hover:bg-orange-50 cursor-pointer">
-                            <div class="flex items-center space-x-3">
-                                <img src="https://placehold.co/32x32" class="w-8 h-8 rounded" alt="Electronics">
-                                <h3 class="font-semibold">Electronics</h3>
-                            </div>
-                            <i class="ri-arrow-right-s-line"></i>
-                        </div>
-                        <!-- Subcategories -->
-                        <div
-                            class="absolute left-full top-0 hidden group-hover/sub:block w-[200px] bg-white shadow-lg rounded-md">
-                            <a href="#" class="block px-4 py-2 hover:bg-orange-50">Smartphones</a>
-                            <a href="#" class="block px-4 py-2 hover:bg-orange-50">Laptops</a>
-                            <a href="#" class="block px-4 py-2 hover:bg-orange-50">Tablets</a>
-                            <a href="#" class="block px-4 py-2 hover:bg-orange-50">Accessories</a>
-                        </div>
-                    </div>
 
-                    <!-- Fashion Category -->
-                    <div class="relative group/sub py-2">
-                        <div class="flex items-center justify-between px-4 py-2 hover:bg-orange-50 cursor-pointer">
-                            <div class="flex items-center space-x-3">
-                                <img src="https://placehold.co/32x32" class="w-8 h-8 rounded" alt="Fashion">
-                                <h3 class="font-semibold">Fashion</h3>
+                    <!-- Dynamic Categories -->
+                    @foreach ($Categories as $category)
+                        <div class="relative group/sub py-2">
+                            @php
+                                $subcategories = $Subcategories->where('category_id', $category->id);
+                                $hasSubcategories = !$subcategories->isEmpty();
+                            @endphp
+                            <div class="flex items-center justify-between px-4 py-2 hover:bg-orange-50 cursor-pointer">
+                                <div class="flex items-center space-x-3">
+                                    <img src="{{ !empty($category->category_image) ? asset($category->category_image) : 'https://placehold.co/32x32' }}"
+                                        class="w-8 h-8 rounded" alt="{{ $category->category_name }}">
+                                    <h3 class="font-semibold">{{ $category->category_name }}</h3>
+                                </div>
+                                @if ($hasSubcategories)
+                                    <i class="ri-arrow-right-s-line"></i>
+                                @endif
                             </div>
-                            <i class="ri-arrow-right-s-line"></i>
+                            <!-- Subcategories -->
+                            @if ($hasSubcategories)
+                                <div
+                                    class="absolute left-full top-0 hidden group-hover/sub:block w-[200px] bg-white shadow-lg rounded-md">
+                                    @foreach ($subcategories as $subcategory)
+                                        <a href="#"
+                                            class="block px-4 py-2 hover:bg-orange-50">{{ $subcategory->subcategory_name }}</a>
+                                    @endforeach
+                                </div>
+                            @endif
                         </div>
-                        <!-- Subcategories -->
-                        <div
-                            class="absolute left-full top-0 hidden group-hover/sub:block w-[200px] bg-white shadow-lg rounded-md">
-                            <a href="#" class="block px-4 py-2 hover:bg-orange-50">Men's Wear</a>
-                            <a href="#" class="block px-4 py-2 hover:bg-orange-50">Women's Wear</a>
-                            <a href="#" class="block px-4 py-2 hover:bg-orange-50">Kids</a>
-                            <a href="#" class="block px-4 py-2 hover:bg-orange-50">Accessories</a>
-                        </div>
-                    </div>
+                    @endforeach
 
-                    <!-- Add more categories here with the same pattern -->
                 </div>
             </div>
 
