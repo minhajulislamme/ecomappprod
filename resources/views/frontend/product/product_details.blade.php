@@ -49,14 +49,13 @@
                         <div class="relative">
                             <!-- Video Preview Button -->
                             @if ($product->product_video)
+                                <button onclick="openVideoModal()"
+                                    class="absolute bottom-2 left-2 flex items-center space-x-2 bg-white/90 hover:bg-white text-gray-800 px-2 py-2 rounded-full shadow-lg transition-all duration-300 group z-10">
+                                    <div class="w-8 h-8 bg-orange-500 rounded-full flex items-center justify-center">
+                                        <i class="ri-play-fill text-white text-xl"></i>
+                                    </div>
 
-                            <button onclick="openVideoModal()"
-                                class="absolute bottom-2 left-2 flex items-center space-x-2 bg-white/90 hover:bg-white text-gray-800 px-2 py-2 rounded-full shadow-lg transition-all duration-300 group z-10">
-                                <div class="w-8 h-8 bg-orange-500 rounded-full flex items-center justify-center">
-                                    <i class="ri-play-fill text-white text-xl"></i>
-                                </div>
-
-                            </button>
+                                </button>
                             @endif
                         </div>
                     </div>
@@ -124,60 +123,52 @@
 
                 <!-- Product Attributes -->
                 @if ($product->hasConfiguredAttributes())
-                @foreach ($product->activeProductAttributes as $productAttribute)
-                    <div class="space-y-3">
-                        <span
-                            class="text-gray-600 font-medium">{{ $productAttribute->attribute->attribute_name }}</span>
-                        <div class="flex items-center space-x-3">
-                            @foreach ($productAttribute->values as $value)
-                                @if ($productAttribute->attribute->attribute_type === 'color')
-                                    <div class="relative">
-                                        <input type="radio" name="attr_{{ $productAttribute->attribute->id }}"
-                                            id="{{ $productAttribute->attribute->id }}_{{ $loop->index }}"
-                                            value="{{ $value }}" class="sr-only peer">
-                                        <label for="{{ $productAttribute->attribute->id }}_{{ $loop->index }}"
-                                            class="block w-8 h-8 rounded-full cursor-pointer ring-offset-2 peer-checked:ring-2 peer-checked:ring-orange-500"
-                                            style="background-color: {{ $value }}">
-                                        </label>
-                                    </div>
-                                @else
-                                    <div class="relative">
-                                        <input type="radio" name="attr_{{ $productAttribute->attribute->id }}"
-                                            id="{{ $productAttribute->attribute->id }}_{{ $loop->index }}"
-                                            value="{{ $value }}" class="sr-only peer">
-                                        <label for="{{ $productAttribute->attribute->id }}_{{ $loop->index }}"
-                                            class="flex items-center justify-center w-10 h-10 rounded-lg border-2 border-gray-300 cursor-pointer peer-checked:border-orange-500 peer-checked:bg-orange-50 peer-checked:text-orange-500">
-                                            {{ $value }}
-                                        </label>
-                                    </div>
-                                @endif
-                            @endforeach
+                    @foreach ($product->activeProductAttributes as $productAttribute)
+                        <div class="space-y-3">
+                            <span
+                                class="text-gray-600 font-medium">{{ $productAttribute->attribute->attribute_name }}</span>
+                            <div class="flex items-center space-x-3">
+                                @foreach ($productAttribute->values as $value)
+                                    @if ($productAttribute->attribute->attribute_type === 'color')
+                                        <div class="relative">
+                                            <input type="radio" name="attr_{{ $productAttribute->attribute->id }}"
+                                                id="{{ $productAttribute->attribute->id }}_{{ $loop->index }}"
+                                                value="{{ $value }}" class="sr-only peer">
+                                            <label for="{{ $productAttribute->attribute->id }}_{{ $loop->index }}"
+                                                class="block w-8 h-8 rounded-full cursor-pointer ring-offset-2 peer-checked:ring-2 peer-checked:ring-orange-500"
+                                                style="background-color: {{ $value }}">
+                                            </label>
+                                        </div>
+                                    @else
+                                        <div class="relative">
+                                            <input type="radio" name="attr_{{ $productAttribute->attribute->id }}"
+                                                id="{{ $productAttribute->attribute->id }}_{{ $loop->index }}"
+                                                value="{{ $value }}" class="sr-only peer">
+                                            <label for="{{ $productAttribute->attribute->id }}_{{ $loop->index }}"
+                                                class="flex items-center justify-center w-10 h-10 rounded-lg border-2 border-gray-300 cursor-pointer peer-checked:border-orange-500 peer-checked:bg-orange-50 peer-checked:text-orange-500">
+                                                {{ $value }}
+                                            </label>
+                                        </div>
+                                    @endif
+                                @endforeach
+                            </div>
                         </div>
-                    </div>
-                @endforeach
+                    @endforeach
                 @endif
 
-
-                <!-- Quantity -->
-                <div class="space-y-3">
-                    <span class="text-gray-600 font-medium">Quantity</span>
-                    <div class="flex items-center space-x-4">
-                        <div class="flex items-center border border-orange-500 rounded-lg overflow-hidden">
-                            <button id="decrementBtn" onclick="decrementQuantity()"
-                                class="w-10 h-10 bg-white hover:bg-orange-50 text-orange-500 flex items-center justify-center border-r border-orange-500 transition-colors duration-200">
-                                <i class="ri-subtract-line text-xl"></i>
-                            </button>
-                            <input type="number" id="quantity" value="1" min="1" max="12"
-                                class="w-10 h-10 text-center bg-white focus:outline-none text-gray-700 text-lg font-medium"
-                                readonly>
-                            <button id="incrementBtn" onclick="incrementQuantity()"
-                                class="w-10 h-10 bg-white hover:bg-orange-50 text-orange-500 flex items-center justify-center border-l border-orange-500 transition-colors duration-200">
-                                <i class="ri-add-line text-xl"></i>
-                            </button>
-                        </div>
-                        <span class="text-sm text-gray-500">
-                            (<span id="stockCount" class="font-medium text-orange-500">12</span> pieces available)
-                        </span>
+                <!-- Product Quantity Selector -->
+                <div class="flex items-center space-x-4 py-4">
+                    <span class="text-gray-600 font-medium">Quantity:</span>
+                    <div class="flex items-center border border-gray-300 rounded-lg">
+                        <button type="button" id="decreaseQuantity" class="px-3 py-2 text-lg text-gray-600 hover:text-orange-500 focus:outline-none">
+                            <i class="ri-subtract-line"></i>
+                        </button>
+                        <input type="number" id="quantity" name="quantity" min="1" value="1" 
+                               class="w-12 text-center border-0 focus:outline-none focus:ring-0 p-0 text-gray-800" 
+                               readonly>
+                        <button type="button" id="increaseQuantity" class="px-3 py-2 text-lg text-gray-600 hover:text-orange-500 focus:outline-none">
+                            <i class="ri-add-line"></i>
+                        </button>
                     </div>
                 </div>
 
@@ -757,84 +748,9 @@
                 },
             });
 
-            // Initialize quantity functionality
-            initializeQuantityControls();
-
             // Initialize tabs
             switchTab('description');
         });
-
-        function initializeQuantityControls() {
-            // Set up max stock value
-            const stockCount = document.getElementById('stockCount');
-            const maxStock = 12; // This could be dynamic from server
-            stockCount.setAttribute('data-max-stock', maxStock);
-
-            // Set initial values
-            updateQuantityUI(1);
-
-            // Prevent manual input on quantity field
-            const quantityInput = document.getElementById('quantity');
-            quantityInput.addEventListener('keydown', (e) => {
-                e.preventDefault();
-            });
-
-            quantityInput.addEventListener('input', (e) => {
-                e.preventDefault();
-                e.target.value = e.target.dataset.lastValue || 1;
-            });
-        }
-
-        function updateQuantityUI(value) {
-            const input = document.getElementById('quantity');
-            const stockCount = document.getElementById('stockCount');
-            const maxStock = parseInt(stockCount.getAttribute('data-max-stock') || '12');
-            const decrementBtn = document.getElementById('decrementBtn');
-            const incrementBtn = document.getElementById('incrementBtn');
-
-            // Store the value for reference if needed
-            input.dataset.lastValue = value;
-
-            // Update the input value and available stock display
-            input.value = value;
-            stockCount.textContent = maxStock - value;
-
-            // Update button states visually
-            if (value <= 1) {
-                decrementBtn.disabled = true;
-                decrementBtn.classList.add('opacity-50', 'cursor-not-allowed');
-            } else {
-                decrementBtn.disabled = false;
-                decrementBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-            }
-
-            if (value >= maxStock) {
-                incrementBtn.disabled = true;
-                incrementBtn.classList.add('opacity-50', 'cursor-not-allowed');
-            } else {
-                incrementBtn.disabled = false;
-                incrementBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-            }
-        }
-
-        function incrementQuantity() {
-            const input = document.getElementById('quantity');
-            const currentValue = parseInt(input.value) || 1;
-            const maxStock = parseInt(document.getElementById('stockCount').getAttribute('data-max-stock') || '12');
-
-            if (currentValue < maxStock) {
-                updateQuantityUI(currentValue + 1);
-            }
-        }
-
-        function decrementQuantity() {
-            const input = document.getElementById('quantity');
-            const currentValue = parseInt(input.value) || 1;
-
-            if (currentValue > 1) {
-                updateQuantityUI(currentValue - 1);
-            }
-        }
 
         function openVideoModal() {
             const modal = document.getElementById('videoModal');
@@ -886,6 +802,32 @@
         document.addEventListener('DOMContentLoaded', () => {
             switchTab('description');
         });
+
+        // Add product quantity functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const quantityInput = document.getElementById('quantity');
+            const decreaseBtn = document.getElementById('decreaseQuantity');
+            const increaseBtn = document.getElementById('increaseQuantity');
+
+            decreaseBtn.addEventListener('click', function() {
+                const currentValue = parseInt(quantityInput.value);
+                if (currentValue > 1) {
+                    quantityInput.value = currentValue - 1;
+                }
+            });
+
+            increaseBtn.addEventListener('click', function() {
+                const currentValue = parseInt(quantityInput.value);
+                quantityInput.value = currentValue + 1;
+            });
+
+            // Ensure the input doesn't go below 1 if manually changed
+            quantityInput.addEventListener('change', function() {
+                if (this.value < 1) {
+                    this.value = 1;
+                }
+            });
+        });
     </script>
 
     <!-- Update the style section -->
@@ -924,4 +866,3 @@
         }
     </style>
 @endsection
-
