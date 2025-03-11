@@ -121,64 +121,42 @@
 
                 </div>
 
-                <!-- Color Selection -->
-                <div class="space-y-3">
-                    <span class="text-gray-600 font-medium">Color</span>
-                    <div class="flex items-center space-x-3">
-                        <div class="relative">
-                            <input type="radio" name="color" id="red" class="sr-only peer">
-                            <label for="red"
-                                class="block w-8 h-8 rounded-full bg-red-500 cursor-pointer ring-offset-2 peer-checked:ring-2 peer-checked:ring-red-500"></label>
-                        </div>
-                        <div class="relative">
-                            <input type="radio" name="color" id="blue" class="sr-only peer">
-                            <label for="blue"
-                                class="block w-8 h-8 rounded-full bg-blue-500 cursor-pointer ring-offset-2 peer-checked:ring-2 peer-checked:ring-blue-500"></label>
-                        </div>
-                        <div class="relative">
-                            <input type="radio" name="color" id="green" class="sr-only peer">
-                            <label for="green"
-                                class="block w-8 h-8 rounded-full bg-green-500 cursor-pointer ring-offset-2 peer-checked:ring-2 peer-checked:ring-green-500"></label>
-                        </div>
-                        <div class="relative">
-                            <input type="radio" name="color" id="purple" class="sr-only peer">
-                            <label for="purple"
-                                class="block w-8 h-8 rounded-full bg-purple-500 cursor-pointer ring-offset-2 peer-checked:ring-2 peer-checked:ring-purple-500"></label>
-                        </div>
-                    </div>
-                </div>
 
-                <!-- Size Selection -->
-                <div class="space-y-3">
-                    <span class="text-gray-600 font-medium">Size</span>
-                    <div class="flex items-center space-x-3">
-                        <div class="relative">
-                            <input type="radio" name="size" id="XS" class="sr-only peer">
-                            <label for="XS"
-                                class="flex items-center justify-center w-10 h-10 rounded-lg border-2 border-gray-300 cursor-pointer peer-checked:border-orange-500 peer-checked:bg-orange-50 peer-checked:text-orange-500">XS</label>
-                        </div>
-                        <div class="relative">
-                            <input type="radio" name="size" id="S" class="sr-only peer">
-                            <label for="S"
-                                class="flex items-center justify-center w-10 h-10 rounded-lg border-2 border-gray-300 cursor-pointer peer-checked:border-orange-500 peer-checked:bg-orange-50 peer-checked:text-orange-500">S</label>
-                        </div>
-                        <div class="relative">
-                            <input type="radio" name="size" id="M" class="sr-only peer">
-                            <label for="M"
-                                class="flex items-center justify-center w-10 h-10 rounded-lg border-2 border-gray-300 cursor-pointer peer-checked:border-orange-500 peer-checked:bg-orange-50 peer-checked:text-orange-500">M</label>
-                        </div>
-                        <div class="relative">
-                            <input type="radio" name="size" id="L" class="sr-only peer">
-                            <label for="L"
-                                class="flex items-center justify-center w-10 h-10 rounded-lg border-2 border-gray-300 cursor-pointer peer-checked:border-orange-500 peer-checked:bg-orange-50 peer-checked:text-orange-500">L</label>
-                        </div>
-                        <div class="relative">
-                            <input type="radio" name="size" id="XL" class="sr-only peer">
-                            <label for="XL"
-                                class="flex items-center justify-center w-10 h-10 rounded-lg border-2 border-gray-300 cursor-pointer peer-checked:border-orange-500 peer-checked:bg-orange-50 peer-checked:text-orange-500">XL</label>
+                <!-- Product Attributes -->
+                @if ($product->hasConfiguredAttributes())
+                @foreach ($product->activeProductAttributes as $productAttribute)
+                    <div class="space-y-3">
+                        <span
+                            class="text-gray-600 font-medium">{{ $productAttribute->attribute->attribute_name }}</span>
+                        <div class="flex items-center space-x-3">
+                            @foreach ($productAttribute->values as $value)
+                                @if ($productAttribute->attribute->attribute_type === 'color')
+                                    <div class="relative">
+                                        <input type="radio" name="attr_{{ $productAttribute->attribute->id }}"
+                                            id="{{ $productAttribute->attribute->id }}_{{ $loop->index }}"
+                                            value="{{ $value }}" class="sr-only peer">
+                                        <label for="{{ $productAttribute->attribute->id }}_{{ $loop->index }}"
+                                            class="block w-8 h-8 rounded-full cursor-pointer ring-offset-2 peer-checked:ring-2 peer-checked:ring-orange-500"
+                                            style="background-color: {{ $value }}">
+                                        </label>
+                                    </div>
+                                @else
+                                    <div class="relative">
+                                        <input type="radio" name="attr_{{ $productAttribute->attribute->id }}"
+                                            id="{{ $productAttribute->attribute->id }}_{{ $loop->index }}"
+                                            value="{{ $value }}" class="sr-only peer">
+                                        <label for="{{ $productAttribute->attribute->id }}_{{ $loop->index }}"
+                                            class="flex items-center justify-center w-10 h-10 rounded-lg border-2 border-gray-300 cursor-pointer peer-checked:border-orange-500 peer-checked:bg-orange-50 peer-checked:text-orange-500">
+                                            {{ $value }}
+                                        </label>
+                                    </div>
+                                @endif
+                            @endforeach
                         </div>
                     </div>
-                </div>
+                @endforeach
+                @endif
+
 
                 <!-- Quantity -->
                 <div class="space-y-3">
@@ -706,7 +684,7 @@
 
 
 
-          
+
 
         </div>
 
@@ -946,3 +924,4 @@
         }
     </style>
 @endsection
+
