@@ -124,7 +124,7 @@
                 <!-- Product Attributes -->
                 @if ($product->hasConfiguredAttributes())
                     @foreach ($product->activeProductAttributes as $productAttribute)
-                        <div class="space-y-3">
+                        <div class="space-y-3" data-attribute-group="{{ $productAttribute->attribute->attribute_name }}">
                             <span
                                 class="text-gray-600 font-medium">{{ $productAttribute->attribute->attribute_name }}</span>
                             <div class="flex items-center space-x-3">
@@ -181,10 +181,10 @@
                         <span>Buy Now</span>
                     </a>
                     <div class="flex items-center space-x-2">
-                        <a href="#"
+                        <button type="button" onclick="addToCart({{ $product->id }})"
                             class="flex items-center justify-center w-12 h-12 bg-orange-500 hover:bg-orange-600 text-white rounded-lg transition duration-200">
                             <i class="ri-shopping-cart-2-line text-xl"></i>
-                        </a>
+                        </button>
                         <a href="#"
                             class="flex items-center justify-center w-12 h-12 border-2 border-gray-300 hover:border-orange-500 hover:text-orange-500 rounded-lg transition duration-200">
                             <i class="ri-heart-line text-xl"></i>
@@ -829,6 +829,99 @@
                 }
             });
         });
+
+        // Add to cart function
+        function addToCart(productId) {
+            const quantity = parseInt(document.getElementById('quantity').value);
+            const attributes = {};
+            let hasAllAttributes = true;
+
+            // Get all attribute groups
+            const attributeGroups = document.querySelectorAll('[data-attribute-group]');
+
+            attributeGroups.forEach(group => {
+                const groupName = group.getAttribute('data-attribute-group');
+                const selected = group.querySelector('input[name^="attr_"]:checked');
+                if (!selected) {
+                    hasAllAttributes = false;
+                    Swal.fire({
+                        title: 'Missing Selection',
+                        text: `Please select ${groupName}`,
+                        icon: 'warning',
+                        toast: true,
+                        position: 'top-end',
+                        showConfirmButton: false,
+                        timer: 3000,
+                        timerProgressBar: true
+                    });
+                    return;
+                }
+                // Store attribute name and value
+                const attrId = selected.name.replace('attr_', '');
+                attributes[attrId] = selected.value;
+            });
+
+            if (!hasAllAttributes) return;
+
+            const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+            fetch("{{ route('cart.add') }}", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRF-TOKEN': token
+                    },
+                    credentials: 'same-origin',
+                    body: JSON.stringify({
+                        product_id: productId,
+                        quantity: quantity,
+                        attributes: attributes
+                    })
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        return response.json().then(err => Promise.reject(err));
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        document.querySelectorAll('.cart-count').forEach(counter => {
+                            counter.textContent = data.cart_count;
+                        });
+
+                        Swal.fire({
+                            title: 'Success!',
+                            text: data.message,
+                            icon: 'success',
+                            toast: true,
+                            position: 'top-end',
+                            showConfirmButton: false,
+                            timer: 3000,
+                            timerProgressBar: true
+                        });
+
+                        updateCartDrawer();
+                    } else {
+                        throw new Error(data.message || 'Failed to add product to cart');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    Swal.fire({
+                        title: 'Error!',
+                        text: error.message || 'Failed to add product to cart',
+                        icon: 'error',
+                        toast: true,
+                        position: 'top-end',
+                        showConfirmButton: false,
+                        timer: 3000,
+                        timerProgressBar: true
+                    });
+                });
+        }
     </script>
 
     <!-- Update the style section -->

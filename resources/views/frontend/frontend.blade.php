@@ -13,17 +13,18 @@
     <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
     <!-- CSS -->
     @vite(['resources/css/frontend/app.css', 'resources/js/frontend/app.js'])
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 </head>
 
 <body class="bg-gray-100 font-jost">
     <!-- top bar start  -->
     @include('frontend.body.topbar')
     <!-- Mobile/Tablet View -->
-   @include('frontend.body.mobiletopbar')
+    @include('frontend.body.mobiletopbar')
     <!-- top bar end  -->
 
     <!-- Navbar start  -->
-   @include('frontend.body.navbar')
+    @include('frontend.body.navbar')
     <!-- Navbar end  -->
 
     <!-- Mobile Bottom Navigation -->
@@ -135,7 +136,7 @@
 
 
     <!-- Cart Sidebar -->
-   @include('frontend.body.cartsidebar')
+    @include('frontend.body.cartsidebar')
 
     <!-- Wishlist Sidebar -->
     @include('frontend.body.wishlistsidebar')
@@ -189,10 +190,72 @@
             }
         @endif
     </script>
+    <script>
+        // Add this before other scripts
+        function updateCartDrawer() {
+            fetch("{{ route('cart.get') }}")
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const cartContent = document.getElementById('cartContent');
+                        if (cartContent) {
+                            let cartHtml = '';
+
+                            if (Object.keys(data.cart).length > 0) {
+                                cartHtml += '<div class="overflow-y-auto max-h-[60vh]">';
+
+                                Object.values(data.cart).forEach(item => {
+                                    cartHtml += `
+                                    <div id="cart-item-${item.id}" class="cart-item flex items-center gap-4 border-b py-4">
+                                        <img src="${item.image}" alt="${item.name}" class="w-20 h-20 object-cover rounded">
+                                        <div class="flex-1">
+                                            <h3 class="font-medium text-gray-800">${item.name}</h3>
+                                            <div class="flex items-center justify-between mt-2">
+                                                <div class="flex items-center border rounded">
+                                                    <button onclick="updateCartItemQuantity(${item.id}, ${item.quantity - 1})" class="px-2 py-1 text-gray-600 hover:bg-gray-100">-</button>
+                                                    <span class="quantity-value px-3 py-1">${item.quantity}</span>
+                                                    <button onclick="updateCartItemQuantity(${item.id}, ${item.quantity + 1})" class="px-2 py-1 text-gray-600 hover:bg-gray-100">+</button>
+                                                </div>
+                                                <span class="font-medium text-orange-500">৳${(item.price * item.quantity).toFixed(2)}</span>
+                                            </div>
+                                        </div>
+                                        <button onclick="removeFromCart(${item.id})" class="text-gray-400 hover:text-red-500">
+                                            <i class="ri-close-line text-xl"></i>
+                                        </button>
+                                    </div>`;
+                                });
+
+                                cartHtml += '</div>';
+                                cartHtml += `
+                                <div class="border-t pt-4 mt-2">
+                                    <div class="flex items-center justify-between mb-4">
+                                        <span class="text-gray-600">Subtotal:</span>
+                                        <span class="font-semibold text-orange-500">৳${data.total.toFixed(2)}</span>
+                                    </div>
+                                    <a href="{{ route('cart.view') }}" class="w-full block py-2 px-4 bg-orange-500 text-white text-center rounded-md hover:bg-orange-600 transition-colors">
+                                        View Cart
+                                    </a>
+                                </div>`;
+                            } else {
+                                cartHtml = '<div class="py-8 text-center text-gray-500">Your cart is empty</div>';
+                            }
+
+                            cartContent.innerHTML = cartHtml;
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching cart:', error);
+                });
+        }
+
+        // Add this to update cart on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            updateCartDrawer();
+        });
+    </script>
 
     @yield('scripts')
 </body>
-
-</html>
 
 </html>

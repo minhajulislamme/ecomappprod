@@ -10,9 +10,8 @@ use App\Http\Controllers\Backend\Slider\SliderController;
 use App\Http\Controllers\Backend\Attribute\AttributeController;
 use App\Http\Controllers\Backend\Product\ProductController;
 use App\Http\Controllers\Backend\Product\ProductVariationController;
-
 use App\Http\Controllers\Frontend\HomeController;
-
+use App\Http\Controllers\Frontend\CartController;
 
 use Illuminate\Support\Facades\Route;
 
@@ -32,9 +31,13 @@ Route::get('/product/category/{id}/{slug}', [HomeController::class, 'ProductCate
 Route::get('/product/subcategory/{id}/{slug?}', [HomeController::class, 'ProductSubCategory'])->name('product.subcategory');
 Route::get('/shop', [HomeController::class, 'Shop'])->name('shop');
 
-
-
-
+// Cart Routes
+Route::post('/cart/add', [CartController::class, 'addToCart'])->name('cart.add');
+Route::get('/cart/get', [CartController::class, 'getCart'])->name('cart.get');
+Route::post('/cart/update', [CartController::class, 'updateCart'])->name('cart.update');
+Route::post('/cart/remove', [CartController::class, 'removeFromCart'])->name('cart.remove');
+Route::get('/cart', [CartController::class, 'viewCart'])->name('cart.view');
+Route::get('/cart/clear', [CartController::class, 'clearCart'])->name('cart.clear');
 
 // User Routes
 Route::middleware(['auth', 'verified', 'user'])->group(function () {
@@ -127,9 +130,6 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
     });
 });
 
-
-
-
 // Super Admin Routes - define super admin accessible routes here
 Route::middleware(['auth', 'verified', 'super_admin'])->group(function () {
     Route::get('/superadmin/dashboard', function () {
@@ -137,12 +137,10 @@ Route::middleware(['auth', 'verified', 'super_admin'])->group(function () {
     })->name('superadmin.dashboard');
 });
 
-
 // All public route
 // admin login routes will be defined here
 Route::get('/admin/login', [AdminController::class, 'AdminLogin'])->name('admin.login');
 Route::post('/admin/login/store', [AdminController::class, 'AdminLoginStore'])->name('admin.login.store');
-
 
 // Profile Routes
 Route::middleware('auth')->group(function () {

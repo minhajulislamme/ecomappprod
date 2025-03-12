@@ -38,6 +38,7 @@
                         <i class="ri-heart-line text-lg"></i>
                     </a>
                     <a href="#"
+                        onclick="handleCartClick({{ $Product->id }}, {{ $Product->hasConfiguredAttributes() }}); return false;"
                         class="p-3 bg-white rounded-full shadow-lg hover:bg-orange-500 hover:text-white text-gray-600 transition-all transform hover:scale-110 w-10 h-10 flex items-center justify-center">
                         <i class="ri-shopping-cart-line text-lg"></i>
                     </a>
@@ -78,9 +79,247 @@
                 </div>
             </div>
         @endforeach
-
-
     </div>
-
-
 </div>
+
+<script>
+    function handleCartClick(productId, hasAttributes) {
+        if (hasAttributes) {
+            // Redirect to product details page if product has attributes
+            window.location.href = `{{ url('/product-details') }}/${productId}/${productId}`;
+            return;
+        }
+
+        // Direct add to cart for products without attributes
+        addToCart(productId, 1);
+    }
+
+    function addToCart(productId, quantity) {
+        const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+        fetch("{{ route('cart.add') }}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRF-TOKEN': token
+                },
+                credentials: 'same-origin',
+                body: JSON.stringify({
+                    product_id: productId,
+                    quantity: quantity
+                })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(err => Promise.reject(err));
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    // Update cart count
+                    document.querySelectorAll('.cart-count').forEach(counter => {
+                        counter.textContent = data.cart_count;
+                    });
+
+                    // Show success notification
+                    Swal.fire({
+                        title: 'Success!',
+                        text: data.message,
+                        icon: 'success',
+                        toast: true,
+                        position: 'top-end',
+                        showConfirmButton: false,
+                        timer: 3000,
+                        timerProgressBar: true
+                    });
+
+                    updateCartDrawer();
+                } else {
+                    throw new Error(data.message || 'Failed to add product to cart');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                Swal.fire({
+                    title: 'Error!',
+                    text: error.message || 'Failed to add product to cart',
+                    icon: 'error',
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 3000,
+                    timerProgressBar: true
+                });
+            });
+    }
+
+    function updateCartDrawer() {
+        fetch("{{ route('cart.get') }}")
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const cartContent = document.getElementById('cartContent');
+                    if (cartContent) {
+                        let cartHtml = '';
+
+                        if (Object.keys(data.cart).length > 0) {
+                            cartHtml += '<div class="overflow-y-auto max-h-[60vh]">';
+
+                            Object.values(data.cart).forEach(item => {
+                                cartHtml += `
+                                <div id="cart-item-${item.id}" class="cart-item flex items-center gap-4 border-b py-4" data-base-price="${item.price}">
+                                    <img src="${item.image}" alt="${item.name}" class="w-20 h-20 object-cover rounded">
+                                    <div class="flex-1">
+                                        <h3 class="font-medium text-gray-800">${item.name}</h3>
+                                        <div class="flex items-center justify-between mt-2">
+                                            <div class="flex items-center border rounded">
+                                                <button onclick="updateCartItemQuantity(${item.id}, ${item.quantity - 1})" class="px-2 py-1 text-gray-600 hover:bg-gray-100">-</button>
+                                                <span class="quantity-value px-3 py-1">${item.quantity}</span>
+                                                <button onclick="updateCartItemQuantity(${item.id}, ${item.quantity + 1})" class="px-2 py-1 text-gray-600 hover:bg-gray-100">+</button>
+                                            </div>
+                                            <span class="item-price font-medium text-orange-500">৳${(item.price * item.quantity).toFixed(2)}</span>
+                                        </div>
+                                    </div>
+                                    <button onclick="removeFromCart(${item.id})" class="text-gray-400 hover:text-red-500">
+                                        <i class="ri-close-line text-xl"></i>
+                                    </button>
+                                </div>`;
+                            });
+
+                            cartHtml += '</div>';
+
+                            // Add subtotal and checkout button
+                            cartHtml += `
+                            <div class="border-t pt-4 mt-2">
+                                <div class="flex items-center justify-between mb-4">
+                                    <span class="text-gray-600">Subtotal:</span>
+                                    <span id="cart-subtotal" class="font-semibold text-orange-500">৳${data.total.toFixed(2)}</span>
+                                </div>
+                                <a href="{{ route('cart.view') }}" class="w-full block py-2 px-4 bg-orange-500 text-white text-center rounded-md hover:bg-orange-600 transition-colors">
+                                    View Cart
+                                </a>
+                            </div>`;
+                        } else {
+                            cartHtml = '<div class="py-8 text-center text-gray-500">Your cart is empty</div>';
+                        }
+
+                        cartContent.innerHTML = cartHtml;
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching cart:', error);
+            });
+    }
+
+    function removeFromCart(productId) {
+        fetch("{{ route('cart.remove') }}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({
+                    product_id: productId
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Update cart count in UI
+                    const cartCounts = document.querySelectorAll('.cart-count');
+                    cartCounts.forEach(counter => {
+                        counter.textContent = data.cart_count;
+                    });
+
+                    // Remove item from the cart drawer
+                    const cartItem = document.getElementById(`cart-item-${productId}`);
+                    if (cartItem) {
+                        cartItem.remove();
+                    }
+
+                    // Update subtotal
+                    updateCartSubtotal();
+
+                    // Show notification
+                    showNotification('Success', data.message, 'success');
+
+                    // If cart is empty, update the drawer
+                    if (data.cart_count === 0) {
+                        updateCartDrawer();
+                    }
+                } else {
+                    showNotification('Error', data.message, 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error removing from cart:', error);
+                showNotification('Error', 'Failed to remove item from cart', 'error');
+            });
+    }
+
+    function updateCartItemQuantity(productId, quantity) {
+        if (quantity < 1) return;
+
+        fetch("{{ route('cart.update') }}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({
+                    product_id: productId,
+                    quantity: quantity
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const quantityElement = document.querySelector(`#cart-item-${productId} .quantity-value`);
+                    const priceElement = document.querySelector(`#cart-item-${productId} .item-price`);
+
+                    if (quantityElement) {
+                        quantityElement.textContent = quantity;
+                    }
+
+                    if (priceElement) {
+                        priceElement.textContent = `৳${data.item_total.toFixed(2)}`;
+                    }
+
+                    // Update subtotal
+                    updateCartSubtotal();
+                } else {
+                    showNotification('Error', data.message, 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error updating cart:', error);
+                showNotification('Error', 'Failed to update cart', 'error');
+            });
+    }
+
+    function updateCartSubtotal() {
+        fetch("{{ route('cart.get') }}")
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const subtotalElement = document.getElementById('cart-subtotal');
+                    if (subtotalElement) {
+                        subtotalElement.textContent = `৳${data.total.toFixed(2)}`;
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error updating subtotal:', error);
+            });
+    }
+
+    function showNotification(title, message, type) {
+        // You can implement a toast notification system here
+        // For now, we'll use a simple alert
+        alert(`${title}: ${message}`);
+    }
+</script>
