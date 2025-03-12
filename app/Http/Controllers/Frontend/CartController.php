@@ -37,18 +37,25 @@ class CartController extends Controller
             }
         }
 
+        // Check if item already exists in cart with same attributes
         if (isset($cart[$cartKey])) {
-            $cart[$cartKey]['quantity'] += $quantity;
-        } else {
-            $cart[$cartKey] = [
-                'id' => $product->id,
-                'name' => $product->name,
-                'quantity' => $quantity,
-                'price' => $product->discount_price ?? $product->price,
-                'image' => asset($product->thumbnail_image),
-                'attributes' => $request->input('attributes', [])
-            ];
+            return response()->json([
+                'success' => false,
+                'message' => 'This item is already in your cart. You can update the quantity from the cart.',
+                'cart_count' => count($cart),
+                'cart' => $cart
+            ], 400);
         }
+
+        // Add new item to cart
+        $cart[$cartKey] = [
+            'id' => $product->id,
+            'name' => $product->name,
+            'quantity' => $quantity,
+            'price' => $product->discount_price ?? $product->price,
+            'image' => asset($product->thumbnail_image),
+            'attributes' => $request->input('attributes', [])
+        ];
 
         Session::put('cart', $cart);
 

@@ -22,7 +22,7 @@
                 onclick="toggleCart(); return false;">
                 <i class="ri-shopping-cart-line"></i>
                 <span
-                    class="absolute -top-1 -right-1 bg-orange-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                    class="absolute -top-1 -right-1 bg-orange-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center cart-count">
                     {{ count(Session::get('cart', [])) }}
                 </span>
             </a>

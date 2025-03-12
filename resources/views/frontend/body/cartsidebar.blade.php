@@ -57,6 +57,15 @@
                                     </button>
                                 </div>
 
+                                @if (isset($item['attributes']) && is_array($item['attributes']))
+                                    <div class="mt-1 text-sm text-gray-500">
+                                        @foreach ($item['attributes'] as $attribute => $value)
+                                            <span class="mr-2">{{ $attribute }}:
+                                                {{ is_array($value) ? implode(', ', $value) : $value }}</span>
+                                        @endforeach
+                                    </div>
+                                @endif
+
                                 <div class="mt-1 text-orange-500 font-medium">
                                     ৳{{ number_format($item['price'] * ($item['quantity'] ?? 1), 2) }}</div>
 
@@ -85,7 +94,7 @@
             @endif
         </div>
 
-        <!-- Cart Footer - Using standard positioning like wishlist -->
+        <!-- Cart Footer -->
         <div class="p-4 border-t bg-white">
             @if (count($cart) > 0)
                 <div class="flex items-center justify-between mb-4">
@@ -94,19 +103,18 @@
                         class="font-semibold text-orange-500">৳{{ number_format($total, 2) }}</span>
                 </div>
             @endif
-           <!-- Wishlist Footer -->
 
-            <a href=""
+            <a href="{{ route('cart.view') }}"
                 class="w-full block py-2 px-4 bg-orange-500 text-white text-center rounded-md hover:bg-orange-600 transition-colors">
                 View Cart
             </a>
 
-                <button onclick="moveAllCartToWishlist()"
-                    class="w-full mt-2 py-2 px-4 border border-orange-400 text-orange-500 text-center rounded-md hover:bg-orange-50 transition-colors">
-                   Proced To Checkout
-                </button>
-
-
+            @if (count($cart) > 0)
+                <a href="{#"
+                    class="w-full mt-2 block py-2 px-4 border border-orange-400 text-orange-500 text-center rounded-md hover:bg-orange-50 transition-colors">
+                    Proceed to Checkout
+                </a>
+            @endif
         </div>
     </div>
 </div>
@@ -187,6 +195,13 @@
                                                 <i class="ri-close-line text-xl"></i>
                                             </button>
                                         </div>
+                                        ${item.attributes ? `
+                                            <div class="mt-1 text-sm text-gray-500">
+                                                ${Object.entries(item.attributes).map(([attribute, value]) => 
+                                                    `<span class="mr-2">${attribute}: ${Array.isArray(value) ? value.join(', ') : value}</span>`
+                                                ).join('')}
+                                            </div>
+                                        ` : ''}
                                         <div class="mt-1 text-orange-500 font-medium">৳${(item.price * (item.quantity || 1)).toFixed(2)}</div>
                                         <div class="mt-2">
                                             <div class="flex items-center border border-gray-200 rounded inline-flex">
