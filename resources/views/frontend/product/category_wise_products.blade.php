@@ -275,4 +275,14 @@
             </div>
         </div>
     </main>
+    <script>
+        function toggleFilter() {
+            const filterSidebar = document.getElementById('filterSidebar');
+            if (filterSidebar.classList.contains('translate-x-full')) {
+                filterSidebar.classList.remove('translate-x-full');
+            } else {
+                filterSidebar.classList.add('translate-x-full');
+            }
+        }
+    </script>
 @endsection

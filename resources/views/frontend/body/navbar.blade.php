@@ -57,24 +57,7 @@
                     Shop
                 </a>
 
-                <!-- Shop Dropdown -->
-                <div class="relative group">
-                    <button
-                        class="flex font-semibold {{ request()->routeIs('shop*') ? 'text-orange-600' : 'text-gray-900 hover:text-orange-600' }} items-center space-x-2 py-2">
-                        <span>Shop</span>
-                        <i class="ri-arrow-down-s-line"></i>
-                    </button>
-                    <div
-                        class="absolute z-10 hidden group-hover:block w-48 bg-white text-gray-700 shadow-lg rounded-md">
-                        <!-- Add invisible padding to bridge the gap -->
-                        <div class="h-2 -mt-2"></div>
-                        <div class="py-1">
-                            <a href="#" class="block px-4 py-2 hover:bg-orange-50">New Arrivals</a>
-                            <a href="#" class="block px-4 py-2 hover:bg-orange-50">Best Sellers</a>
-                            <a href="#" class="block px-4 py-2 hover:bg-orange-50">Deals</a>
-                        </div>
-                    </div>
-                </div>
+               
 
                 <!-- Pages Dropdown -->
                 <div class="relative group">
