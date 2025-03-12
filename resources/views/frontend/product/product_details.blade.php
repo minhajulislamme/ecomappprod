@@ -176,7 +176,7 @@
                 <!-- Replace the Action Buttons section with this updated version -->
                 <div class="flex justify-center items-center space-x-4">
                     <a href="#"
-                        class=" flex items-center justify-center space-x-2 bg-gray-900 hover:bg-gray-800 text-white px-6 py-3 rounded-lg transition duration-200">
+                        class="flex items-center justify-center space-x-2 bg-gray-900 hover:bg-gray-800 text-white px-6 py-3 rounded-lg transition duration-200">
                         <i class="ri-shopping-bag-line"></i>
                         <span>Buy Now</span>
                     </a>
@@ -185,10 +185,10 @@
                             class="flex items-center justify-center w-12 h-12 bg-orange-500 hover:bg-orange-600 text-white rounded-lg transition duration-200">
                             <i class="ri-shopping-cart-2-line text-xl"></i>
                         </button>
-                        <a href="#"
+                        <button onclick="handleWishlistClick({{ $product->id }})"
                             class="flex items-center justify-center w-12 h-12 border-2 border-gray-300 hover:border-orange-500 hover:text-orange-500 rounded-lg transition duration-200">
                             <i class="ri-heart-line text-xl"></i>
-                        </a>
+                        </button>
                     </div>
                 </div>
 
@@ -913,6 +913,63 @@
                     Swal.fire({
                         title: 'Error!',
                         text: error.message || 'Failed to add product to cart',
+                        icon: 'error',
+                        toast: true,
+                        position: 'top-end',
+                        showConfirmButton: false,
+                        timer: 3000,
+                        timerProgressBar: true
+                    });
+                });
+        }
+
+        function handleWishlistClick(productId) {
+            const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+            fetch("{{ route('wishlist.add') }}", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRF-TOKEN': token
+                    },
+                    credentials: 'same-origin',
+                    body: JSON.stringify({
+                        product_id: productId
+                    })
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        return response.json().then(err => Promise.reject(err));
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        document.querySelectorAll('.wishlist-count').forEach(counter => {
+                            counter.textContent = data.wishlist_count;
+                        });
+
+                        Swal.fire({
+                            title: 'Success!',
+                            text: data.message,
+                            icon: 'success',
+                            toast: true,
+                            position: 'top-end',
+                            showConfirmButton: false,
+                            timer: 3000,
+                            timerProgressBar: true
+                        });
+                    } else {
+                        throw new Error(data.message || 'Failed to add product to wishlist');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    Swal.fire({
+                        title: 'Error!',
+                        text: error.message || 'Failed to add product to wishlist',
                         icon: 'error',
                         toast: true,
                         position: 'top-end',

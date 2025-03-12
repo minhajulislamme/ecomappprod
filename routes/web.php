@@ -12,6 +12,7 @@ use App\Http\Controllers\Backend\Product\ProductController;
 use App\Http\Controllers\Backend\Product\ProductVariationController;
 use App\Http\Controllers\Frontend\HomeController;
 use App\Http\Controllers\Frontend\CartController;
+use App\Http\Controllers\Frontend\WishlistController;
 
 use Illuminate\Support\Facades\Route;
 
@@ -38,6 +39,14 @@ Route::post('/cart/update', [CartController::class, 'updateCart'])->name('cart.u
 Route::post('/cart/remove', [CartController::class, 'removeFromCart'])->name('cart.remove');
 Route::get('/cart', [CartController::class, 'viewCart'])->name('cart.view');
 Route::get('/cart/clear', [CartController::class, 'clearCart'])->name('cart.clear');
+
+// Wishlist Routes
+Route::post('/wishlist/add', [WishlistController::class, 'addToWishlist'])->name('wishlist.add');
+Route::get('/wishlist/get', [WishlistController::class, 'getWishlist'])->name('wishlist.get');
+Route::post('/wishlist/remove', [WishlistController::class, 'removeFromWishlist'])->name('wishlist.remove');
+Route::get('/wishlist', [WishlistController::class, 'viewWishlist'])->name('wishlist.view');
+Route::post('/wishlist/move-to-cart', [WishlistController::class, 'moveToCart'])->name('wishlist.move-to-cart');
+Route::post('/wishlist/move-all-to-cart', [WishlistController::class, 'moveAllToCart'])->name('wishlist.move-all-to-cart');
 
 // User Routes
 Route::middleware(['auth', 'verified', 'user'])->group(function () {

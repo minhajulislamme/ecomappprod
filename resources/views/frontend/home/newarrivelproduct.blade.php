@@ -33,10 +33,10 @@
                 <!-- Top Right Actions -->
                 <div
                     class="absolute right-2 top-2 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300">
-                    <a href="#"
+                    <button onclick="handleWishlistClick({{ $Product->id }}); return false;"
                         class="p-3 bg-white rounded-full shadow-lg hover:bg-orange-500 hover:text-white text-gray-600 transition-all transform hover:scale-110 w-10 h-10 flex items-center justify-center">
                         <i class="ri-heart-line text-lg"></i>
-                    </a>
+                    </button>
                     <a href="#"
                         onclick="handleCartClick({{ $Product->id }}, {{ $Product->hasConfiguredAttributes() }}); return false;"
                         class="p-3 bg-white rounded-full shadow-lg hover:bg-orange-500 hover:text-white text-gray-600 transition-all transform hover:scale-110 w-10 h-10 flex items-center justify-center">
@@ -321,5 +321,62 @@
         // You can implement a toast notification system here
         // For now, we'll use a simple alert
         alert(`${title}: ${message}`);
+    }
+
+    function handleWishlistClick(productId) {
+        const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+        fetch("{{ route('wishlist.add') }}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRF-TOKEN': token
+                },
+                credentials: 'same-origin',
+                body: JSON.stringify({
+                    product_id: productId
+                })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(err => Promise.reject(err));
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    document.querySelectorAll('.wishlist-count').forEach(counter => {
+                        counter.textContent = data.wishlist_count;
+                    });
+
+                    Swal.fire({
+                        title: 'Success!',
+                        text: data.message,
+                        icon: 'success',
+                        toast: true,
+                        position: 'top-end',
+                        showConfirmButton: false,
+                        timer: 3000,
+                        timerProgressBar: true
+                    });
+                } else {
+                    throw new Error(data.message || 'Failed to add product to wishlist');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                Swal.fire({
+                    title: 'Error!',
+                    text: error.message || 'Failed to add product to wishlist',
+                    icon: 'error',
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 3000,
+                    timerProgressBar: true
+                });
+            });
     }
 </script>
