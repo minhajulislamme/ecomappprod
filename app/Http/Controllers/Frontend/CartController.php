@@ -13,78 +13,51 @@ class CartController extends Controller
 {
     public function addToCart(Request $request)
     {
-        try {
-            if (!$request->ajax()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Invalid request method'
-                ], 400);
+        $request->validate([
+            'product_id' => 'required|exists:products,id',
+            'quantity' => 'nullable|integer|min:1',
+            'attributes' => 'nullable|array'
+        ]);
+
+        $product = Product::findOrFail($request->product_id);
+        $cart = Session::get('cart', []);
+
+        // Set default quantity to 1 if not provided
+        $quantity = $request->quantity ?? 1;
+
+        // Generate unique cart key based on product ID and attributes
+        $cartKey = $request->product_id;
+
+        if ($request->has('attributes') && !empty($request->attributes)) {
+            // Convert attributes to array and sort by key
+            $attrs = $request->input('attributes');
+            ksort($attrs);
+            foreach ($attrs as $attrId => $attr) {
+                $cartKey .= '_' . $attrId . '_' . $attr['value'];
             }
+        }
 
-            $productId = $request->input('product_id');
-            if (!$productId) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Product ID is required'
-                ], 400);
-            }
-
-            $quantity = max(1, intval($request->input('quantity', 1)));
-            $attributes = $request->input('attributes', []);
-
-            $product = Product::findOrFail($productId);
-
-            // Check if product has attributes but none provided
-            if ($product->hasConfiguredAttributes() && empty($attributes)) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Please select product attributes',
-                    'redirect' => route('product.details', ['id' => $productId, 'slug' => $product->slug])
-                ], 400);
-            }
-
-            // Create cart key
-            $cartKey = !empty($attributes) ? $productId . '_' . md5(json_encode($attributes)) : $productId;
-            $cart = Session::get('cart', []);
-
-            // Check if product already exists in cart
-            if (isset($cart[$cartKey])) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Product already in cart'
-                ], 400);
-            }
-
-            // Add new product to cart
-            $price = $product->discount_price && $product->discount_price < $product->price
-                ? $product->discount_price
-                : $product->price;
-
+        if (isset($cart[$cartKey])) {
+            $cart[$cartKey]['quantity'] += $quantity;
+        } else {
             $cart[$cartKey] = [
                 'id' => $product->id,
                 'name' => $product->name,
-                'price' => $price,
                 'quantity' => $quantity,
+                'price' => $product->discount_price ?? $product->price,
                 'image' => asset($product->thumbnail_image),
-                'attributes' => $attributes
+                'attributes' => $request->input('attributes', [])
             ];
-
-            Session::put('cart', $cart);
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Product added to cart successfully!',
-                'cart_count' => count($cart),
-                'cart' => $cart
-            ], 200);
-        } catch (\Exception $e) {
-            \Log::error('Cart Error: ' . $e->getMessage());
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to add product to cart',
-                'error' => $e->getMessage()
-            ], 500);
         }
+
+        Session::put('cart', $cart);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Product added to cart successfully!',
+            'cart_count' => count($cart),
+            'cart' => $cart
+        ]);
     }
 
     public function getCart()
@@ -105,95 +78,75 @@ class CartController extends Controller
 
     public function updateCart(Request $request)
     {
-        try {
-            $productId = $request->product_id;
-            $quantity = $request->quantity;
+        $request->validate([
+            'product_id' => 'required',
+            'quantity' => 'required|integer|min:1'
+        ]);
 
-            $cart = Session::get('cart', []);
+        $cart = Session::get('cart', []);
 
-            if (isset($cart[$productId])) {
-                $cart[$productId]['quantity'] = $quantity;
-                $itemTotal = $cart[$productId]['price'] * $quantity;
+        if (isset($cart[$request->product_id])) {
+            $cart[$request->product_id]['quantity'] = $request->quantity;
+            Session::put('cart', $cart);
 
-                Session::put('cart', $cart);
-
-                $total = 0;
-                foreach ($cart as $item) {
-                    $total += $item['price'] * $item['quantity'];
-                }
-
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Cart updated successfully!',
-                    'item_total' => $itemTotal,
-                    'total' => $total
-                ]);
+            $itemTotal = $cart[$request->product_id]['price'] * $request->quantity;
+            $total = 0;
+            foreach ($cart as $item) {
+                $total += $item['price'] * $item['quantity'];
             }
 
             return response()->json([
-                'success' => false,
-                'message' => 'Product not found in cart!'
+                'success' => true,
+                'message' => 'Cart updated successfully!',
+                'item_total' => $itemTotal,
+                'total' => $total
             ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to update cart!'
-            ], 500);
         }
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Product not found in cart!'
+        ]);
     }
 
     public function removeFromCart(Request $request)
     {
-        try {
-            $productId = $request->product_id;
-            $cart = Session::get('cart', []);
+        $cart = Session::get('cart', []);
 
-            if (isset($cart[$productId])) {
-                unset($cart[$productId]);
-                Session::put('cart', $cart);
-
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Product removed from cart!',
-                    'cart_count' => count($cart)
-                ]);
-            }
+        if (isset($cart[$request->product_id])) {
+            unset($cart[$request->product_id]);
+            Session::put('cart', $cart);
 
             return response()->json([
-                'success' => false,
-                'message' => 'Product not found in cart!'
+                'success' => true,
+                'message' => 'Product removed from cart!',
+                'cart_count' => count($cart)
             ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to remove product from cart!'
-            ], 500);
         }
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Product not found in cart!'
+        ]);
     }
 
     public function viewCart()
     {
         $cart = Session::get('cart', []);
         $total = 0;
-
-        foreach ($cart as $item) {
-            $total += $item['price'] * $item['quantity'];
-        }
-
-        // Fetch categories and subcategories for the layout
         $Categories = Category::where('status', 'active')->latest()->get();
         $Subcategories = SubCategory::where('status', 'active')->latest()->get();
 
+        // Ensure each cart item has a quantity
+        foreach ($cart as $key => $item) {
+            // Set default quantity to 1 if not set
+            if (!isset($item['quantity'])) {
+                $cart[$key]['quantity'] = 1;
+                Session::put('cart', $cart);
+            }
+            $total += $item['price'] * $cart[$key]['quantity'];
+        }
+
         return view('frontend.cart.view_cart', compact('cart', 'total', 'Categories', 'Subcategories'));
-    }
-
-    public function clearCart()
-    {
-        Session::forget('cart');
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Cart cleared successfully!'
-        ]);
     }
 }

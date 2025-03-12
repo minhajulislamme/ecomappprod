@@ -841,7 +841,8 @@
 
             attributeGroups.forEach(group => {
                 const groupName = group.getAttribute('data-attribute-group');
-                const selected = group.querySelector('input[name^="attr_"]:checked');
+                const selected = group.querySelector('input[type="radio"]:checked');
+
                 if (!selected) {
                     hasAllAttributes = false;
                     Swal.fire({
@@ -856,12 +857,16 @@
                     });
                     return;
                 }
-                // Store attribute name and value
-                const attrId = selected.name.replace('attr_', '');
-                attributes[attrId] = selected.value;
+
+                // Get the attribute ID from the radio button name
+                const attributeId = selected.name.replace('attr_', '');
+                attributes[attributeId] = {
+                    name: groupName,
+                    value: selected.value
+                };
             });
 
-            if (!hasAllAttributes) return;
+            if (!hasAllAttributes && attributeGroups.length > 0) return;
 
             const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
@@ -888,10 +893,12 @@
                 })
                 .then(data => {
                     if (data.success) {
+                        // Update cart count
                         document.querySelectorAll('.cart-count').forEach(counter => {
                             counter.textContent = data.cart_count;
                         });
 
+                        // Show success notification
                         Swal.fire({
                             title: 'Success!',
                             text: data.message,
@@ -903,6 +910,7 @@
                             timerProgressBar: true
                         });
 
+                        // Update cart drawer
                         updateCartDrawer();
                     } else {
                         throw new Error(data.message || 'Failed to add product to cart');
@@ -921,6 +929,72 @@
                         timerProgressBar: true
                     });
                 });
+        }
+
+        // Update the updateCartDrawer function
+        function updateCartDrawer() {
+            fetch("{{ route('cart.get') }}")
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const cartContent = document.getElementById('cartContent');
+                        if (cartContent) {
+                            let cartHtml = '';
+
+                            if (Object.keys(data.cart).length > 0) {
+                                cartHtml += '<div class="overflow-y-auto max-h-[60vh]">';
+
+                                Object.entries(data.cart).forEach(([key, item]) => {
+                                    cartHtml += `
+                                    <div class="cart-item flex items-center gap-4 border-b py-4">
+                                        <img src="${item.image}" alt="${item.name}" class="w-20 h-20 object-cover rounded">
+                                        <div class="flex-1">
+                                            <h3 class="font-medium text-gray-800">${item.name}</h3>
+                                            ${renderAttributes(item.attributes)}
+                                            <div class="flex items-center justify-between mt-2">
+                                                <span class="text-gray-600">Qty: ${item.quantity}</span>
+                                                <span class="font-medium text-orange-500">৳${(item.price * item.quantity).toFixed(2)}</span>
+                                            </div>
+                                        </div>
+                                        <button onclick="removeFromCart('${key}')" class="text-gray-400 hover:text-red-500">
+                                            <i class="ri-close-line text-xl"></i>
+                                        </button>
+                                    </div>`;
+                                });
+
+                                cartHtml += '</div>';
+                                cartHtml += `
+                                <div class="border-t pt-4 mt-2">
+                                    <div class="flex items-center justify-between mb-4">
+                                        <span class="text-gray-600">Subtotal:</span>
+                                        <span class="font-semibold text-orange-500">৳${data.total.toFixed(2)}</span>
+                                    </div>
+                                    <a href="{{ route('cart.view') }}" class="w-full block py-2 px-4 bg-orange-500 text-white text-center rounded-md hover:bg-orange-600 transition-colors">
+                                        View Cart
+                                    </a>
+                                </div>`;
+                            } else {
+                                cartHtml = '<div class="py-8 text-center text-gray-500">Your cart is empty</div>';
+                            }
+
+                            cartContent.innerHTML = cartHtml;
+                        }
+                    }
+                })
+                .catch(error => console.error('Error fetching cart:', error));
+        }
+
+        function renderAttributes(attributes) {
+            if (!attributes || Object.keys(attributes).length === 0) return '';
+
+            return `
+            <div class="flex flex-wrap gap-2 mt-1">
+                ${Object.values(attributes).map(attr => `
+                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                            ${attr.name}: ${attr.value}
+                        </span>
+                    `).join('')}
+            </div>`;
         }
 
         function handleWishlistClick(productId) {

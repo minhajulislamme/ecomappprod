@@ -25,13 +25,16 @@
 
                                         <!-- Product Attributes -->
                                         @if (!empty($item['attributes']))
-                                            <div class="mb-3">
-                                                @foreach ($item['attributes'] as $attrId => $value)
-                                                    <span
-                                                        class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 mr-2">
-                                                        {{ \App\Models\Attribute::find($attrId)->attribute_name }}:
-                                                        {{ $value }}
-                                                    </span>
+                                            <div class="flex flex-wrap gap-2 mb-3">
+                                                @foreach ($item['attributes'] as $attribute)
+                                                    <div
+                                                        class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                                        @if (strtolower($attribute['name']) === 'color')
+                                                            <span class="w-3 h-3 rounded-full mr-1.5"
+                                                                style="background-color: {{ $attribute['value'] }}"></span>
+                                                        @endif
+                                                        {{ $attribute['name'] }}: {{ $attribute['value'] }}
+                                                    </div>
                                                 @endforeach
                                             </div>
                                         @endif

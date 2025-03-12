@@ -3,7 +3,7 @@
     <div class="max-w-7xl mx-auto hidden lg:flex items-center py-2 px-4">
         <div class="flex items-center space-x-4">
             <img src="https://placehold.co/32x32" class="w-10 h-10 object-cover rounded-md" alt="">
-            <a href="{{route('home')}}" class="text-2xl text-orange-400 font-semibold">Shop Ever</a>
+            <a href="{{ route('home') }}" class="text-2xl text-orange-400 font-semibold">Shop Ever</a>
         </div>
         <div class="flex-1 mx-8 relative">
             <input type="text" placeholder="Search for products"
@@ -12,23 +12,27 @@
         </div>
         <div class="flex-none space-x-1">
             @auth
-            <a href="{{ route('user.dashboard') }}" class="text-1xl text-orange-400 p-2 rounded-sm hover:bg-orange-50"><i
-                    class="ri-user-line"></i></a>
+                <a href="{{ route('user.dashboard') }}"
+                    class="text-1xl text-orange-400 p-2 rounded-sm hover:bg-orange-50"><i class="ri-user-line"></i></a>
             @else
-            <a href="{{ route('login') }}" class="text-1xl text-orange-400 p-2 rounded-sm hover:bg-orange-50"><i
-                class="ri-user-line"></i></a>
+                <a href="{{ route('login') }}" class="text-1xl text-orange-400 p-2 rounded-sm hover:bg-orange-50"><i
+                        class="ri-user-line"></i></a>
             @endauth
             <a href="#" class="text-1xl text-orange-400 p-2 rounded-sm hover:bg-orange-50 relative"
                 onclick="toggleCart(); return false;">
                 <i class="ri-shopping-cart-line"></i>
                 <span
-                    class="absolute -top-1 -right-1 bg-orange-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">3</span>
+                    class="absolute -top-1 -right-1 bg-orange-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                    {{ count(Session::get('cart', [])) }}
+                </span>
             </a>
             <a href="#" class="text-1xl text-orange-400 p-2 rounded-sm hover:bg-orange-50 relative"
                 onclick="toggleWishlist(); return false;">
                 <i class="ri-heart-line"></i>
                 <span
-                    class="absolute -top-1 -right-1 bg-orange-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center wishlist-count">2</span>
+                    class="absolute -top-1 -right-1 bg-orange-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center wishlist-count">
+                    {{ count(Session::get('wishlist', [])) }}
+                </span>
             </a>
         </div>
     </div>

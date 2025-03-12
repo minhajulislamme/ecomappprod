@@ -1,313 +1,112 @@
 @extends('frontend.frontend')
 @section('content')
     <div class="max-w-7xl mx-auto px-4 py-8">
-        <h1 class="text-2xl font-bold text-gray-800 mb-8">My Wishlist</h1>
+        <h1 class="text-2xl font-bold mb-6">My Wishlist</h1>
 
-        @if (count($wishlist) > 0)
-            <div class="bg-white rounded-lg shadow-sm">
-                <div class="p-6">
-                    <div class="flex justify-between items-center mb-6">
-                        <span class="text-gray-600">{{ count($wishlist) }} Items</span>
-                        <button onclick="moveAllToCart()"
-                            class="bg-orange-500 text-white px-4 py-2 rounded hover:bg-orange-600 transition-colors">
-                            Move All to Cart
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4" id="wishlist-items">
+            @php
+                $wishlist = Session::get('wishlist', []);
+            @endphp
+
+            @forelse($wishlist as $productId => $item)
+                <div id="wishlist-grid-item-{{ $productId }}"
+                    class="p-4 group relative bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-all duration-300">
+                    <!-- Product Image -->
+                    <div class="w-full aspect-square relative">
+                        @if (isset($item['discount_price']) && $item['discount_price'] > 0 && $item['discount_price'] < $item['price'])
+                            @php
+                                $discountPercent = round(
+                                    (($item['price'] - $item['discount_price']) / $item['price']) * 100,
+                                );
+                            @endphp
+                            <div
+                                class="absolute top-0 left-0 bg-orange-500 text-white text-xs font-semibold px-2 py-1 rounded-tr-lg rounded-bl-lg z-10">
+                                -{{ $discountPercent }}% OFF
+                            </div>
+                        @endif
+                        <div class="w-full h-full rounded-lg overflow-hidden">
+                            <a
+                                href="{{ route('product.details', ['id' => $productId, 'slug' => Str::slug($item['name'])]) }}">
+                                <img src="{{ asset($item['image']) }}"
+                                    class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500"
+                                    alt="{{ $item['name'] }}">
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Top Right Actions -->
+                    <div
+                        class="absolute right-2 top-2 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300">
+                        <button onclick="removeWishlistItem({{ $productId }})"
+                            class="p-3 bg-white rounded-full shadow-lg hover:bg-red-500 hover:text-white text-gray-600 transition-all transform hover:scale-110 w-10 h-10 flex items-center justify-center">
+                            <i class="ri-delete-bin-line text-lg"></i>
+                        </button>
+                        <button onclick="moveWishlistItemToCart({{ $productId }})"
+                            class="p-3 bg-white rounded-full shadow-lg hover:bg-blue-500 hover:text-white text-gray-600 transition-all transform hover:scale-110 w-10 h-10 flex items-center justify-center">
+                            <i class="ri-shopping-cart-line text-lg"></i>
                         </button>
                     </div>
 
-                    <div class="space-y-6">
-                        @foreach ($wishlist as $productId => $item)
-                            <div id="main-wishlist-item-{{ $productId }}"
-                                class="flex items-center gap-4 pb-6 border-b last:border-b-0">
-                                <img src="{{ $item['image'] }}" alt="{{ $item['name'] }}"
-                                    class="w-24 h-24 object-cover rounded-lg">
-
-                                <div class="flex-1">
-                                    <div class="flex justify-between">
-                                        <h3 class="font-medium text-gray-800">{{ $item['name'] }}</h3>
-                                        <button onclick="removeFromWishlist({{ $productId }})"
-                                            class="text-gray-400 hover:text-red-500">
-                                            <i class="ri-close-line text-xl"></i>
-                                        </button>
-                                    </div>
-                                    <div class="mt-1 text-orange-500 font-medium">৳{{ number_format($item['price'], 2) }}
-                                    </div>
-                                    <button onclick="moveToCart({{ $productId }})"
-                                        class="mt-2 text-blue-500 hover:text-blue-600 flex items-center text-sm">
-                                        <i class="ri-shopping-cart-line mr-1"></i>
-                                        Move to Cart
-                                    </button>
-                                </div>
+                    <!-- Product Info -->
+                    <div class="mt-2 text-center">
+                        <h3 class="font-semibold text-gray-800 mb-1 hover:text-orange-500 transition-colors truncate">
+                            <a
+                                href="{{ route('product.details', ['id' => $productId, 'slug' => Str::slug($item['name'])]) }}">
+                                {{ $item['name'] }}
+                            </a>
+                        </h3>
+                        <div class="flex items-center justify-center mb-2">
+                            <div class="flex text-yellow-400 text-sm">
+                                <i class="ri-star-fill"></i>
+                                <i class="ri-star-fill"></i>
+                                <i class="ri-star-fill"></i>
+                                <i class="ri-star-fill"></i>
+                                <i class="ri-star-half-fill"></i>
                             </div>
-                        @endforeach
+                            <span class="text-xs text-gray-500 ml-2">(45)</span>
+                        </div>
+                        <div class="space-y-2">
+                            <div class="flex items-center justify-center gap-2">
+                                @if (isset($item['discount_price']) && $item['discount_price'] > 0 && $item['discount_price'] < $item['price'])
+                                    <span
+                                        class="text-orange-500 font-semibold">৳{{ number_format($item['discount_price'], 0) }}</span>
+                                    <span
+                                        class="text-gray-400 text-sm line-through">৳{{ number_format($item['price'], 0) }}</span>
+                                @else
+                                    <span
+                                        class="text-orange-500 font-semibold">৳{{ number_format($item['price'], 0) }}</span>
+                                @endif
+                            </div>
+                            <a href="{{ route('product.details', ['id' => $productId, 'slug' => Str::slug($item['name'])]) }}"
+                                class="w-full flex items-center justify-center space-x-2 bg-orange-500 text-white px-4 py-2 rounded-full text-sm hover:bg-orange-600 transition-colors">
+                                <i class="ri-shopping-bag-line"></i>
+                                <span>Buy Now</span>
+                            </a>
+                        </div>
                     </div>
                 </div>
-            </div>
-        @else
-            <div class="text-center py-12">
-                <div class="text-gray-500 mb-6">Your wishlist is empty</div>
-                <a href="{{ route('shop') }}"
-                    class="inline-flex items-center px-6 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors">
-                    <i class="ri-shopping-cart-line mr-2"></i>
-                    Start Shopping
-                </a>
-            </div>
-        @endif
+            @empty
+                <div class="col-span-full text-center py-8 text-gray-500">
+                    Your wishlist is empty
+                </div>
+            @endforelse
+        </div>
     </div>
 
     <script>
-        function removeFromWishlist(productId) {
-            fetch("{{ route('wishlist.remove') }}", {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                    },
-                    body: JSON.stringify({
-                        product_id: productId
-                    })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        // Remove from main wishlist page
-                        const mainWishlistItem = document.getElementById(`main-wishlist-item-${productId}`);
-                        if (mainWishlistItem) {
-                            mainWishlistItem.remove();
-                        }
-
-                        // Update sidebar wishlist item if it exists
-                        const sidebarItem = document.getElementById(`wishlist-item-${productId}`);
-                        if (sidebarItem) {
-                            sidebarItem.remove();
-                        }
-
-                        // Update counts everywhere
-                        document.querySelectorAll('.wishlist-count').forEach(counter => {
-                            counter.textContent = data.wishlist_count;
-                        });
-
-                        // Update the item count display if it exists
-                        const itemCountDisplay = document.querySelector('.text-gray-600');
-                        if (itemCountDisplay) {
-                            itemCountDisplay.textContent = `${data.wishlist_count} Items`;
-                        }
-
-                        // Check if wishlist is empty and update the view without reload
-                        if (data.wishlist_count === 0) {
-                            const container = document.querySelector('.max-w-7xl');
-                            container.innerHTML = `
-                                <h1 class="text-2xl font-bold text-gray-800 mb-8">My Wishlist</h1>
-                                <div class="text-center py-12">
-                                    <div class="text-gray-500 mb-6">Your wishlist is empty</div>
-                                    <a href="{{ route('shop') }}"
-                                        class="inline-flex items-center px-6 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors">
-                                        <i class="ri-shopping-cart-line mr-2"></i>
-                                        Start Shopping
-                                    </a>
-                                </div>`;
-
-                            // Update sidebar if it's open
-                            if (document.getElementById('wishlistSidebar') && !document.getElementById(
-                                    'wishlistSidebar').classList.contains('hidden')) {
-                                const wishlistContent = document.getElementById('wishlistContent').querySelector(
-                                    '.flex-1.overflow-y-auto.p-4');
-                                if (wishlistContent) {
-                                    wishlistContent.innerHTML =
-                                        '<div class="py-8 text-center text-gray-500">Your wishlist is empty</div>';
-                                }
-
-                                const sidebarFooter = document.getElementById('wishlistContent').querySelector(
-                                    '.border-t');
-                                if (sidebarFooter) {
-                                    sidebarFooter.innerHTML = `
-                                    <a href="{{ route('wishlist.view') }}" class="w-full block py-2 px-4 bg-orange-500 text-white text-center rounded-md hover:bg-orange-600 transition-colors">
-                                        View Wishlist
-                                    </a>`;
-                                }
-                            }
-                        }
-
-                        Swal.fire({
-                            title: 'Success',
-                            text: data.message,
-                            icon: 'success',
-                            toast: true,
-                            position: 'top-end',
-                            showConfirmButton: false,
-                            timer: 3000,
-                            timerProgressBar: true
-                        });
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                });
-        }
-
-        // Listen for custom events from the sidebar
         document.addEventListener('wishlistItemRemoved', function(e) {
-            const productId = e.detail.productId;
-            const mainWishlistItem = document.getElementById(`main-wishlist-item-${productId}`);
-            if (mainWishlistItem) {
-                mainWishlistItem.remove();
+            const gridItem = document.getElementById(`wishlist-grid-item-${e.detail.productId}`);
+            if (gridItem) {
+                gridItem.remove();
             }
 
-            // Update the item count display if it exists
-            const itemCountDisplay = document.querySelector('.text-gray-600');
-            if (itemCountDisplay && e.detail.wishlistCount !== undefined) {
-                itemCountDisplay.textContent = `${e.detail.wishlistCount} Items`;
-            }
-
-            // Check if wishlist is empty and update the view
             if (e.detail.wishlistCount === 0) {
-                const container = document.querySelector('.max-w-7xl');
-                if (container) {
-                    container.innerHTML = `
-                        <h1 class="text-2xl font-bold text-gray-800 mb-8">My Wishlist</h1>
-                        <div class="text-center py-12">
-                            <div class="text-gray-500 mb-6">Your wishlist is empty</div>
-                            <a href="{{ route('shop') }}"
-                                class="inline-flex items-center px-6 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors">
-                                <i class="ri-shopping-cart-line mr-2"></i>
-                                Start Shopping
-                            </a>
-                        </div>`;
-                }
+                document.getElementById('wishlist-items').innerHTML = `
+                <div class="col-span-full text-center py-8 text-gray-500">
+                    Your wishlist is empty
+                </div>
+            `;
             }
         });
-
-        function moveToCart(productId) {
-            fetch("{{ route('wishlist.move-to-cart') }}", {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                    },
-                    body: JSON.stringify({
-                        product_id: productId
-                    })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        // Remove from main wishlist page
-                        const mainWishlistItem = document.getElementById(`main-wishlist-item-${productId}`);
-                        if (mainWishlistItem) {
-                            mainWishlistItem.remove();
-                        }
-
-                        // Update sidebar wishlist item if it exists
-                        const sidebarItem = document.getElementById(`wishlist-item-${productId}`);
-                        if (sidebarItem) {
-                            sidebarItem.remove();
-                        }
-
-                        // Update counts
-                        document.querySelectorAll('.wishlist-count').forEach(counter => {
-                            counter.textContent = data.wishlist_count;
-                        });
-                        document.querySelectorAll('.cart-count').forEach(counter => {
-                            counter.textContent = data.cart_count;
-                        });
-
-                        // Check if wishlist is empty and update the view without reload
-                        if (data.wishlist_count === 0) {
-                            const container = document.querySelector('.max-w-7xl');
-                            container.innerHTML = `
-                                <h1 class="text-2xl font-bold text-gray-800 mb-8">My Wishlist</h1>
-                                <div class="text-center py-12">
-                                    <div class="text-gray-500 mb-6">Your wishlist is empty</div>
-                                    <a href="{{ route('shop') }}"
-                                        class="inline-flex items-center px-6 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors">
-                                        <i class="ri-shopping-cart-line mr-2"></i>
-                                        Start Shopping
-                                    </a>
-                                </div>`;
-                        }
-
-                        Swal.fire({
-                            title: 'Success',
-                            text: data.message,
-                            icon: 'success',
-                            toast: true,
-                            position: 'top-end',
-                            showConfirmButton: false,
-                            timer: 3000,
-                            timerProgressBar: true
-                        });
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                });
-        }
-
-        function moveAllToCart() {
-            fetch("{{ route('wishlist.move-all-to-cart') }}", {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        // Update counts
-                        document.querySelectorAll('.wishlist-count').forEach(counter => {
-                            counter.textContent = data.wishlist_count;
-                        });
-                        document.querySelectorAll('.cart-count').forEach(counter => {
-                            counter.textContent = data.cart_count;
-                        });
-
-                        // Update the page content without reloading
-                        const container = document.querySelector('.max-w-7xl');
-                        container.innerHTML = `
-                            <h1 class="text-2xl font-bold text-gray-800 mb-8">My Wishlist</h1>
-                            <div class="text-center py-12">
-                                <div class="text-gray-500 mb-6">Your wishlist is empty</div>
-                                <a href="{{ route('shop') }}"
-                                    class="inline-flex items-center px-6 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors">
-                                    <i class="ri-shopping-cart-line mr-2"></i>
-                                    Start Shopping
-                                </a>
-                            </div>`;
-
-                        // Update sidebar if it's open
-                        if (document.getElementById('wishlistSidebar') && !document.getElementById('wishlistSidebar')
-                            .classList.contains('hidden')) {
-                            const wishlistContent = document.getElementById('wishlistContent').querySelector(
-                                '.flex-1.overflow-y-auto.p-4');
-                            if (wishlistContent) {
-                                wishlistContent.innerHTML =
-                                    '<div class="py-8 text-center text-gray-500">Your wishlist is empty</div>';
-                            }
-
-                            const sidebarFooter = document.getElementById('wishlistContent').querySelector('.border-t');
-                            if (sidebarFooter) {
-                                sidebarFooter.innerHTML = `
-                                <a href="{{ route('wishlist.view') }}" class="w-full block py-2 px-4 bg-orange-500 text-white text-center rounded-md hover:bg-orange-600 transition-colors">
-                                    View Wishlist
-                                </a>`;
-                            }
-                        }
-
-                        Swal.fire({
-                            title: 'Success',
-                            text: data.message,
-                            icon: 'success',
-                            toast: true,
-                            position: 'top-end',
-                            showConfirmButton: false,
-                            timer: 3000,
-                            timerProgressBar: true
-                        });
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                });
-        }
     </script>
 @endsection

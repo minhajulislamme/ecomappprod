@@ -34,8 +34,10 @@
                 <div
                     class="absolute right-2 top-2 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300">
                     <button onclick="handleWishlistClick({{ $Product->id }}); return false;"
-                        class="p-3 bg-white rounded-full shadow-lg hover:bg-orange-500 hover:text-white text-gray-600 transition-all transform hover:scale-110 w-10 h-10 flex items-center justify-center">
-                        <i class="ri-heart-line text-lg"></i>
+                        class="p-3 bg-white rounded-full shadow-lg hover:bg-orange-500 hover:text-white text-gray-600 transition-all transform hover:scale-110 w-10 h-10 flex items-center justify-center wishlist-btn-{{ $Product->id }}"
+                        data-product-id="{{ $Product->id }}">
+                        <i
+                            class="ri-heart-{{ in_array($Product->id, array_keys(Session::get('wishlist', []))) ? 'fill text-orange-500' : 'line' }} text-lg"></i>
                     </button>
                     <a href="#"
                         onclick="handleCartClick({{ $Product->id }}, {{ $Product->hasConfiguredAttributes() }}); return false;"
@@ -94,7 +96,7 @@
         addToCart(productId, 1);
     }
 
-    function addToCart(productId, quantity) {
+    function addToCart(productId, quantity = 1) {
         const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
         fetch("{{ route('cart.add') }}", {
@@ -325,6 +327,8 @@
 
     function handleWishlistClick(productId) {
         const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        const wishlistBtn = document.querySelector(`.wishlist-btn-${productId}`);
+        const icon = wishlistBtn.querySelector('i');
 
         fetch("{{ route('wishlist.add') }}", {
                 method: 'POST',
@@ -339,18 +343,22 @@
                     product_id: productId
                 })
             })
-            .then(response => {
-                if (!response.ok) {
-                    return response.json().then(err => Promise.reject(err));
-                }
-                return response.json();
-            })
+            .then(response => response.json())
             .then(data => {
                 if (data.success) {
+                    // Update wishlist count
                     document.querySelectorAll('.wishlist-count').forEach(counter => {
                         counter.textContent = data.wishlist_count;
                     });
 
+                    // Toggle heart icon
+                    icon.classList.remove('ri-heart-line');
+                    icon.classList.add('ri-heart-fill', 'text-orange-500');
+
+                    // Update wishlist sidebar if it's open
+                    updateWishlistDrawer();
+
+                    // Show success notification
                     Swal.fire({
                         title: 'Success!',
                         text: data.message,
@@ -362,7 +370,17 @@
                         timerProgressBar: true
                     });
                 } else {
-                    throw new Error(data.message || 'Failed to add product to wishlist');
+                    // Product already in wishlist
+                    Swal.fire({
+                        title: 'Info!',
+                        text: data.message,
+                        icon: 'info',
+                        toast: true,
+                        position: 'top-end',
+                        showConfirmButton: false,
+                        timer: 3000,
+                        timerProgressBar: true
+                    });
                 }
             })
             .catch(error => {

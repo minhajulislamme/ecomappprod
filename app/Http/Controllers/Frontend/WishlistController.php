@@ -13,170 +13,114 @@ class WishlistController extends Controller
 {
     public function addToWishlist(Request $request)
     {
-        try {
-            $productId = $request->input('product_id');
-            if (!$productId) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Product ID is required'
-                ], 400);
-            }
+        $productId = $request->product_id;
+        $product = Product::findOrFail($productId);
 
-            $product = Product::findOrFail($productId);
-            $wishlist = Session::get('wishlist', []);
+        $wishlist = Session::get('wishlist', []);
 
-            // Check if product already exists in wishlist
-            if (isset($wishlist[$productId])) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Product already in wishlist'
-                ], 400);
-            }
-
-            // Add new product to wishlist
-            $price = $product->discount_price && $product->discount_price < $product->price
-                ? $product->discount_price
-                : $product->price;
-
-            $wishlist[$productId] = [
-                'id' => $product->id,
-                'name' => $product->name,
-                'price' => $price,
-                'image' => asset($product->thumbnail_image)
-            ];
-
-            Session::put('wishlist', $wishlist);
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Product added to wishlist successfully!',
-                'wishlist_count' => count($wishlist)
-            ]);
-        } catch (\Exception $e) {
+        if (isset($wishlist[$productId])) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to add product to wishlist'
-            ], 500);
+                'message' => 'Product already in wishlist',
+                'wishlist_count' => count($wishlist)
+            ]);
         }
-    }
 
-    public function getWishlist()
-    {
-        $wishlist = Session::get('wishlist', []);
+        $wishlist[$productId] = [
+            'name' => $product->name,
+            'price' => (float)$product->price,
+            'discount_price' => (float)$product->discount_price,
+            'image' => $product->thumbnail_image  // Store only the path, not the full asset URL
+        ];
+
+        Session::put('wishlist', $wishlist);
+
         return response()->json([
             'success' => true,
-            'wishlist' => $wishlist
+            'message' => 'Product added to wishlist',
+            'wishlist_count' => count($wishlist)
         ]);
     }
 
     public function removeFromWishlist(Request $request)
     {
-        try {
-            $productId = $request->product_id;
-            $wishlist = Session::get('wishlist', []);
+        $productId = $request->product_id;
+        $wishlist = Session::get('wishlist', []);
 
-            if (isset($wishlist[$productId])) {
-                unset($wishlist[$productId]);
-                Session::put('wishlist', $wishlist);
-                Session::save(); // Explicitly save the session
-
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Product removed from wishlist!',
-                    'wishlist_count' => count($wishlist)
-                ]);
-            }
-
-            return response()->json([
-                'success' => false,
-                'message' => 'Product not found in wishlist!'
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to remove product from wishlist!'
-            ], 500);
+        if (isset($wishlist[$productId])) {
+            unset($wishlist[$productId]);
+            Session::put('wishlist', $wishlist);
         }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Product removed from wishlist',
+            'wishlist_count' => count($wishlist),
+            'wishlist' => $wishlist
+        ]);
+    }
+
+    public function getWishlist()
+    {
+        $wishlist = Session::get('wishlist', []);
+
+        // Add asset URL to images
+        foreach ($wishlist as &$item) {
+            $item['image'] = asset($item['image']);
+        }
+
+        return response()->json([
+            'success' => true,
+            'wishlist' => $wishlist,
+            'count' => count($wishlist)
+        ]);
     }
 
     public function viewWishlist()
     {
-        $wishlist = Session::get('wishlist', []);
-        $Categories = Category::where('status', 'active')->latest()->get();
-        $Subcategories = SubCategory::where('status', 'active')->latest()->get();
-
-        return view('frontend.wishlist.view_wishlist', compact('wishlist', 'Categories', 'Subcategories'));
+        $Categories = Category::orderBy('category_name', 'ASC')->get();
+        $Subcategories = SubCategory::orderBy('subcategory_name', 'ASC')->get();
+        return view('frontend.wishlist.view_wishlist', compact('Categories', 'Subcategories'));
     }
 
     public function moveToCart(Request $request)
     {
-        try {
-            $productId = $request->product_id;
-            $wishlist = Session::get('wishlist', []);
-            $cart = Session::get('cart', []);
+        $productId = $request->product_id;
+        $wishlist = Session::get('wishlist', []);
+        $cart = Session::get('cart', []);
 
-            if (!isset($wishlist[$productId])) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Product not found in wishlist!'
-                ]);
-            }
-
-            // Add to cart if not already present
-            if (!isset($cart[$productId])) {
-                $cart[$productId] = $wishlist[$productId];
-                $cart[$productId]['quantity'] = 1;
-            }
-
-            // Remove from wishlist
+        if (isset($wishlist[$productId])) {
+            $cart[$productId] = $wishlist[$productId];
             unset($wishlist[$productId]);
 
-            Session::put('cart', $cart);
             Session::put('wishlist', $wishlist);
-            Session::save(); // Explicitly save the session
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Product moved to cart successfully!',
-                'cart_count' => count($cart),
-                'wishlist_count' => count($wishlist)
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to move product to cart!'
-            ], 500);
+            Session::put('cart', $cart);
         }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Product moved to cart',
+            'wishlist_count' => count($wishlist),
+            'cart_count' => count($cart)
+        ]);
     }
 
     public function moveAllToCart()
     {
-        try {
-            $wishlist = Session::get('wishlist', []);
-            $cart = Session::get('cart', []);
+        $wishlist = Session::get('wishlist', []);
+        $cart = Session::get('cart', []);
 
-            foreach ($wishlist as $productId => $item) {
-                if (!isset($cart[$productId])) {
-                    $cart[$productId] = $item;
-                    $cart[$productId]['quantity'] = 1;
-                }
-            }
-
-            Session::put('cart', $cart);
-            Session::put('wishlist', []); // Clear wishlist
-            Session::save(); // Explicitly save the session
-
-            return response()->json([
-                'success' => true,
-                'message' => 'All products moved to cart successfully!',
-                'cart_count' => count($cart),
-                'wishlist_count' => 0
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to move products to cart!'
-            ], 500);
+        foreach ($wishlist as $productId => $item) {
+            $cart[$productId] = $item;
         }
+
+        Session::put('cart', $cart);
+        Session::put('wishlist', []);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'All products moved to cart',
+            'cart_count' => count($cart)
+        ]);
     }
 }
