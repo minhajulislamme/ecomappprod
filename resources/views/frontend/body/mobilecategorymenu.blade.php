@@ -21,11 +21,12 @@
                 <div class="">
                     <div class="flex items-center justify-between p-4 hover:bg-orange-50 cursor-pointer"
                         @if ($hasSubcategories) onclick="toggleSubcategory('{{ $categoryId }}')" @endif>
-                        <div class="flex items-center space-x-3">
+                        <a href="{{ route('product.category', ['id' => $category->id, 'slug' => $category->category_slug]) }}"
+                            class="flex items-center space-x-3 flex-grow">
                             <img src="{{ !empty($category->category_image) ? asset($category->category_image) : 'https://placehold.co/32x32' }}"
                                 class="w-8 h-8 rounded" alt="{{ $category->category_name }}">
                             <h3 class="font-semibold">{{ $category->category_name }}</h3>
-                        </div>
+                        </a>
                         @if ($hasSubcategories)
                             <i class="ri-arrow-down-s-line transition-transform duration-200"
                                 id="{{ $categoryId }}-icon"></i>
@@ -35,7 +36,7 @@
                         <div class="max-h-0 overflow-hidden transition-all duration-300 bg-gray-50"
                             id="{{ $categoryId }}-sub">
                             @foreach ($subcategories as $subcategory)
-                                <a href="#"
+                                <a href="{{ route('product.subcategory', ['id' => $subcategory->id, 'slug' => $subcategory->subcategory_slug]) }}"
                                     class="block px-4 py-2 pl-16 hover:bg-orange-50">{{ $subcategory->subcategory_name }}</a>
                             @endforeach
                         </div>

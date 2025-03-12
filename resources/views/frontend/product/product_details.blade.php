@@ -160,13 +160,14 @@
                 <div class="flex items-center space-x-4 py-4">
                     <span class="text-gray-600 font-medium">Quantity:</span>
                     <div class="flex items-center border border-gray-300 rounded-lg">
-                        <button type="button" id="decreaseQuantity" class="px-3 py-2 text-lg text-gray-600 hover:text-orange-500 focus:outline-none">
+                        <button type="button" id="decreaseQuantity"
+                            class="px-3 py-2 text-lg text-gray-600 hover:text-orange-500 focus:outline-none">
                             <i class="ri-subtract-line"></i>
                         </button>
-                        <input type="number" id="quantity" name="quantity" min="1" value="1" 
-                               class="w-12 text-center border-0 focus:outline-none focus:ring-0 p-0 text-gray-800" 
-                               readonly>
-                        <button type="button" id="increaseQuantity" class="px-3 py-2 text-lg text-gray-600 hover:text-orange-500 focus:outline-none">
+                        <input type="number" id="quantity" name="quantity" min="1" value="1"
+                            class="w-12 text-center border-0 focus:outline-none focus:ring-0 p-0 text-gray-800" readonly>
+                        <button type="button" id="increaseQuantity"
+                            class="px-3 py-2 text-lg text-gray-600 hover:text-orange-500 focus:outline-none">
                             <i class="ri-add-line"></i>
                         </button>
                     </div>

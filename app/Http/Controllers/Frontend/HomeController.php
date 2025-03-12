@@ -38,4 +38,45 @@ class HomeController extends Controller
         $Subcategories = Subcategory::where('status', 'active')->latest()->get();
         return view('frontend.product.product_details', compact('product', 'Categories', 'Subcategories'));
     }
+
+    public function ProductCategory($id, $slug)
+    {
+        $category = Category::findOrFail($id);
+
+        // Redirect if slug doesn't match
+        if ($category->category_slug !== $slug) {
+            return redirect()->route('product.category', ['id' => $category->id, 'slug' => $category->category_slug]);
+        }
+
+        $products = Product::where('category_id', $id)->where('status', 'active')->latest()->paginate(12);
+        $Categories = Category::where('status', 'active')->latest()->get();
+        $Subcategories = Subcategory::where('status', 'active')->latest()->get();
+
+        return view('frontend.product.category_wise_products', compact('category', 'products', 'Categories', 'Subcategories'));
+    }
+
+    public function ProductSubCategory($id, $slug = null)
+    {
+        $subcategory = Subcategory::findOrFail($id);
+
+        // Redirect if slug doesn't match and slug is provided
+        if ($slug !== null && $subcategory->subcategory_slug !== $slug) {
+            return redirect()->route('product.subcategory', ['id' => $subcategory->id, 'slug' => $subcategory->subcategory_slug]);
+        }
+
+        $products = Product::where('subcategory_id', $id)->where('status', 'active')->latest()->paginate(12);
+        $Categories = Category::where('status', 'active')->latest()->get();
+        $Subcategories = Subcategory::where('status', 'active')->latest()->get();
+
+        return view('frontend.product.sub_category_wise_products', compact('subcategory', 'products', 'Categories', 'Subcategories'));
+    }
+
+    public function Shop()
+    {
+        $products = Product::where('status', 'active')->latest()->paginate(2); // Changed to paginate 12 products per page
+        $Categories = Category::where('status', 'active')->latest()->get();
+        $Subcategories = Subcategory::where('status', 'active')->latest()->get();
+
+        return view('frontend.product.shop', compact('products', 'Categories', 'Subcategories'));
+    }
 }
