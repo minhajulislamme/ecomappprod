@@ -20,11 +20,12 @@
                                 $hasSubcategories = !$subcategories->isEmpty();
                             @endphp
                             <div class="flex items-center justify-between px-4 py-2 hover:bg-orange-50 cursor-pointer">
-                                <div class="flex items-center space-x-3">
+                                <a href="{{ route('product.category', ['id' => $category->id, 'slug' => $category->category_slug]) }}"
+                                    class="flex items-center space-x-3 flex-grow">
                                     <img src="{{ !empty($category->category_image) ? asset($category->category_image) : 'https://placehold.co/32x32' }}"
                                         class="w-8 h-8 rounded" alt="{{ $category->category_name }}">
                                     <h3 class="font-semibold">{{ $category->category_name }}</h3>
-                                </div>
+                                </a>
                                 @if ($hasSubcategories)
                                     <i class="ri-arrow-right-s-line"></i>
                                 @endif
@@ -34,7 +35,7 @@
                                 <div
                                     class="absolute left-full top-0 hidden group-hover/sub:block w-[200px] bg-white shadow-lg rounded-md">
                                     @foreach ($subcategories as $subcategory)
-                                        <a href="#"
+                                        <a href="{{ route('product.subcategory', ['id' => $subcategory->id, 'slug' => $subcategory->subcategory_slug]) }}"
                                             class="block px-4 py-2 hover:bg-orange-50">{{ $subcategory->subcategory_name }}</a>
                                     @endforeach
                                 </div>
@@ -51,7 +52,7 @@
                     class="font-semibold {{ request()->routeIs('home') ? 'text-orange-600' : 'text-gray-900 hover:text-orange-600' }}">
                     Home
                 </a>
-                <a href="#"
+                <a href="{{ route('shop') }}"
                     class="font-semibold {{ request()->routeIs('shop*') ? 'text-orange-600' : 'text-gray-900 hover:text-orange-600' }}">
                     Shop
                 </a>

@@ -5,7 +5,7 @@
             <i class="ri-home-4-line text-xl md:text-2xl"></i>
             <span class="text-xs md:text-sm mt-1">Home</span>
         </a>
-        <a href="#"
+        <a href="{{route('shop')}}"
             class="flex flex-col items-center {{ request()->routeIs('shop*') ? 'text-orange-400' : 'text-gray-400 hover:text-orange-400' }}">
             <i class="ri-store-2-line text-xl md:text-2xl"></i>
             <span class="text-xs md:text-sm mt-1">Shop</span>
