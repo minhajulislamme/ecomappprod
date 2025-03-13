@@ -26,6 +26,7 @@ return new class extends Migration
             $table->enum('is_trending', ['yes', 'no'])->default('no');
             $table->enum('is_best_selling', ['yes', 'no'])->default('no');
             $table->enum('is_offer', ['yes', 'no'])->default('no');
+            $table->enum('free_shipping', ['yes', 'no'])->default('no');
             $table->enum('status', ['active', 'inactive'])->default('active');
             $table->timestamps();
 

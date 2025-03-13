@@ -151,6 +151,7 @@ class ProductController extends Controller
                 'is_trending' => $request->is_trending ?? 'no',
                 'is_best_selling' => $request->is_best_selling ?? 'no',
                 'is_offer' => $request->is_offer ?? 'no',
+                'free_shipping' => $request->free_shipping ?? 'no',
                 'thumbnail_image' => $images['thumbnail_image'],
                 'gallery_images' => $images['gallery_images'],
             ]);
@@ -217,7 +218,6 @@ class ProductController extends Controller
 
             // Handle thumbnail image
             if ($request->hasFile('thumbnail_image')) {
-                // Delete old thumbnail if exists
                 if (!empty($product->thumbnail_image)) {
                     $this->deleteImage($product->thumbnail_image);
                 }
@@ -250,12 +250,12 @@ class ProductController extends Controller
                 'is_trending' => $request->is_trending ?? 'no',
                 'is_best_selling' => $request->is_best_selling ?? 'no',
                 'is_offer' => $request->is_offer ?? 'no',
+                'free_shipping' => $request->free_shipping ?? 'no',
                 'thumbnail_image' => $thumbnailPath,
                 'gallery_images' => $galleryImages,
             ]);
 
-            // Update attributes
-            ProductAttribute::where('product_id', $product->id)->delete();
+            // Update product attributes if any
             if ($request->has('attributes')) {
                 $this->saveProductAttributes($product, $request->input('attributes', []));
             }

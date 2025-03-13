@@ -11,6 +11,7 @@ use App\Http\Controllers\Backend\Slider\SliderController;
 use App\Http\Controllers\Backend\Attribute\AttributeController;
 use App\Http\Controllers\Backend\Product\ProductController;
 use App\Http\Controllers\Backend\Product\ProductVariationController;
+use App\Http\Controllers\Backend\ShippingCharge\ShippingChargeController;
 use App\Http\Controllers\Frontend\HomeController;
 use App\Http\Controllers\Frontend\CartController;
 use App\Http\Controllers\Frontend\WishlistController;
@@ -146,6 +147,16 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
         Route::get('/coupon/edit/{id}', 'CouponEdit')->name('coupon.edit');
         Route::post('/coupon/update/{id}', 'CouponUpdate')->name('coupon.update');
         Route::get('/coupon/delete/{id}', 'CouponDelete')->name('coupon.delete');
+    });
+
+    // All Shipping Charge Routes
+    Route::controller(ShippingChargeController::class)->group(function () {
+        Route::get('/shipping-charges', 'AllShippingCharge')->name('all.shipping.charges');
+        Route::get('/shipping-charge/add', 'AddShippingCharge')->name('shipping.charge.add');
+        Route::post('/shipping-charge/store', 'StoreShippingCharge')->name('shipping.charge.store');
+        Route::get('/shipping-charge/edit/{id}', 'EditShippingCharge')->name('shipping.charge.edit');
+        Route::post('/shipping-charge/update/{id}', 'UpdateShippingCharge')->name('shipping.charge.update');
+        Route::get('/shipping-charge/delete/{id}', 'DeleteShippingCharge')->name('shipping.charge.delete');
     });
 });
 

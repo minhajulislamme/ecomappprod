@@ -190,6 +190,31 @@
             </ul>
         </li>
 
+        {{-- shipping menu  --}}
+        <li class="mb-1 group {{ request()->is('shipping*') ? 'selected active' : '' }}">
+            <a href="javascript:void()"
+                class="flex items-center py-2 px-4 text-gray-300 hover:bg-gray-800 hover:text-orange-500 rounded-md sidebar-link sidebar-dropdown-toggle {{ request()->is('shipping*') ? 'bg-gray-800 text-orange-500' : '' }}">
+                <i class="ri-file-copy-2-line mr-3 text-lg"></i>
+                <span class="ml-2">Shipping</span>
+                <i class="ri-arrow-right-s-line ml-auto group-[.selected]:rotate-90"></i>
+            </a>
+            <ul class="ml-7 mt-2 hidden group-[.selected]:block">
+                <li class="mb-4">
+                    <a href="{{ route('all.shipping.charges') }}"
+                        class="text-gray-300 text-sm flex items-center hover:text-orange-500 sidebar-link {{ request()->routeIs('all.shipping.charges') ? 'text-orange-500 active' : '' }}">
+                        <span class="w-1 h-1 rounded-full bg-gray-300 mr-3"></span>
+                        All Shipping Charges
+                    </a>
+                </li>
+                <li class="mb-4">
+                    <a href="{{ route('shipping.charge.add') }}"
+                        class="text-gray-300 text-sm flex items-center hover:text-orange-500 sidebar-link {{ request()->routeIs('shipping.charge.add') ? 'text-orange-500 active' : '' }}">
+                        <span class="w-1 h-1 rounded-full bg-gray-300 mr-3"></span>
+                        Add Coupon
+                    </a>
+                </li>
+            </ul>
+        </li>
         <li class="mb-1 group">
             <a href="javascript:void()"
                 class="flex items-center py-2 px-4 text-gray-300 hover:bg-gray-800 hover:text-orange-500 rounded-md group-[.active]:bg-gray-800 group-[.active]:text-orange-500 sidebar-link sidebar-dropdown-toggle">
