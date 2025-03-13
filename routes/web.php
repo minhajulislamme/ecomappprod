@@ -12,6 +12,7 @@ use App\Http\Controllers\Backend\Attribute\AttributeController;
 use App\Http\Controllers\Backend\Product\ProductController;
 use App\Http\Controllers\Backend\Product\ProductVariationController;
 use App\Http\Controllers\Backend\ShippingCharge\ShippingChargeController;
+use App\Http\Controllers\Backend\FlashSales\FlashSaleController;
 use App\Http\Controllers\Frontend\HomeController;
 use App\Http\Controllers\Frontend\CartController;
 use App\Http\Controllers\Frontend\WishlistController;
@@ -157,6 +158,12 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
         Route::get('/shipping-charge/edit/{id}', 'EditShippingCharge')->name('shipping.charge.edit');
         Route::post('/shipping-charge/update/{id}', 'UpdateShippingCharge')->name('shipping.charge.update');
         Route::get('/shipping-charge/delete/{id}', 'DeleteShippingCharge')->name('shipping.charge.delete');
+    });
+    // All Flash Sale Timer Routes
+    Route::controller(FlashSaleController::class)->group(function () {
+        Route::get('/flash-sale-timer', 'showFlashSaleTimer')->name('flash.sale.timer.show');
+        Route::get('/flash-sale-timer/edit', 'editFlashSaleTimer')->name('flash.sale.timer.edit');
+        Route::post('/flash-sale-timer/update', 'updateFlashSaleTimer')->name('flash.sale.timer.update');
     });
 });
 

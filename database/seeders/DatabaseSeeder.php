@@ -12,6 +12,7 @@ class DatabaseSeeder extends Seeder
         // Call Users Table Seeder for initial admin users
         $this->call([
             UsersTableSeeder::class,
+            FlashSelasTimerSeeder::class,
         ]);
 
         // Create additional fake users for testing
