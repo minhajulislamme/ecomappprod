@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Product;
 use App\Models\Category;
 use App\Models\SubCategory;
+use App\Models\Coupon;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
 
@@ -47,14 +49,15 @@ class CartController extends Controller
             ], 400);
         }
 
-        // Add new item to cart
+        // Add new item to cart with free_shipping status
         $cart[$cartKey] = [
             'id' => $product->id,
             'name' => $product->name,
             'quantity' => $quantity,
             'price' => $product->discount_price ?? $product->price,
             'image' => asset($product->thumbnail_image),
-            'attributes' => $request->input('attributes', [])
+            'attributes' => $request->input('attributes', []),
+            'free_shipping' => $product->free_shipping === 'yes'
         ];
 
         Session::put('cart', $cart);
@@ -155,5 +158,63 @@ class CartController extends Controller
         }
 
         return view('frontend.cart.view_cart', compact('cart', 'total', 'Categories', 'Subcategories'));
+    }
+
+    public function applyCoupon(Request $request)
+    {
+        $request->validate([
+            'coupon_code' => 'required|string'
+        ]);
+
+        // Only accept "MINHAZ" as valid coupon code with 25% discount
+        if ($request->coupon_code !== 'MINHAZ') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid coupon code.'
+            ]);
+        }
+
+        $cart = Session::get('cart', []);
+        $subtotal = 0;
+
+        foreach ($cart as $item) {
+            $subtotal += $item['price'] * $item['quantity'];
+        }
+
+        // Fixed 25% discount
+        $discount = ($subtotal * 25) / 100;
+        $newTotal = $subtotal - $discount;
+
+        // Store coupon info in session
+        Session::put('coupon', [
+            'code' => 'MINHAZ',
+            'discount' => $discount,
+            'subtotal' => $subtotal,
+            'new_total' => $newTotal
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Coupon MINHAZ applied successfully! (25% off)',
+            'discount' => $discount,
+            'new_total' => $newTotal
+        ]);
+    }
+
+    public function removeCoupon()
+    {
+        Session::forget('coupon');
+
+        $cart = Session::get('cart', []);
+        $total = 0;
+        foreach ($cart as $item) {
+            $total += $item['price'] * $item['quantity'];
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Coupon removed successfully!',
+            'new_total' => $total
+        ]);
     }
 }

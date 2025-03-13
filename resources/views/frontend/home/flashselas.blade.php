@@ -7,15 +7,15 @@
                 <span class="text-gray-600 text-sm sm:text-base">Ends in:</span>
                 <div class="flex gap-1 sm:gap-2 text-white">
                     <div class="bg-orange-500 px-1 sm:px-1 py-1 rounded-md">
-                        <span id="hours" class="text-base sm:text-xl font-bold">00</span>
+                        <span id="hour" class="text-base sm:text-xl font-bold">00</span>
                         <span class="text-xs">h</span>
                     </div>
                     <div class="bg-orange-500 px-1 sm:px-1 py-1 rounded-md">
-                        <span id="minutes" class="text-base sm:text-xl font-bold">00</span>
+                        <span id="minute" class="text-base sm:text-xl font-bold">00</span>
                         <span class="text-xs">m</span>
                     </div>
                     <div class="bg-orange-500 px-1 sm:px-1 py-1 rounded-md">
-                        <span id="seconds" class="text-base sm:text-xl font-bold">00</span>
+                        <span id="second" class="text-base sm:text-xl font-bold">00</span>
                         <span class="text-xs">s</span>
                     </div>
                 </div>
@@ -75,7 +75,8 @@
                                     <div class=" mt-2 text-center">
                                         <h3
                                             class="font-semibold text-gray-800 mb-1 hover:text-orange-500 transition-colors truncate">
-                                            <a href="#">{{ $Product->name }}</a> </h3>
+                                            <a href="#">{{ $Product->name }}</a>
+                                        </h3>
                                         <div class="flex items-center justify-center mb-2">
                                             <div class="flex text-yellow-400 text-sm">
                                                 <i class="ri-star-fill"></i>
@@ -120,3 +121,33 @@
         </div>
     </div>
 </div>
+
+
+<script>
+    // Get end time from database
+    const endTime = new Date("{{ $flashSaleTimer->end_time }}").getTime();
+
+    // Update the countdown every 1 second
+    const x = setInterval(function() {
+        const now = new Date().getTime();
+        const distance = endTime - now;
+
+        // Calculate total hours, minutes and seconds
+        const totalHours = Math.floor(distance / (1000 * 60 * 60));
+        const minute = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+        const second = Math.floor((distance % (1000 * 60)) / 1000);
+
+        // Display the result with leading zeros
+        document.getElementById("hour").innerHTML = totalHours.toString().padStart(2, '0');
+        document.getElementById("minute").innerHTML = minute.toString().padStart(2, '0');
+        document.getElementById("second").innerHTML = second.toString().padStart(2, '0');
+
+        // If the countdown is finished, clear the interval
+        if (distance < 0) {
+            clearInterval(x);
+            document.getElementById("hour").innerHTML = "00";
+            document.getElementById("minute").innerHTML = "00";
+            document.getElementById("second").innerHTML = "00";
+        }
+    }, 1000);
+</script>

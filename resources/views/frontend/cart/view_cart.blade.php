@@ -62,6 +62,12 @@
                                                         ৳{{ number_format($item['price'], 2) }} each
                                                     </div>
                                                 @endif
+                                                @if ($item['free_shipping'])
+                                                    <div class="text-sm text-green-600 flex items-center justify-end mt-1">
+                                                        <i class="ri-truck-line mr-1"></i>
+                                                        Free Shipping
+                                                    </div>
+                                                @endif
                                             </div>
                                         </div>
                                     </div>
@@ -81,13 +87,47 @@
                                 <span class="text-gray-600">Subtotal</span>
                                 <span class="font-medium">৳{{ number_format($total, 2) }}</span>
                             </div>
+
+                            <!-- Coupon Section -->
+                            <div class="border-t pt-4">
+                                <div class="flex gap-2">
+                                    <input type="text" id="coupon-code"
+                                        class="flex-1 border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                                        placeholder="Enter coupon code" {{ Session::has('coupon') ? 'disabled' : '' }}>
+                                    @if (!Session::has('coupon'))
+                                        <button onclick="applyCoupon()"
+                                            class="px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700">
+                                            Apply
+                                        </button>
+                                    @else
+                                        <button onclick="removeCoupon()"
+                                            class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600">
+                                            Remove
+                                        </button>
+                                    @endif
+                                </div>
+                                <div id="coupon-message" class="mt-2 text-sm"></div>
+                            </div>
+
+                            @if (Session::has('coupon'))
+                                <div class="flex justify-between" id="discount-row">
+                                    <span class="text-gray-600">
+                                        Coupon (MINHAZ - 25% off)
+                                    </span>
+                                    <span class="font-medium text-green-600" id="discount-amount">
+                                        -৳{{ number_format(Session::get('coupon')['discount'], 2) }}
+                                    </span>
+                                </div>
+                            @endif
+
                             <div class="flex justify-between">
                                 <span class="text-gray-600">Shipping</span>
                                 <span class="text-gray-500">Calculated at checkout</span>
                             </div>
                             <div class="border-t pt-4 flex justify-between">
                                 <span class="text-gray-800 font-medium">Total</span>
-                                <span class="text-xl font-bold text-orange-500">৳{{ number_format($total, 2) }}</span>
+                                <span class="text-xl font-bold text-orange-500"
+                                    id="final-total">৳{{ number_format($total, 2) }}</span>
                             </div>
                         </div>
 
@@ -194,6 +234,57 @@
                         });
                 }
             });
+        }
+
+        function applyCoupon() {
+            const couponCode = document.getElementById('coupon-code').value;
+            const messageDiv = document.getElementById('coupon-message');
+
+            fetch("{{ route('cart.apply-coupon') }}", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    body: JSON.stringify({
+                        coupon_code: couponCode
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        location.reload(); // Reload to show updated session data
+                    } else {
+                        messageDiv.className = 'mt-2 text-sm text-red-600';
+                        messageDiv.textContent = data.message;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    messageDiv.className = 'mt-2 text-sm text-red-600';
+                    messageDiv.textContent = 'An error occurred while applying the coupon.';
+                });
+        }
+
+        function removeCoupon() {
+            fetch("{{ route('cart.remove-coupon') }}", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        location.reload();
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
         }
     </script>
 @endsection

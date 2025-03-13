@@ -9,6 +9,7 @@ use App\Models\Banner;
 use App\Models\Category;
 use App\Models\Product;
 use App\Models\SubCategory;
+use App\Models\FlashSelasTimer;
 
 use function Ramsey\Uuid\v1;
 
@@ -22,7 +23,8 @@ class HomeController extends Controller
         $Categories = Category::where('status', 'active')->latest()->get();
         $Subcategories = Subcategory::where('status', 'active')->latest()->get();
         $Products = Product::where('status', 'active')->latest()->get();
-        return view('frontend.index', compact('MainSliders', 'Banners', 'Categories', 'Subcategories', 'Products',));
+        $flashSaleTimer = FlashSelasTimer::where('status', 'active')->first();
+        return view('frontend.index', compact('MainSliders', 'Banners', 'Categories', 'Subcategories', 'Products', 'flashSaleTimer'));
     }
 
     public function ProductDetails($id, $slug)

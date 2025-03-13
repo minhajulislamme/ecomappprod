@@ -41,6 +41,8 @@ Route::get('/cart/get', [CartController::class, 'getCart'])->name('cart.get');
 Route::post('/cart/update', [CartController::class, 'updateCart'])->name('cart.update');
 Route::post('/cart/remove', [CartController::class, 'removeFromCart'])->name('cart.remove');
 Route::get('/cart', [CartController::class, 'viewCart'])->name('cart.view');
+Route::post('/cart/apply-coupon', [CartController::class, 'applyCoupon'])->name('cart.apply-coupon');
+Route::post('/cart/remove-coupon', [CartController::class, 'removeCoupon'])->name('cart.remove-coupon');
 
 // Wishlist Routes
 Route::post('/wishlist/add', [WishlistController::class, 'addToWishlist'])->name('wishlist.add');

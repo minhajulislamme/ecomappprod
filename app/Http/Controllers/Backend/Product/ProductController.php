@@ -173,6 +173,10 @@ class ProductController extends Controller
 
     protected function saveProductAttributes($product, array $attributes)
     {
+        // Delete existing attributes first
+        $product->productAttributes()->delete();
+
+        // Create new attribute records
         foreach ($attributes as $attributeId => $values) {
             if (is_array($values) && !empty($values)) {
                 ProductAttribute::create([

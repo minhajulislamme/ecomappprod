@@ -49,7 +49,7 @@ let lastScroll = 0;
 const stickySearch = document.getElementById('stickySearch');
 window.addEventListener('scroll', () => {
   const currentScroll = window.pageYOffset;
-  
+
   if (currentScroll > 150) { // Show after scrolling 150px
       if (currentScroll > lastScroll) {
           // Scrolling down
@@ -59,29 +59,9 @@ window.addEventListener('scroll', () => {
       // At top
       stickySearch.style.transform = 'translateY(-100%)';
   }
-  
+
   lastScroll = currentScroll;
 });
-// Set the countdown date (24 hours from now)
-const countDownDate = new Date().getTime() + (24 * 60 * 60 * 1000);
-// Update the countdown every 1 second
-const countdownTimer = setInterval(function() {
-  const now = new Date().getTime();
-  const distance = countDownDate - now;
-  const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-  const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-  const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-  document.getElementById("hours").textContent = hours.toString().padStart(2, '0');
-  document.getElementById("minutes").textContent = minutes.toString().padStart(2, '0');
-  document.getElementById("seconds").textContent = seconds.toString().padStart(2, '0');
-  // If the countdown is over
-  if (distance < 0) {
-      clearInterval(countdownTimer);
-      document.getElementById("hours").textContent = "00";
-      document.getElementById("minutes").textContent = "00";
-      document.getElementById("seconds").textContent = "00";
-  }
-}, 1000);
 // Scroll to top functionality
 const scrollToTopBtn = document.getElementById('scrollToTop');
 window.addEventListener('scroll', () => {
@@ -104,7 +84,7 @@ window.toggleChat = function() {
 
     // Define transition classes
     const transitionClasses = 'transition-all duration-300 ease-in-out';
-    
+
     if (!chatWidget.classList.contains(transitionClasses)) {
         chatWidget.classList.add(...transitionClasses.split(' '));
     }
@@ -120,7 +100,7 @@ window.toggleChat = function() {
         // Hide chat with smooth animation
         chatWidget.classList.remove('opacity-100', 'translate-y-0', 'scale-100');
         chatWidget.classList.add('opacity-0', 'translate-y-full', 'scale-95');
-        
+
         // Wait for animation to complete
         chatWidget.addEventListener('transitionend', function handler() {
             chatWidget.classList.add('invisible');
@@ -138,7 +118,7 @@ window.toggleFloatingButtons = function() {
         // Show buttons with bottom-up stagger effect
         hiddenButtons.classList.remove('scale-0', 'opacity-0');
         hiddenButtons.classList.add('scale-100', 'opacity-100');
-        
+
         // Animate each button with delay and bottom-up transition
         const buttons = hiddenButtons.querySelectorAll('a');
         buttons.forEach((button, index) => {
@@ -174,11 +154,11 @@ document.addEventListener('click', function(event) {
     const floatingButtons = document.querySelector('.fixed.left-4.bottom-20');
     const hiddenButtons = document.getElementById('hiddenButtons');
     const toggleButton = event.target.closest('[onclick*="toggleFloatingButtons"]');
-    
+
     if (!floatingButtons || !hiddenButtons) return;
 
-    if (!toggleButton && 
-        !floatingButtons.contains(event.target) && 
+    if (!toggleButton &&
+        !floatingButtons.contains(event.target) &&
         !hiddenButtons.classList.contains('scale-0')) {
         toggleFloatingButtons();
     }
@@ -187,7 +167,7 @@ document.addEventListener('click', function(event) {
 document.addEventListener('click', function(event) {
   const floatingButtons = document.querySelector('.fixed.left-4.bottom-28');
   const hiddenButtons = document.getElementById('hiddenButtons');
-  
+
   if (!floatingButtons.contains(event.target) && !hiddenButtons.classList.contains('scale-0')) {
       toggleFloatingButtons();
   }
@@ -213,11 +193,11 @@ document.querySelectorAll('a[onclick]').forEach(anchor => {
 window.closeAllMenus = function() {
     const menus = ['mobileMenu', 'mobileCategoryMenu'];
     const contents = ['menuContent', 'categoryContent'];
-    
+
     menus.forEach((menuId, index) => {
         const menu = document.getElementById(menuId);
         const content = document.getElementById(contents[index]);
-        
+
         if (menu && content && !menu.classList.contains('hidden')) {
             content.classList.add('-translate-x-full');
             setTimeout(() => {
@@ -230,9 +210,9 @@ window.closeAllMenus = function() {
 window.toggleMenu = function() {
     const menu = document.getElementById('mobileMenu');
     const menuContent = document.getElementById('menuContent');
-    
+
     if (!menu || !menuContent) return;
-    
+
     if (menu.classList.contains('hidden')) {
         window.closeAllMenus(); // Close other menus first
         menu.classList.remove('hidden');
@@ -250,9 +230,9 @@ window.toggleMenu = function() {
 window.toggleCategoryMenu = function() {
     const menu = document.getElementById('mobileCategoryMenu');
     const content = document.getElementById('categoryContent');
-    
+
     if (!menu || !content) return;
-    
+
     if (menu.classList.contains('hidden')) {
         window.closeAllMenus(); // Close other menus first
         menu.classList.remove('hidden');
@@ -270,24 +250,24 @@ window.toggleCategoryMenu = function() {
 window.toggleSubcategory = function(id) {
     const currentSubmenu = document.getElementById(`${id}-sub`);
     const currentIcon = document.getElementById(`${id}-icon`);
-    
+
     if (!currentSubmenu || !currentIcon) return;
-    
+
     const allSubmenus = document.querySelectorAll('[id$="-sub"]');
     const allIcons = document.querySelectorAll('[id$="-icon"]');
-    
+
     allSubmenus.forEach(submenu => {
         if (submenu !== currentSubmenu) {
             submenu.style.maxHeight = null;
         }
     });
-    
+
     allIcons.forEach(icon => {
         if (icon !== currentIcon) {
             icon.style.transform = 'rotate(0deg)';
         }
     });
-    
+
     if (currentSubmenu.style.maxHeight) {
         currentSubmenu.style.maxHeight = null;
         currentIcon.style.transform = 'rotate(0deg)';
@@ -320,11 +300,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
     const hiddenButtons = document.getElementById('hiddenButtons');
     const mainButton = document.querySelector('.fixed.left-4.bottom-20');
-    
+
     if (hiddenButtons && mainButton) {
         // Add initial state classes
         hiddenButtons.classList.add('transition-all', 'duration-300', 'ease-in-out', 'scale-0', 'opacity-0', 'origin-bottom-left');
-        
+
         // Add initial state to child buttons with translate-y for bottom-up animation
         const buttons = hiddenButtons.querySelectorAll('a');
         buttons.forEach(button => {

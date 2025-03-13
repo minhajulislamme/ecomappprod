@@ -4,11 +4,11 @@
 function closeAllMenus() {
     const menus = ['mobileMenu', 'mobileCategoryMenu', 'cartSidebar', 'wishlistSidebar'];
     const contents = ['menuContent', 'categoryContent', 'cartContent', 'wishlistContent'];
-    
+
     menus.forEach((menuId, index) => {
         const menu = document.getElementById(menuId);
         const content = document.getElementById(contents[index]);
-        
+
         if (menu && content && !menu.classList.contains('hidden')) {
             if (contents[index] === 'cartContent' || contents[index] === 'wishlistContent') {
                 content.classList.add('translate-x-full');
@@ -26,7 +26,7 @@ function closeAllMenus() {
 function toggleMenu() {
     const menu = document.getElementById('mobileMenu');
     const menuContent = document.getElementById('menuContent');
-    
+
     if (menu.classList.contains('hidden')) {
         closeAllMenus(); // Close other menus first
         menu.classList.remove('hidden');
@@ -45,7 +45,7 @@ function toggleMenu() {
 function toggleCategoryMenu() {
     const menu = document.getElementById('mobileCategoryMenu');
     const content = document.getElementById('categoryContent');
-    
+
     if (menu.classList.contains('hidden')) {
         closeAllMenus(); // Close other menus first
         menu.classList.remove('hidden');
@@ -64,7 +64,7 @@ function toggleCategoryMenu() {
 function toggleCart() {
     const cartSidebar = document.getElementById('cartSidebar');
     const cartContent = document.getElementById('cartContent');
-    
+
     if (cartSidebar.classList.contains('hidden')) {
         closeAllMenus(); // Close other menus first
         cartSidebar.classList.remove('hidden');
@@ -83,7 +83,7 @@ function toggleCart() {
 function toggleWishlist() {
     const wishlistSidebar = document.getElementById('wishlistSidebar');
     const wishlistContent = document.getElementById('wishlistContent');
-    
+
     if (wishlistSidebar.classList.contains('hidden')) {
         closeAllMenus(); // Close other menus first
         wishlistSidebar.classList.remove('hidden');
@@ -135,7 +135,7 @@ function moveAllToCart() {
 // Close menus when clicking overlay
 document.addEventListener('DOMContentLoaded', function() {
     const overlays = ['mobileMenu', 'mobileCategoryMenu', 'cartSidebar'];
-    
+
     overlays.forEach(overlayId => {
         const overlay = document.getElementById(overlayId);
         if (overlay) {
@@ -280,7 +280,7 @@ let lastScroll = 0;
 const stickySearch = document.getElementById('stickySearch');
 window.addEventListener('scroll', () => {
   const currentScroll = window.pageYOffset;
-  
+
   if (currentScroll > 150) { // Show after scrolling 150px
       if (currentScroll > lastScroll) {
           // Scrolling down
@@ -290,29 +290,10 @@ window.addEventListener('scroll', () => {
       // At top
       stickySearch.style.transform = 'translateY(-100%)';
   }
-  
+
   lastScroll = currentScroll;
 });
-// Set the countdown date (24 hours from now)
-const countDownDate = new Date().getTime() + (24 * 60 * 60 * 1000);
-// Update the countdown every 1 second
-const countdownTimer = setInterval(function() {
-  const now = new Date().getTime();
-  const distance = countDownDate - now;
-  const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-  const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-  const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-  document.getElementById("hours").textContent = hours.toString().padStart(2, '0');
-  document.getElementById("minutes").textContent = minutes.toString().padStart(2, '0');
-  document.getElementById("seconds").textContent = seconds.toString().padStart(2, '0');
-  // If the countdown is over
-  if (distance < 0) {
-      clearInterval(countdownTimer);
-      document.getElementById("hours").textContent = "00";
-      document.getElementById("minutes").textContent = "00";
-      document.getElementById("seconds").textContent = "00";
-  }
-}, 1000);
+
 // Scroll to top functionality
 const scrollToTopBtn = document.getElementById('scrollToTop');
 window.addEventListener('scroll', () => {
@@ -361,7 +342,7 @@ function toggleFloatingButtons() {
 document.addEventListener('click', function(event) {
   const floatingButtons = document.querySelector('.fixed.left-4.bottom-28');
   const hiddenButtons = document.getElementById('hiddenButtons');
-  
+
   if (!floatingButtons.contains(event.target) && !hiddenButtons.classList.contains('scale-0')) {
       toggleFloatingButtons();
   }
@@ -389,10 +370,10 @@ function updateCartItem(itemId, quantity) {
     const quantityElement = item.querySelector('.quantity-value');
     const priceElement = item.querySelector('.item-price');
     const basePrice = parseFloat(item.dataset.basePrice);
-    
+
     // Update quantity
     quantityElement.textContent = quantity;
-    
+
     // Update item total price
     const totalPrice = (basePrice * quantity).toFixed(2);
     priceElement.textContent = `$${totalPrice}`;
@@ -406,7 +387,7 @@ function incrementQuantity(itemId) {
     const quantityElement = item.querySelector('.quantity-value');
     const currentQuantity = parseInt(quantityElement.textContent);
     const newQuantity = currentQuantity + 1;
-    
+
     updateCartItem(itemId, newQuantity);
 }
 
@@ -424,7 +405,7 @@ function removeCartItem(itemId) {
     const item = document.getElementById(`cart-item-${itemId}`);
     item.remove();
     updateCartSubtotal();
-    
+
     // Update cart count
     const cartItems = document.querySelectorAll('.cart-item').length;
     document.querySelectorAll('.cart-count').forEach(counter => {
