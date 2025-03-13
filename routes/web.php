@@ -5,6 +5,7 @@ use App\Http\Controllers\AdminController\AdminController;
 use App\Http\Controllers\UserController\UserController;
 use App\Http\Controllers\Backend\Category\CategoryController;
 use App\Http\Controllers\Backend\Category\SubcategoryController;
+use App\Http\Controllers\Backend\Coupon\CouponController;
 use App\Http\Controllers\Backend\Banner\BannerController;
 use App\Http\Controllers\Backend\Slider\SliderController;
 use App\Http\Controllers\Backend\Attribute\AttributeController;
@@ -135,6 +136,16 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
         Route::get('/products/{product}/variations/{variation}/edit', 'edit')->name('admin.products.variations.edit');
         Route::post('/products/{product}/variations/{variation}/update', 'update')->name('admin.products.variations.update');
         Route::get('/products/{product}/variations/{variation}/delete', 'destroy')->name('admin.products.variations.destroy');
+    });
+
+    // All Coupon Routes
+    Route::controller(CouponController::class)->group(function () {
+        Route::get('/coupon', 'AllCoupon')->name('all.coupon');
+        Route::get('/coupon/add', 'CouponAdd')->name('coupon.add');
+        Route::post('/coupon/store', 'CouponStore')->name('coupon.store');
+        Route::get('/coupon/edit/{id}', 'CouponEdit')->name('coupon.edit');
+        Route::post('/coupon/update/{id}', 'CouponUpdate')->name('coupon.update');
+        Route::get('/coupon/delete/{id}', 'CouponDelete')->name('coupon.delete');
     });
 });
 
