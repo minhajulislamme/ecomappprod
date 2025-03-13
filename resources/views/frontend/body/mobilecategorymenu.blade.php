@@ -1,3 +1,10 @@
+@php
+    $Categories = \App\Models\Category::where('status', 'active')->orderBy('category_name', 'asc')->get();
+    $Subcategories = \App\Models\SubCategory::where('status', 'active')->orderBy('subcategory_name', 'asc')->get();
+
+@endphp
+
+
 <div id="mobileCategoryMenu" class="fixed inset-0 bg-black/50 bg-opacity-50 z-[100] hidden lg:hidden">
     <div id="categoryContent"
         class="fixed top-0 left-0 bottom-0 w-80 md:w-96 bg-white transform -translate-x-full transition-transform duration-300 ease-in-out">

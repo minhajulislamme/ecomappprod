@@ -1,3 +1,10 @@
+@php
+    $Categories = \App\Models\Category::where('status', 'active')->orderBy('category_name', 'asc')->get();
+    $Subcategories = \App\Models\SubCategory::where('status', 'active')->orderBy('subcategory_name', 'asc')->get();
+
+@endphp
+
+
 <nav class="text-orange-500 hidden lg:block">
     <div class="max-w-7xl mx-auto">
         <div class="flex items-center py-4 px-4">
@@ -57,7 +64,7 @@
                     Shop
                 </a>
 
-               
+
 
                 <!-- Pages Dropdown -->
                 <div class="relative group">

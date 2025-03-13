@@ -8,6 +8,7 @@ use App\Models\Category;
 use App\Models\SubCategory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Str;
 
 class WishlistController extends Controller
 {
@@ -34,7 +35,7 @@ class WishlistController extends Controller
                 'price' => (float)$product->price,
                 'discount_price' => (float)$product->discount_price,
                 'image' => $product->thumbnail_image,
-                'slug' => \Str::slug($product->name)
+                'slug' => Str::slug($product->name)
             ];
 
             Session::put('wishlist', $wishlist);
