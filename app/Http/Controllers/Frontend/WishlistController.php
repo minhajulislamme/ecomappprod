@@ -13,33 +13,44 @@ class WishlistController extends Controller
 {
     public function addToWishlist(Request $request)
     {
-        $productId = $request->product_id;
-        $product = Product::findOrFail($productId);
+        try {
+            $productId = $request->product_id;
+            $product = Product::findOrFail($productId);
+            $wishlist = Session::get('wishlist', []);
 
-        $wishlist = Session::get('wishlist', []);
+            // Check if product already in wishlist
+            if (isset($wishlist[$productId])) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Product is already in your wishlist',
+                    'wishlist_count' => count($wishlist),
+                    'exists' => true
+                ]);
+            }
 
-        if (isset($wishlist[$productId])) {
+            // Add product to wishlist
+            $wishlist[$productId] = [
+                'name' => $product->name,
+                'price' => (float)$product->price,
+                'discount_price' => (float)$product->discount_price,
+                'image' => $product->thumbnail_image,
+                'slug' => \Str::slug($product->name)
+            ];
+
+            Session::put('wishlist', $wishlist);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Product added to wishlist',
+                'wishlist_count' => count($wishlist),
+                'added' => true
+            ]);
+        } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Product already in wishlist',
-                'wishlist_count' => count($wishlist)
-            ]);
+                'message' => 'Error processing request: ' . $e->getMessage()
+            ], 500);
         }
-
-        $wishlist[$productId] = [
-            'name' => $product->name,
-            'price' => (float)$product->price,
-            'discount_price' => (float)$product->discount_price,
-            'image' => $product->thumbnail_image  // Store only the path, not the full asset URL
-        ];
-
-        Session::put('wishlist', $wishlist);
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Product added to wishlist',
-            'wishlist_count' => count($wishlist)
-        ]);
     }
 
     public function removeFromWishlist(Request $request)
@@ -64,9 +75,10 @@ class WishlistController extends Controller
     {
         $wishlist = Session::get('wishlist', []);
 
-        // Add asset URL to images
-        foreach ($wishlist as &$item) {
+        // Add asset URL to images and product URLs
+        foreach ($wishlist as $productId => &$item) {
             $item['image'] = asset($item['image']);
+            $item['url'] = route('product.details', ['id' => $productId, 'slug' => $item['slug']]);
         }
 
         return response()->json([

@@ -186,7 +186,7 @@
                             <i class="ri-shopping-cart-2-line text-xl"></i>
                         </button>
                         <button onclick="handleWishlistClick({{ $product->id }})"
-                            class="flex items-center justify-center w-12 h-12 border-2 border-gray-300 hover:border-orange-500 hover:text-orange-500 rounded-lg transition duration-200">
+                            class="flex items-center justify-center w-12 h-12 border-2 border-gray-300 hover:border-orange-500 hover:text-orange-500 rounded-lg transition duration-200 {{ in_array($product->id, array_keys(Session::get('wishlist', []))) ? 'text-orange-500 border-orange-500' : '' }}">
                             <i class="ri-heart-line text-xl"></i>
                         </button>
                     </div>
@@ -990,14 +990,15 @@
             return `
             <div class="flex flex-wrap gap-2 mt-1">
                 ${Object.values(attributes).map(attr => `
-                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                            ${attr.name}: ${attr.value}
-                        </span>
-                    `).join('')}
+                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                        ${attr.name}: ${attr.value}
+                                    </span>
+                                `).join('')}
             </div>`;
         }
 
         function handleWishlistClick(productId) {
+            const wishlistBtn = event.currentTarget;
             const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
             fetch("{{ route('wishlist.add') }}", {
@@ -1005,26 +1006,27 @@
                     headers: {
                         'Content-Type': 'application/json',
                         'Accept': 'application/json',
-                        'X-Requested-With': 'XMLHttpRequest',
                         'X-CSRF-TOKEN': token
                     },
-                    credentials: 'same-origin',
                     body: JSON.stringify({
                         product_id: productId
                     })
                 })
-                .then(response => {
-                    if (!response.ok) {
-                        return response.json().then(err => Promise.reject(err));
-                    }
-                    return response.json();
-                })
+                .then(response => response.json())
                 .then(data => {
                     if (data.success) {
+                        // Toggle wishlist button state
+                        wishlistBtn.classList.add('text-orange-500', 'border-orange-500');
+
+                        // Update counts
                         document.querySelectorAll('.wishlist-count').forEach(counter => {
                             counter.textContent = data.wishlist_count;
                         });
 
+                        // Update wishlist sidebar content immediately
+                        updateWishlistDrawer();
+
+                        // Show success message
                         Swal.fire({
                             title: 'Success!',
                             text: data.message,
@@ -1036,14 +1038,38 @@
                             timerProgressBar: true
                         });
                     } else {
-                        throw new Error(data.message || 'Failed to add product to wishlist');
+                        // Show error/info message for existing item
+                        if (data.exists) {
+                            Swal.fire({
+                                title: 'Already in Wishlist',
+                                text: data.message,
+                                icon: 'info',
+                                toast: true,
+                                position: 'top-end',
+                                showConfirmButton: false,
+                                timer: 3000,
+                                timerProgressBar: true
+                            });
+                        } else {
+                            // Show other error messages
+                            Swal.fire({
+                                title: 'Error!',
+                                text: data.message,
+                                icon: 'error',
+                                toast: true,
+                                position: 'top-end',
+                                showConfirmButton: false,
+                                timer: 3000,
+                                timerProgressBar: true
+                            });
+                        }
                     }
                 })
                 .catch(error => {
                     console.error('Error:', error);
                     Swal.fire({
                         title: 'Error!',
-                        text: error.message || 'Failed to add product to wishlist',
+                        text: 'Failed to update wishlist',
                         icon: 'error',
                         toast: true,
                         position: 'top-end',
@@ -1051,6 +1077,76 @@
                         timer: 3000,
                         timerProgressBar: true
                     });
+                });
+        }
+
+        // Add this function to update the wishlist sidebar
+        function updateWishlistDrawer() {
+            fetch("{{ route('wishlist.get') }}")
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Get the wishlist items container
+                        const wishlistItems = document.getElementById('wishlistItems');
+                        if (!wishlistItems) return;
+
+                        // Generate HTML for wishlist items
+                        let html = '';
+                        if (Object.keys(data.wishlist).length > 0) {
+                            html += '<div class="space-y-4">';
+                            Object.entries(data.wishlist).forEach(([productId, item]) => {
+                                html += `
+                            <div id="wishlist-item-${productId}" class="wishlist-item flex gap-4 border-b pb-4">
+                                <img src="${item.image}" alt="${item.name}" class="w-20 h-20 object-cover rounded">
+                                <div class="flex-1">
+                                    <div class="flex justify-between">
+                                        <h4 class="font-medium text-gray-800">${item.name}</h4>
+                                        <button onclick="removeWishlistItem(${productId})" class="text-gray-400 hover:text-red-500">
+                                            <i class="ri-close-line text-xl"></i>
+                                        </button>
+                                    </div>
+                                    <div class="mt-1">
+                                        ${item.discount_price && item.discount_price < item.price ? 
+                                            `<span class="text-orange-500 font-medium">৳${item.discount_price}</span>
+                                                 <span class="text-gray-400 text-sm line-through ml-2">৳${item.price}</span>` :
+                                            `<span class="text-orange-500 font-medium">৳${item.price}</span>`
+                                        }
+                                    </div>
+                                    <div class="mt-2">
+                                        <button onclick="moveWishlistItemToCart(${productId})" class="text-sm text-blue-500 hover:text-blue-600 flex items-center">
+                                            <i class="ri-shopping-cart-line mr-1"></i>
+                                            Add to Cart
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>`;
+                            });
+                            html += '</div>';
+                        } else {
+                            html = '<div class="py-8 text-center text-gray-500">Your wishlist is empty</div>';
+                        }
+
+                        // Update the wishlist content
+                        wishlistItems.innerHTML = html;
+
+                        // Update the footer buttons
+                        const footerContainer = document.querySelector('#wishlistContent .border-t');
+                        if (footerContainer) {
+                            footerContainer.innerHTML = `
+                        <a href="{{ route('wishlist.view') }}" class="w-full block py-2 px-4 bg-orange-500 text-white text-center rounded-md hover:bg-orange-600 transition-colors">
+                            View Wishlist
+                        </a>
+                        ${Object.keys(data.wishlist).length > 0 ? `
+                                <button onclick="moveAllWishlistToCart()" class="w-full mt-2 py-2 px-4 border border-orange-400 text-orange-500 text-center rounded-md hover:bg-orange-50 transition-colors">
+                                    Move All to Cart
+                                </button>
+                            ` : ''}
+                    `;
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('Error updating wishlist drawer:', error);
                 });
         }
     </script>
@@ -1082,7 +1178,7 @@
             /* orange-500 */
         }
 
-        .tab-btn span {
+        .tab-btn.span {
             transform-origin: left;
         }
 

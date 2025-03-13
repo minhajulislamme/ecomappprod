@@ -29,7 +29,7 @@
                 <div class="space-y-4">
                     @foreach ($wishlist as $productId => $item)
                         <div id="wishlist-item-{{ $productId }}" class="wishlist-item flex gap-4 border-b pb-4">
-                            <img src="{{ $item['image'] }}" alt="{{ $item['name'] }}"
+                            <img src="{{ asset($item['image']) }}" alt="{{ $item['name'] }}"
                                 class="w-20 h-20 object-cover rounded">
                             <div class="flex-1">
                                 <div class="flex justify-between">
@@ -39,7 +39,16 @@
                                         <i class="ri-close-line text-xl"></i>
                                     </button>
                                 </div>
-                                <div class="mt-1 text-orange-500 font-medium">৳{{ number_format($item['price'], 2) }}
+                                <div class="mt-1">
+                                    @if (isset($item['discount_price']) && $item['discount_price'] > 0 && $item['discount_price'] < $item['price'])
+                                        <span
+                                            class="text-orange-500 font-medium">৳{{ number_format($item['discount_price'], 2) }}</span>
+                                        <span
+                                            class="text-gray-400 text-sm line-through ml-2">৳{{ number_format($item['price'], 2) }}</span>
+                                    @else
+                                        <span
+                                            class="text-orange-500 font-medium">৳{{ number_format($item['price'], 2) }}</span>
+                                    @endif
                                 </div>
                                 <div class="mt-2">
                                     <button onclick="moveWishlistItemToCart({{ $productId }})"
