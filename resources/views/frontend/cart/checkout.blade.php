@@ -135,7 +135,23 @@
                                                     <i class="ri-delete-bin-line"></i>
                                                 </button>
                                             </div>
-                                            <p class="text-gray-500">Qty: {{ $item['quantity'] }}</p>
+                                            <div class="flex items-center mt-2">
+                                                <button type="button"
+                                                    class="quantity-btn decrease-quantity p-2 text-gray-500 hover:text-orange-500 hover:bg-gray-100 rounded-l border border-r-0 border-gray-200"
+                                                    data-item-id="{{ $itemKey }}">
+                                                    <i class="ri-subtract-line"></i>
+                                                </button>
+                                                <input type="number"
+                                                    class="quantity-input w-14 text-center border-y border-gray-200 py-2 focus:outline-none focus:border-orange-500 focus:ring-0"
+                                                    value="{{ $item['quantity'] }}" min="1" max="99"
+                                                    data-item-id="{{ $itemKey }}"
+                                                    style="-moz-appearance: textfield;">
+                                                <button type="button"
+                                                    class="quantity-btn increase-quantity p-2 text-gray-500 hover:text-orange-500 hover:bg-gray-100 rounded-r border border-l-0 border-gray-200"
+                                                    data-item-id="{{ $itemKey }}">
+                                                    <i class="ri-add-line"></i>
+                                                </button>
+                                            </div>
                                             @if (!empty($item['attributes']))
                                                 <div class="flex flex-wrap gap-2 mt-1">
                                                     @foreach ($item['attributes'] as $attribute)
@@ -146,7 +162,7 @@
                                                     @endforeach
                                                 </div>
                                             @endif
-                                            <p class="text-orange-500 font-medium mt-1">
+                                            <p class="text-orange-500 font-medium mt-1 item-total">
                                                 ৳{{ number_format($item['price'] * $item['quantity'], 2) }}</p>
                                         </div>
                                     </div>
@@ -234,7 +250,22 @@
                                             <i class="ri-delete-bin-line"></i>
                                         </button>
                                     </div>
-                                    <p class="text-gray-500">Qty: {{ $item['quantity'] }}</p>
+                                    <div class="flex items-center mt-2">
+                                        <button type="button"
+                                            class="quantity-btn decrease-quantity p-2 text-gray-500 hover:text-orange-500 hover:bg-gray-100 rounded-l border border-r-0 border-gray-200"
+                                            data-item-id="{{ $itemKey }}">
+                                            <i class="ri-subtract-line"></i>
+                                        </button>
+                                        <input type="number"
+                                            class="quantity-input w-14 text-center border-y border-gray-200 py-2 focus:outline-none focus:border-orange-500 focus:ring-0"
+                                            value="{{ $item['quantity'] }}" min="1" max="99"
+                                            data-item-id="{{ $itemKey }}" style="-moz-appearance: textfield;">
+                                        <button type="button"
+                                            class="quantity-btn increase-quantity p-2 text-gray-500 hover:text-orange-500 hover:bg-gray-100 rounded-r border border-l-0 border-gray-200"
+                                            data-item-id="{{ $itemKey }}">
+                                            <i class="ri-add-line"></i>
+                                        </button>
+                                    </div>
                                     @if (!empty($item['attributes']))
                                         <div class="flex flex-wrap gap-2 mt-1">
                                             @foreach ($item['attributes'] as $attribute)
@@ -245,7 +276,7 @@
                                             @endforeach
                                         </div>
                                     @endif
-                                    <p class="text-orange-500 font-medium mt-1">
+                                    <p class="text-orange-500 font-medium mt-1 item-total">
                                         ৳{{ number_format($item['price'] * $item['quantity'], 2) }}</p>
                                 </div>
                             </div>
@@ -498,6 +529,7 @@
                                         item.style.transition = 'all 0.3s ease';
                                         item.style.opacity = '0';
                                         setTimeout(() => item.remove(), 300);
+
                                     });
 
                                     // Update cart count
@@ -577,6 +609,140 @@
 
             // Remove all duplicate removeCartItem functions
             // ...existing code...
+
+            // Add quantity update handlers
+            function initQuantityControls() {
+                document.querySelectorAll('.quantity-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const itemId = this.getAttribute('data-item-id');
+                        const input = document.querySelector(
+                            `.quantity-input[data-item-id="${itemId}"]`);
+                        let currentValue = parseInt(input.value);
+
+                        if (this.classList.contains('increase-quantity')) {
+                            if (currentValue < 99) {
+                                currentValue++;
+                                updateCartItemQuantity(itemId, currentValue);
+                            }
+                        } else {
+                            if (currentValue > 1) {
+                                currentValue--;
+                                updateCartItemQuantity(itemId, currentValue);
+                            }
+                        }
+                    });
+                });
+
+                document.querySelectorAll('.quantity-input').forEach(input => {
+                    // Prevent mousewheel from changing number
+                    input.addEventListener('wheel', function(e) {
+                        e.preventDefault();
+                    });
+
+                    input.addEventListener('change', function() {
+                        const itemId = this.getAttribute('data-item-id');
+                        let value = parseInt(this.value);
+
+                        if (isNaN(value) || value < 1) {
+                            value = 1;
+                        } else if (value > 99) {
+                            value = 99;
+                        }
+
+                        this.value = value;
+                        updateCartItemQuantity(itemId, value);
+                    });
+
+                    // Prevent non-numeric input
+                    input.addEventListener('keypress', function(e) {
+                        if (!/[0-9]/.test(e.key)) {
+                            e.preventDefault();
+                        }
+                    });
+                });
+            }
+
+            function updateCartItemQuantity(itemId, quantity) {
+                const loadingToast = Swal.mixin({
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    didOpen: (toast) => {
+                        toast.showLoading();
+                    }
+                });
+
+                loadingToast.fire({
+                    title: 'Updating quantity...'
+                });
+
+                fetch("{{ route('cart.update') }}", {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        body: JSON.stringify({
+                            product_id: itemId,
+                            quantity: quantity
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Update all instances of this item's quantity input
+                            document.querySelectorAll(`.quantity-input[data-item-id="${itemId}"]`).forEach(
+                                input => {
+                                    input.value = quantity;
+                                });
+
+                            // Update totals
+                            document.querySelectorAll('#subtotal').forEach(element => {
+                                element.textContent = '৳' + data.subtotal.toFixed(2);
+                            });
+
+                            if (data.discount > 0) {
+                                document.querySelectorAll('#discount-amount').forEach(element => {
+                                    element.textContent = '-৳' + data.discount.toFixed(2);
+                                });
+                            }
+
+                            document.querySelectorAll('#total').forEach(element => {
+                                element.textContent = '৳' + data.total.toFixed(2);
+                            });
+
+                            // Update item total price
+                            document.querySelectorAll(`.cart-item[data-item-key="${itemId}"] .item-total`)
+                                .forEach(element => {
+                                    element.textContent = '৳' + data.item_total.toFixed(2);
+                                });
+
+                            Swal.fire({
+                                toast: true,
+                                position: 'top-end',
+                                icon: 'success',
+                                title: 'Quantity updated',
+                                showConfirmButton: false,
+                                timer: 1500
+                            });
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        Swal.fire({
+                            toast: true,
+                            position: 'top-end',
+                            icon: 'error',
+                            title: 'Failed to update quantity',
+                            showConfirmButton: false,
+                            timer: 1500
+                        });
+                    });
+            }
+
+            // Initialize quantity controls
+            initQuantityControls();
         });
     </script>
 @endsection

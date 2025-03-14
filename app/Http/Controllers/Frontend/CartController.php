@@ -90,7 +90,7 @@ class CartController extends Controller
     {
         $request->validate([
             'product_id' => 'required',
-            'quantity' => 'required|integer|min:1'
+            'quantity' => 'required|integer|min:1|max:99'
         ]);
 
         $cart = Session::get('cart', []);
@@ -99,16 +99,35 @@ class CartController extends Controller
             $cart[$request->product_id]['quantity'] = $request->quantity;
             Session::put('cart', $cart);
 
-            $itemTotal = $cart[$request->product_id]['price'] * $request->quantity;
-            $total = 0;
+            // Calculate subtotal and item total
+            $subtotal = 0;
             foreach ($cart as $item) {
-                $total += $item['price'] * $item['quantity'];
+                $subtotal += $item['price'] * $item['quantity'];
             }
+
+            $itemTotal = $cart[$request->product_id]['price'] * $request->quantity;
+
+            // Calculate discount if coupon exists
+            $discount = 0;
+            if (Session::has('coupon')) {
+                $coupon = Session::get('coupon');
+                $discount = ($subtotal * $coupon['discount_percentage']) / 100;
+            }
+
+            // Get shipping charge
+            $shippingCharge = \App\Models\ShippingCharge::where('status', 'active')->first();
+            $shippingAmount = $shippingCharge ? $shippingCharge->charge : 0;
+
+            // Calculate total
+            $total = $subtotal - $discount + $shippingAmount;
 
             return response()->json([
                 'success' => true,
                 'message' => 'Cart updated successfully!',
                 'item_total' => $itemTotal,
+                'subtotal' => $subtotal,
+                'discount' => $discount,
+                'shipping_charge' => $shippingAmount,
                 'total' => $total
             ]);
         }
@@ -116,7 +135,7 @@ class CartController extends Controller
         return response()->json([
             'success' => false,
             'message' => 'Product not found in cart!'
-        ]);
+        ], 404);
     }
 
     public function removeFromCart(Request $request)
