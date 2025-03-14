@@ -16,7 +16,7 @@ return new class extends Migration
             $table->unsignedBigInteger('order_id');
             $table->foreign('order_id')->references('id')->on('orders')->onDelete('cascade');
             $table->unsignedBigInteger('product_id');
-            $table->json('attribute_values');
+            $table->json('attribute_values')->nullable();
             $table->string('quantity');
             $table->string('thumbnail_image')->nullable();
             $table->float('price',8,2);

@@ -195,38 +195,37 @@ class CheckoutController extends Controller
 
     public function directCheckout(Request $request)
     {
-        $request->validate([
-            'product_id' => 'required|exists:products,id',
-            'quantity' => 'required|integer|min:1',
-            'attributes' => 'nullable|array'
-        ]);
-
         try {
+            $request->validate([
+                'product_id' => 'required|exists:products,id',
+                'quantity' => 'required|integer|min:1',
+                'attributes' => 'nullable|array'
+            ]);
+
             $product = Product::findOrFail($request->product_id);
 
-            // Check if product requires attributes but none were provided
-            if ($product->hasConfiguredAttributes() && empty($request->attributes)) {
+            // Validate product stock
+            if ($product->stock < $request->quantity) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Please select required product options'
+                    'message' => 'Insufficient stock for product: ' . $product->name
                 ], 400);
             }
 
-            // Generate unique cart key based on product ID and attributes
-            $cartKey = $request->product_id;
+            $cartKey = (string)$request->product_id;
 
+            // Only process attributes if they exist and are not empty
             if ($request->has('attributes') && !empty($request->attributes)) {
-                // Convert attributes to array and sort by key - matching exactly the addToCart method
                 $attrs = is_array($request->attributes) ? $request->attributes : $request->attributes->all();
-                ksort($attrs);
-
-                // Build cart key in same format as addToCart
-                foreach ($attrs as $attrId => $attr) {
-                    $cartKey .= '_' . $attrId . '_' . $attr['value'];
+                if (!empty($attrs)) {
+                    ksort($attrs);
+                    foreach ($attrs as $attrId => $attr) {
+                        $cartKey .= '_' . $attrId . '_' . $attr['value'];
+                    }
                 }
             }
 
-            // Create cart item with exactly the same structure as addToCart
+            // Create cart item
             $cart = [];
             $cart[$cartKey] = [
                 'id' => $product->id,
@@ -234,23 +233,22 @@ class CheckoutController extends Controller
                 'quantity' => $request->quantity,
                 'price' => $product->discount_price ?? $product->price,
                 'image' => asset($product->thumbnail_image),
-                'attributes' => $request->input('attributes', []), // Use input directly like addToCart
+                'attributes' => $request->input('attributes', []),
                 'free_shipping' => $product->free_shipping === 'yes'
             ];
 
             Session::put('cart', $cart);
-
-            // Clear any existing coupon as this is a direct checkout
             Session::forget('coupon');
 
             return response()->json([
                 'success' => true,
+                'message' => 'Product added for direct checkout.',
                 'redirect' => route('checkout')
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to process checkout: ' . $e->getMessage()
+                'message' => $e->getMessage()
             ], 500);
         }
     }

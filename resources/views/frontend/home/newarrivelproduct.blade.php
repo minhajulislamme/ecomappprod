@@ -403,44 +403,54 @@
         if (hasAttributes) {
             // Redirect to product details page if product has attributes
             window.location.href = `{{ url('/product-details') }}/${productId}/${productId}`;
-        } else {
-            // Direct checkout for products without attributes
-            const quantity = 1;
-            const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+            return;
+        }
 
-            fetch("{{ route('checkout.direct') }}", {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json',
-                        'X-CSRF-TOKEN': token
-                    },
-                    credentials: 'same-origin',
-                    body: JSON.stringify({
-                        product_id: productId,
-                        quantity: quantity
-                    })
+        // Direct checkout for products without attributes
+        const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+        fetch("{{ route('checkout.direct') }}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': token
+                },
+                credentials: 'same-origin',
+                body: JSON.stringify({
+                    product_id: productId,
+                    quantity: 1 // Default quantity for quick buy
                 })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        window.location.href = data.redirect;
-                    } else {
-                        Swal.fire({
-                            title: 'Error',
-                            text: data.message || 'Something went wrong',
-                            icon: 'error',
-                        });
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    window.location.href = data.redirect;
+                } else {
                     Swal.fire({
                         title: 'Error',
-                        text: 'Something went wrong. Please try again.',
+                        text: data.message || 'Something went wrong',
                         icon: 'error',
+                        toast: true,
+                        position: 'top-end',
+                        showConfirmButton: false,
+                        timer: 3000,
+                        timerProgressBar: true
                     });
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                Swal.fire({
+                    title: 'Error',
+                    text: 'Something went wrong. Please try again.',
+                    icon: 'error',
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 3000,
+                    timerProgressBar: true
                 });
-        }
+            });
     }
 </script>

@@ -990,10 +990,10 @@
             return `
             <div class="flex flex-wrap gap-2 mt-1">
                 ${Object.values(attributes).map(attr => `
-                                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                                                        ${attr.name}: ${attr.value}
-                                                    </span>
-                                                `).join('')}
+                                                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                                            ${attr.name}: ${attr.value}
+                                                        </span>
+                                                    `).join('')}
             </div>`;
         }
 
@@ -1108,7 +1108,7 @@
                                     <div class="mt-1">
                                         ${item.discount_price && item.discount_price < item.price ?
                                             `<span class="text-orange-500 font-medium">৳${item.discount_price}</span>
-                                                                 <span class="text-gray-400 text-sm line-through ml-2">৳${item.price}</span>` :
+                                                                     <span class="text-gray-400 text-sm line-through ml-2">৳${item.price}</span>` :
                                             `<span class="text-orange-500 font-medium">৳${item.price}</span>`
                                         }
                                     </div>
@@ -1137,10 +1137,10 @@
                             View Wishlist
                         </a>
                         ${Object.keys(data.wishlist).length > 0 ? `
-                                                <button onclick="moveAllWishlistToCart()" class="w-full mt-2 py-2 px-4 border border-orange-400 text-orange-500 text-center rounded-md hover:bg-orange-50 transition-colors">
-                                                    Move All to Cart
-                                                </button>
-                                            ` : ''}
+                                                    <button onclick="moveAllWishlistToCart()" class="w-full mt-2 py-2 px-4 border border-orange-400 text-orange-500 text-center rounded-md hover:bg-orange-50 transition-colors">
+                                                        Move All to Cart
+                                                    </button>
+                                                ` : ''}
                     `;
                         }
                     }
@@ -1158,34 +1158,38 @@
             // Get all attribute groups
             const attributeGroups = document.querySelectorAll('[data-attribute-group]');
 
-            attributeGroups.forEach(group => {
-                const groupName = group.getAttribute('data-attribute-group');
-                const selected = group.querySelector('input[type="radio"]:checked');
+            // Only check attributes if the product has any
+            if (attributeGroups.length > 0) {
+                attributeGroups.forEach(group => {
+                    const groupName = group.getAttribute('data-attribute-group');
+                    const selected = group.querySelector('input[type="radio"]:checked');
 
-                if (!selected) {
-                    hasAllAttributes = false;
-                    Swal.fire({
-                        title: 'Missing Selection',
-                        text: `Please select ${groupName}`,
-                        icon: 'warning',
-                        toast: true,
-                        position: 'top-end',
-                        showConfirmButton: false,
-                        timer: 3000,
-                        timerProgressBar: true
-                    });
-                    return;
-                }
+                    if (!selected) {
+                        hasAllAttributes = false;
+                        Swal.fire({
+                            title: 'Missing Selection',
+                            text: `Please select ${groupName}`,
+                            icon: 'warning',
+                            toast: true,
+                            position: 'top-end',
+                            showConfirmButton: false,
+                            timer: 3000,
+                            timerProgressBar: true
+                        });
+                        return;
+                    }
 
-                // Get the attribute ID from the radio button name and its value
-                const attributeId = selected.name.replace('attr_', '');
-                attributes[attributeId] = {
-                    name: groupName,
-                    value: selected.value
-                };
-            });
+                    // Get the attribute ID from the radio button name and its value
+                    const attributeId = selected.name.replace('attr_', '');
+                    attributes[attributeId] = {
+                        name: groupName,
+                        value: selected.value
+                    };
+                });
 
-            if (!hasAllAttributes && attributeGroups.length > 0) return;
+                // If product has attributes but not all are selected, stop here
+                if (!hasAllAttributes) return;
+            }
 
             const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
@@ -1200,7 +1204,7 @@
                     body: JSON.stringify({
                         product_id: productId,
                         quantity: quantity,
-                        attributes: attributes
+                        attributes: Object.keys(attributes).length > 0 ? attributes : null
                     })
                 })
                 .then(response => response.json())
@@ -1212,6 +1216,11 @@
                             title: 'Error',
                             text: data.message || 'Something went wrong',
                             icon: 'error',
+                            toast: true,
+                            position: 'top-end',
+                            showConfirmButton: false,
+                            timer: 3000,
+                            timerProgressBar: true
                         });
                     }
                 })
@@ -1221,6 +1230,11 @@
                         title: 'Error',
                         text: 'Something went wrong. Please try again.',
                         icon: 'error',
+                        toast: true,
+                        position: 'top-end',
+                        showConfirmButton: false,
+                        timer: 3000,
+                        timerProgressBar: true
                     });
                 });
         }
