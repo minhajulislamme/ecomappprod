@@ -82,4 +82,34 @@ class Product extends Model
             fn() => $this->variations()->exists()
         );
     }
+
+    public function prepareForDirectCheckout($quantity = 1, $attributes = []): array
+    {
+        // Get the price (use discount price if available)
+        $price = $this->discount_price ?? $this->price;
+
+        // Generate unique cart key based on product ID and attributes
+        $cartKey = $this->id;
+
+        if (!empty($attributes)) {
+            ksort($attributes);
+            $cartKey .= '_' . implode('_', array_map(function ($attrId, $attr) {
+                return $attrId . '_' . $attr['value'];
+            }, array_keys($attributes), $attributes));
+        }
+
+        $cartItem = [
+            'id' => $this->id,
+            'name' => $this->name,
+            'quantity' => $quantity,
+            'price' => $price,
+            'image' => asset($this->thumbnail_image),
+            'attributes' => $attributes,
+            'free_shipping' => $this->free_shipping === 'yes'
+        ];
+
+        return [
+            $cartKey => $cartItem
+        ];
+    }
 }

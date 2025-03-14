@@ -51,6 +51,9 @@ Route::post('/checkout/store', [CheckoutController::class, 'placeOrder'])->name(
 Route::get('/checkout/success/{order_number}', [CheckoutController::class, 'checkoutSuccess'])->name('checkout.success');
 Route::post('/checkout/validate', [CheckoutController::class, 'validateCheckoutForm'])->name('checkout.validate');
 
+// Direct Checkout Routes
+Route::post('/direct-checkout', [CheckoutController::class, 'directCheckout'])->name('checkout.direct');
+
 // Wishlist Routes
 Route::post('/wishlist/add', [WishlistController::class, 'addToWishlist'])->name('wishlist.add');
 Route::post('/wishlist/remove', [WishlistController::class, 'removeFromWishlist'])->name('wishlist.remove');

@@ -135,35 +135,44 @@
                                                     <i class="ri-delete-bin-line"></i>
                                                 </button>
                                             </div>
-                                            <div class="flex items-center mt-2">
-                                                <button type="button"
-                                                    class="quantity-btn decrease-quantity p-2 text-gray-500 hover:text-orange-500 hover:bg-gray-100 rounded-l border border-r-0 border-gray-200"
-                                                    data-item-id="{{ $itemKey }}">
-                                                    <i class="ri-subtract-line"></i>
-                                                </button>
-                                                <input type="number"
-                                                    class="quantity-input w-14 text-center border-y border-gray-200 py-2 focus:outline-none focus:border-orange-500 focus:ring-0"
-                                                    value="{{ $item['quantity'] }}" min="1" max="99"
-                                                    data-item-id="{{ $itemKey }}"
-                                                    style="-moz-appearance: textfield;">
-                                                <button type="button"
-                                                    class="quantity-btn increase-quantity p-2 text-gray-500 hover:text-orange-500 hover:bg-gray-100 rounded-r border border-l-0 border-gray-200"
-                                                    data-item-id="{{ $itemKey }}">
-                                                    <i class="ri-add-line"></i>
-                                                </button>
-                                            </div>
+
+                                            <!-- Product Attributes -->
                                             @if (!empty($item['attributes']))
-                                                <div class="flex flex-wrap gap-2 mt-1">
+                                                <div class="flex flex-wrap gap-2 mt-1 mb-2">
                                                     @foreach ($item['attributes'] as $attribute)
                                                         <span
                                                             class="inline-flex items-center px-2 py-0.5 rounded text-xs bg-gray-100 text-gray-800">
+                                                            @if (strtolower($attribute['name']) === 'color')
+                                                                <span class="w-3 h-3 rounded-full mr-1.5"
+                                                                    style="background-color: {{ $attribute['value'] }}"></span>
+                                                            @endif
                                                             {{ $attribute['name'] }}: {{ $attribute['value'] }}
                                                         </span>
                                                     @endforeach
                                                 </div>
                                             @endif
-                                            <p class="text-orange-500 font-medium mt-1 item-total">
-                                                ৳{{ number_format($item['price'] * $item['quantity'], 2) }}</p>
+
+                                            <div class="flex items-center justify-between mt-2">
+                                                <div class="flex items-center">
+                                                    <button type="button"
+                                                        class="quantity-btn decrease-quantity p-2 text-gray-500 hover:text-orange-500 hover:bg-gray-100 rounded-l border border-r-0 border-gray-200"
+                                                        data-item-id="{{ $itemKey }}">
+                                                        <i class="ri-subtract-line"></i>
+                                                    </button>
+                                                    <input type="number"
+                                                        class="quantity-input w-14 text-center border-y border-gray-200 py-2 focus:outline-none focus:border-orange-500 focus:ring-0"
+                                                        value="{{ $item['quantity'] }}" min="1" max="99"
+                                                        data-item-id="{{ $itemKey }}"
+                                                        style="-moz-appearance: textfield;">
+                                                    <button type="button"
+                                                        class="quantity-btn increase-quantity p-2 text-gray-500 hover:text-orange-500 hover:bg-gray-100 rounded-r border border-l-0 border-gray-200"
+                                                        data-item-id="{{ $itemKey }}">
+                                                        <i class="ri-add-line"></i>
+                                                    </button>
+                                                </div>
+                                                <p class="text-orange-500 font-medium item-total">
+                                                    ৳{{ number_format($item['price'] * $item['quantity'], 2) }}</p>
+                                            </div>
                                         </div>
                                     </div>
                                 @endforeach
@@ -250,34 +259,43 @@
                                             <i class="ri-delete-bin-line"></i>
                                         </button>
                                     </div>
-                                    <div class="flex items-center mt-2">
-                                        <button type="button"
-                                            class="quantity-btn decrease-quantity p-2 text-gray-500 hover:text-orange-500 hover:bg-gray-100 rounded-l border border-r-0 border-gray-200"
-                                            data-item-id="{{ $itemKey }}">
-                                            <i class="ri-subtract-line"></i>
-                                        </button>
-                                        <input type="number"
-                                            class="quantity-input w-14 text-center border-y border-gray-200 py-2 focus:outline-none focus:border-orange-500 focus:ring-0"
-                                            value="{{ $item['quantity'] }}" min="1" max="99"
-                                            data-item-id="{{ $itemKey }}" style="-moz-appearance: textfield;">
-                                        <button type="button"
-                                            class="quantity-btn increase-quantity p-2 text-gray-500 hover:text-orange-500 hover:bg-gray-100 rounded-r border border-l-0 border-gray-200"
-                                            data-item-id="{{ $itemKey }}">
-                                            <i class="ri-add-line"></i>
-                                        </button>
-                                    </div>
+
+                                    <!-- Product Attributes -->
                                     @if (!empty($item['attributes']))
-                                        <div class="flex flex-wrap gap-2 mt-1">
+                                        <div class="flex flex-wrap gap-2 mt-1 mb-2">
                                             @foreach ($item['attributes'] as $attribute)
                                                 <span
                                                     class="inline-flex items-center px-2 py-0.5 rounded text-xs bg-gray-100 text-gray-800">
+                                                    @if (strtolower($attribute['name']) === 'color')
+                                                        <span class="w-3 h-3 rounded-full mr-1.5"
+                                                            style="background-color: {{ $attribute['value'] }}"></span>
+                                                    @endif
                                                     {{ $attribute['name'] }}: {{ $attribute['value'] }}
                                                 </span>
                                             @endforeach
                                         </div>
                                     @endif
-                                    <p class="text-orange-500 font-medium mt-1 item-total">
-                                        ৳{{ number_format($item['price'] * $item['quantity'], 2) }}</p>
+
+                                    <div class="flex items-center justify-between mt-2">
+                                        <div class="flex items-center">
+                                            <button type="button"
+                                                class="quantity-btn decrease-quantity p-2 text-gray-500 hover:text-orange-500 hover:bg-gray-100 rounded-l border border-r-0 border-gray-200"
+                                                data-item-id="{{ $itemKey }}">
+                                                <i class="ri-subtract-line"></i>
+                                            </button>
+                                            <input type="number"
+                                                class="quantity-input w-14 text-center border-y border-gray-200 py-2 focus:outline-none focus:border-orange-500 focus:ring-0"
+                                                value="{{ $item['quantity'] }}" min="1" max="99"
+                                                data-item-id="{{ $itemKey }}" style="-moz-appearance: textfield;">
+                                            <button type="button"
+                                                class="quantity-btn increase-quantity p-2 text-gray-500 hover:text-orange-500 hover:bg-gray-100 rounded-r border border-l-0 border-gray-200"
+                                                data-item-id="{{ $itemKey }}">
+                                                <i class="ri-add-line"></i>
+                                            </button>
+                                        </div>
+                                        <p class="text-orange-500 font-medium item-total">
+                                            ৳{{ number_format($item['price'] * $item['quantity'], 2) }}</p>
+                                    </div>
                                 </div>
                             </div>
                         @endforeach

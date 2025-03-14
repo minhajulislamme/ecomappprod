@@ -72,7 +72,8 @@
                                 <span class="text-orange-500 font-semibold">৳{{ $Product->price }}</span>
                             @endif
                         </div>
-                        <a href="{{ route('product.details', ['id' => $Product->id, 'slug' => $Product->slug]) }}"
+                        <a href="#"
+                            onclick="handleBuyNow({{ $Product->id }}, {{ $Product->hasConfiguredAttributes() }}); return false;"
                             class="w-full flex items-center justify-center space-x-2 bg-orange-500 text-white px-4 py-2 rounded-full text-sm hover:bg-orange-600 transition-colors">
                             <i class="ri-shopping-bag-line"></i>
                             <span>Buy Now</span>
@@ -396,5 +397,50 @@
                     timerProgressBar: true
                 });
             });
+    }
+
+    function handleBuyNow(productId, hasAttributes) {
+        if (hasAttributes) {
+            // Redirect to product details page if product has attributes
+            window.location.href = `{{ url('/product-details') }}/${productId}/${productId}`;
+        } else {
+            // Direct checkout for products without attributes
+            const quantity = 1;
+            const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+            fetch("{{ route('checkout.direct') }}", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': token
+                    },
+                    credentials: 'same-origin',
+                    body: JSON.stringify({
+                        product_id: productId,
+                        quantity: quantity
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        window.location.href = data.redirect;
+                    } else {
+                        Swal.fire({
+                            title: 'Error',
+                            text: data.message || 'Something went wrong',
+                            icon: 'error',
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    Swal.fire({
+                        title: 'Error',
+                        text: 'Something went wrong. Please try again.',
+                        icon: 'error',
+                    });
+                });
+        }
     }
 </script>

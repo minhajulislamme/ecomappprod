@@ -32,7 +32,7 @@ class CartController extends Controller
 
         if ($request->has('attributes') && !empty($request->attributes)) {
             // Convert attributes to array and sort by key
-            $attrs = $request->input('attributes');
+            $attrs = is_array($request->attributes) ? $request->attributes : $request->attributes->all();
             ksort($attrs);
             foreach ($attrs as $attrId => $attr) {
                 $cartKey .= '_' . $attrId . '_' . $attr['value'];

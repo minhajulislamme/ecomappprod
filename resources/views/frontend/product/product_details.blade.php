@@ -175,7 +175,7 @@
 
                 <!-- Replace the Action Buttons section with this updated version -->
                 <div class="flex justify-center items-center space-x-4">
-                    <a href="#"
+                    <a href="#" onclick="buyNow({{ $product->id }}); return false;"
                         class="flex items-center justify-center space-x-2 bg-gray-900 hover:bg-gray-800 text-white px-6 py-3 rounded-lg transition duration-200">
                         <i class="ri-shopping-bag-line"></i>
                         <span>Buy Now</span>
@@ -990,10 +990,10 @@
             return `
             <div class="flex flex-wrap gap-2 mt-1">
                 ${Object.values(attributes).map(attr => `
-                                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                                            ${attr.name}: ${attr.value}
-                                        </span>
-                                    `).join('')}
+                                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                                        ${attr.name}: ${attr.value}
+                                                    </span>
+                                                `).join('')}
             </div>`;
         }
 
@@ -1108,7 +1108,7 @@
                                     <div class="mt-1">
                                         ${item.discount_price && item.discount_price < item.price ?
                                             `<span class="text-orange-500 font-medium">৳${item.discount_price}</span>
-                                                     <span class="text-gray-400 text-sm line-through ml-2">৳${item.price}</span>` :
+                                                                 <span class="text-gray-400 text-sm line-through ml-2">৳${item.price}</span>` :
                                             `<span class="text-orange-500 font-medium">৳${item.price}</span>`
                                         }
                                     </div>
@@ -1137,16 +1137,91 @@
                             View Wishlist
                         </a>
                         ${Object.keys(data.wishlist).length > 0 ? `
-                                    <button onclick="moveAllWishlistToCart()" class="w-full mt-2 py-2 px-4 border border-orange-400 text-orange-500 text-center rounded-md hover:bg-orange-50 transition-colors">
-                                        Move All to Cart
-                                    </button>
-                                ` : ''}
+                                                <button onclick="moveAllWishlistToCart()" class="w-full mt-2 py-2 px-4 border border-orange-400 text-orange-500 text-center rounded-md hover:bg-orange-50 transition-colors">
+                                                    Move All to Cart
+                                                </button>
+                                            ` : ''}
                     `;
                         }
                     }
                 })
                 .catch(error => {
                     console.error('Error updating wishlist drawer:', error);
+                });
+        }
+
+        function buyNow(productId) {
+            const quantity = parseInt(document.getElementById('quantity').value);
+            const attributes = {};
+            let hasAllAttributes = true;
+
+            // Get all attribute groups
+            const attributeGroups = document.querySelectorAll('[data-attribute-group]');
+
+            attributeGroups.forEach(group => {
+                const groupName = group.getAttribute('data-attribute-group');
+                const selected = group.querySelector('input[type="radio"]:checked');
+
+                if (!selected) {
+                    hasAllAttributes = false;
+                    Swal.fire({
+                        title: 'Missing Selection',
+                        text: `Please select ${groupName}`,
+                        icon: 'warning',
+                        toast: true,
+                        position: 'top-end',
+                        showConfirmButton: false,
+                        timer: 3000,
+                        timerProgressBar: true
+                    });
+                    return;
+                }
+
+                // Get the attribute ID from the radio button name and its value
+                const attributeId = selected.name.replace('attr_', '');
+                attributes[attributeId] = {
+                    name: groupName,
+                    value: selected.value
+                };
+            });
+
+            if (!hasAllAttributes && attributeGroups.length > 0) return;
+
+            const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+            fetch("{{ route('checkout.direct') }}", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': token
+                    },
+                    credentials: 'same-origin',
+                    body: JSON.stringify({
+                        product_id: productId,
+                        quantity: quantity,
+                        attributes: attributes
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        window.location.href = data.redirect;
+                    } else {
+                        Swal.fire({
+                            title: 'Error',
+                            text: data.message || 'Something went wrong',
+                            icon: 'error',
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    Swal.fire({
+                        title: 'Error',
+                        text: 'Something went wrong. Please try again.',
+                        icon: 'error',
+                    });
                 });
         }
     </script>

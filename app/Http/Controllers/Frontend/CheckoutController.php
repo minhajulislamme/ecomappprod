@@ -192,4 +192,66 @@ class CheckoutController extends Controller
             'success' => true
         ]);
     }
+
+    public function directCheckout(Request $request)
+    {
+        $request->validate([
+            'product_id' => 'required|exists:products,id',
+            'quantity' => 'required|integer|min:1',
+            'attributes' => 'nullable|array'
+        ]);
+
+        try {
+            $product = Product::findOrFail($request->product_id);
+
+            // Check if product requires attributes but none were provided
+            if ($product->hasConfiguredAttributes() && empty($request->attributes)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Please select required product options'
+                ], 400);
+            }
+
+            // Generate unique cart key based on product ID and attributes
+            $cartKey = $request->product_id;
+
+            if ($request->has('attributes') && !empty($request->attributes)) {
+                // Convert attributes to array and sort by key - matching exactly the addToCart method
+                $attrs = is_array($request->attributes) ? $request->attributes : $request->attributes->all();
+                ksort($attrs);
+
+                // Build cart key in same format as addToCart
+                foreach ($attrs as $attrId => $attr) {
+                    $cartKey .= '_' . $attrId . '_' . $attr['value'];
+                }
+            }
+
+            // Create cart item with exactly the same structure as addToCart
+            $cart = [];
+            $cart[$cartKey] = [
+                'id' => $product->id,
+                'name' => $product->name,
+                'quantity' => $request->quantity,
+                'price' => $product->discount_price ?? $product->price,
+                'image' => asset($product->thumbnail_image),
+                'attributes' => $request->input('attributes', []), // Use input directly like addToCart
+                'free_shipping' => $product->free_shipping === 'yes'
+            ];
+
+            Session::put('cart', $cart);
+
+            // Clear any existing coupon as this is a direct checkout
+            Session::forget('coupon');
+
+            return response()->json([
+                'success' => true,
+                'redirect' => route('checkout')
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to process checkout: ' . $e->getMessage()
+            ], 500);
+        }
+    }
 }
