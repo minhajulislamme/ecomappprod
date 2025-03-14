@@ -30,7 +30,7 @@
                         @if ($hasSubcategories) onclick="toggleSubcategory('{{ $categoryId }}')" @endif>
                         <a href="{{ route('product.category', ['id' => $category->id, 'slug' => $category->category_slug]) }}"
                             class="flex items-center space-x-3 flex-grow">
-                            <img src="{{ !empty($category->category_image) ? asset($category->category_image) : 'https://placehold.co/32x32' }}"
+                            <img src="{{ !empty($category->category_image) ? asset($category->category_image) : 'https://placeholds.co/32x32' }}"
                                 class="w-8 h-8 rounded" alt="{{ $category->category_name }}">
                             <h3 class="font-semibold">{{ $category->category_name }}</h3>
                         </a>

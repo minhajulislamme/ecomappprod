@@ -2,7 +2,7 @@
     <!-- Mobile Header -->
     <div class="flex items-center justify-between p-4">
         <div class="flex items-center space-x-3">
-            <img src="https://placehold.co/32x32" class="w-8 h-8 md:w-10 md:h-10 rounded-md" alt="">
+            <img src="https://placeholds.co/32x32" class="w-8 h-8 md:w-10 md:h-10 rounded-md" alt="">
             <a href="#" class="text-xl md:text-2xl text-orange-400 font-semibold">Shop Ever</a>
         </div>
         <a href="#" class="text-gray-500 hover:text-orange-400" onclick="toggleMenu()">
@@ -17,7 +17,7 @@
         <!-- Menu Header -->
         <div class="flex items-center justify-between p-4 md:p-6 border-b border-orange-300">
             <div class="flex items-center space-x-3">
-                <img src="https://placehold.co/32x32" class="w-8 h-8 md:w-10 md:h-10 rounded-md" alt="">
+                <img src="https://placeholds.co/32x32" class="w-8 h-8 md:w-10 md:h-10 rounded-md" alt="">
                 <span class="text-xl md:text-2xl font-semibold text-orange-400">Shop Ever</span>
             </div>
             <a href="#" class="text-gray-500 hover:text-orange-400" onclick="toggleMenu()">
@@ -45,6 +45,6 @@
             </a>
         </div>
 
-      
+
     </div>
 </div>

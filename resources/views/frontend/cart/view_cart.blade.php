@@ -112,7 +112,8 @@
                             @if (Session::has('coupon'))
                                 <div class="flex justify-between" id="discount-row">
                                     <span class="text-gray-600">
-                                        Coupon (MINHAZ - 25% off)
+                                        Coupon ({{ Session::get('coupon')['code'] }} -
+                                        {{ Session::get('coupon')['discount_percentage'] }}% off)
                                     </span>
                                     <span class="font-medium text-green-600" id="discount-amount">
                                         -৳{{ number_format(Session::get('coupon')['discount'], 2) }}
@@ -126,15 +127,16 @@
                             </div>
                             <div class="border-t pt-4 flex justify-between">
                                 <span class="text-gray-800 font-medium">Total</span>
-                                <span class="text-xl font-bold text-orange-500"
-                                    id="final-total">৳{{ number_format($total, 2) }}</span>
+                                <span class="text-xl font-bold text-orange-500" id="final-total">
+                                    ৳{{ number_format(Session::has('coupon') ? Session::get('coupon')['new_total'] : $total, 2) }}
+                                </span>
                             </div>
                         </div>
 
-                        <button
-                            class="w-full mt-6 bg-orange-500 text-white py-3 px-4 rounded-lg hover:bg-orange-600 transition-colors">
+                        <a href="{{ route('checkout') }}"
+                            class="block w-full mt-6 bg-orange-500 text-white py-3 px-4 rounded-lg hover:bg-orange-600 transition-colors text-center">
                             Proceed to Checkout
-                        </button>
+                        </a>
 
                         <a href="{{ route('shop') }}" class="block text-center mt-4 text-orange-500 hover:text-orange-600">
                             Continue Shopping
@@ -240,6 +242,16 @@
             const couponCode = document.getElementById('coupon-code').value;
             const messageDiv = document.getElementById('coupon-message');
 
+            if (!couponCode.trim()) {
+                messageDiv.className = 'mt-2 text-sm text-red-600';
+                messageDiv.textContent = 'Please enter a coupon code';
+                return;
+            }
+
+            // Show loading state
+            messageDiv.className = 'mt-2 text-sm text-gray-600';
+            messageDiv.textContent = 'Applying coupon...';
+
             fetch("{{ route('cart.apply-coupon') }}", {
                     method: 'POST',
                     headers: {
@@ -254,7 +266,13 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        location.reload(); // Reload to show updated session data
+                        messageDiv.className = 'mt-2 text-sm text-green-600';
+                        messageDiv.textContent = data.message;
+
+                        // Short delay before refresh to show success message
+                        setTimeout(() => {
+                            location.reload();
+                        }, 1000);
                     } else {
                         messageDiv.className = 'mt-2 text-sm text-red-600';
                         messageDiv.textContent = data.message;
@@ -268,6 +286,12 @@
         }
 
         function removeCoupon() {
+            const messageDiv = document.getElementById('coupon-message');
+
+            // Show loading state
+            messageDiv.className = 'mt-2 text-sm text-gray-600';
+            messageDiv.textContent = 'Removing coupon...';
+
             fetch("{{ route('cart.remove-coupon') }}", {
                     method: 'POST',
                     headers: {
@@ -279,12 +303,28 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        location.reload();
+                        messageDiv.className = 'mt-2 text-sm text-green-600';
+                        messageDiv.textContent = data.message;
+
+                        // Short delay before refresh to show success message
+                        setTimeout(() => {
+                            location.reload();
+                        }, 1000);
                     }
                 })
                 .catch(error => {
                     console.error('Error:', error);
+                    messageDiv.className = 'mt-2 text-sm text-red-600';
+                    messageDiv.textContent = 'An error occurred while removing the coupon.';
                 });
         }
+
+        // Add event listener for Enter key in the coupon input field
+        document.getElementById('coupon-code').addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                applyCoupon();
+            }
+        });
     </script>
 @endsection

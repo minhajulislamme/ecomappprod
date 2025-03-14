@@ -197,15 +197,15 @@
                     <div class="flex flex-col space-y-3">
                         <span class="text-sm font-medium text-gray-600">Accepted Payment Methods</span>
                         <div class="flex items-center space-x-4">
-                            <img src="https://placehold.co/40x25" alt="Visa"
+                            <img src="https://placeholds.co/40x25" alt="Visa"
                                 class="h-8 object-contain grayscale hover:grayscale-0 transition-all duration-200">
-                            <img src="https://placehold.co/40x25" alt="Mastercard"
+                            <img src="https://placeholds.co/40x25" alt="Mastercard"
                                 class="h-8 object-contain grayscale hover:grayscale-0 transition-all duration-200">
-                            <img src="https://placehold.co/40x25" alt="American Express"
+                            <img src="https://placeholds.co/40x25" alt="American Express"
                                 class="h-8 object-contain grayscale hover:grayscale-0 transition-all duration-200">
-                            <img src="https://placehold.co/40x25" alt="PayPal"
+                            <img src="https://placeholds.co/40x25" alt="PayPal"
                                 class="h-8 object-contain grayscale hover:grayscale-0 transition-all duration-200">
-                            <img src="https://placehold.co/40x25" alt="Apple Pay"
+                            <img src="https://placeholds.co/40x25" alt="Apple Pay"
                                 class="h-8 object-contain grayscale hover:grayscale-0 transition-all duration-200">
                         </div>
                     </div>
@@ -347,7 +347,7 @@
                 <div class="border-b pb-6">
                     <div class="flex items-center justify-between mb-4">
                         <div class="flex items-center space-x-4">
-                            <img src="https://placehold.co/40x40" alt="User" class="w-10 h-10 rounded-full">
+                            <img src="https://placeholds.co/40x40" alt="User" class="w-10 h-10 rounded-full">
                             <div>
                                 <h5 class="font-medium">John Doe</h5>
                                 <div class="flex items-center">
@@ -417,7 +417,7 @@
                                     </div>
                                     <div class="w-full h-full rounded-lg overflow-hidden">
                                         <a href="#">
-                                            <img src="https://placehold.co/400x400"
+                                            <img src="https://placeholds.co/400x400"
                                                 class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500"
                                                 alt="Product">
                                         </a>
@@ -482,7 +482,7 @@
                                     </div>
                                     <div class="w-full h-full rounded-lg overflow-hidden">
                                         <a href="#">
-                                            <img src="https://placehold.co/400x400"
+                                            <img src="https://placeholds.co/400x400"
                                                 class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500"
                                                 alt="Product">
                                         </a>
@@ -566,7 +566,7 @@
                     </div>
                     <div class="w-full h-full rounded-lg overflow-hidden">
                         <a href="./product-details.html">
-                            <img src="https://placehold.co/400x400"
+                            <img src="https://placeholds.co/400x400"
                                 class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500"
                                 alt="Product">
                         </a>
@@ -626,7 +626,7 @@
                     </div>
                     <div class="w-full h-full rounded-lg overflow-hidden">
                         <a href="#">
-                            <img src="https://placehold.co/400x400"
+                            <img src="https://placeholds.co/400x400"
                                 class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500"
                                 alt="Product">
                         </a>
@@ -990,10 +990,10 @@
             return `
             <div class="flex flex-wrap gap-2 mt-1">
                 ${Object.values(attributes).map(attr => `
-                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                                        ${attr.name}: ${attr.value}
-                                    </span>
-                                `).join('')}
+                                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                            ${attr.name}: ${attr.value}
+                                        </span>
+                                    `).join('')}
             </div>`;
         }
 
@@ -1106,9 +1106,9 @@
                                         </button>
                                     </div>
                                     <div class="mt-1">
-                                        ${item.discount_price && item.discount_price < item.price ? 
+                                        ${item.discount_price && item.discount_price < item.price ?
                                             `<span class="text-orange-500 font-medium">৳${item.discount_price}</span>
-                                                 <span class="text-gray-400 text-sm line-through ml-2">৳${item.price}</span>` :
+                                                     <span class="text-gray-400 text-sm line-through ml-2">৳${item.price}</span>` :
                                             `<span class="text-orange-500 font-medium">৳${item.price}</span>`
                                         }
                                     </div>
@@ -1137,10 +1137,10 @@
                             View Wishlist
                         </a>
                         ${Object.keys(data.wishlist).length > 0 ? `
-                                <button onclick="moveAllWishlistToCart()" class="w-full mt-2 py-2 px-4 border border-orange-400 text-orange-500 text-center rounded-md hover:bg-orange-50 transition-colors">
-                                    Move All to Cart
-                                </button>
-                            ` : ''}
+                                    <button onclick="moveAllWishlistToCart()" class="w-full mt-2 py-2 px-4 border border-orange-400 text-orange-500 text-center rounded-md hover:bg-orange-50 transition-colors">
+                                        Move All to Cart
+                                    </button>
+                                ` : ''}
                     `;
                         }
                     }

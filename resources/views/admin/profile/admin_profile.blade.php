@@ -7,7 +7,7 @@
                 <div class="flex flex-col items-center">
                     <div class="flex justify-center w-full">
                         <img id="showImage"
-                            src="{{ !empty($adminData->photo) ? url('upload/admin_images/' . $adminData->photo) : url('https://placehold.co/600x600') }}"
+                            src="{{ !empty($adminData->photo) ? url('upload/admin_images/' . $adminData->photo) : url('https://placeholds.co/600x600') }}"
                             alt="Admin Photo" class="w-32 h-32 object-cover rounded mb-4">
                     </div>
                     <div class="">

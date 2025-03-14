@@ -6,19 +6,19 @@
             @foreach ($MainSliders as $MainSlider)
                 <div class="swiper-slide">
                     <a href="{{ $MainSlider->link }}"class="block w-full h-full">
-                    <img src="{{ asset($MainSlider->image) }}" class="w-full h-full object-cover object-center" alt="{{ $MainSlider->title }}">
-                </a>
+                        <img src="{{ asset($MainSlider->image) }}" class="w-full h-full object-cover object-center"
+                            alt="{{ $MainSlider->title }}">
+                    </a>
                 </div>
-                
             @endforeach
             {{-- <div class="swiper-slide">
-                <img src="https://placehold.co/1920x720" class="w-full h-full object-cover object-center" alt="Banner 1">
+                <img src="https://placeholds.co/1920x720" class="w-full h-full object-cover object-center" alt="Banner 1">
             </div>
             <div class="swiper-slide">
-                <img src="https://placehold.co/1920x720" class="w-full h-full object-cover object-center" alt="Banner 2">
+                <img src="https://placeholds.co/1920x720" class="w-full h-full object-cover object-center" alt="Banner 2">
             </div>
             <div class="swiper-slide">
-                <img src="https://placehold.co/1920x720" class="w-full h-full object-cover object-center" alt="Banner 3">
+                <img src="https://placeholds.co/1920x720" class="w-full h-full object-cover object-center" alt="Banner 3">
             </div> --}}
         </div>
         <!-- Remove navigation elements -->

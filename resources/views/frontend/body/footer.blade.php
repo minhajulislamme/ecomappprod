@@ -1,5 +1,3 @@
-
-
 <footer class="bg-gray-900 mt-8 pt-8 pb-10 lg:pb-8 text-gray-300">
     <div class="max-w-7xl mx-auto px-4">
         <!-- Footer Top -->
@@ -7,7 +5,7 @@
             <!-- Company Info -->
             <div class="space-y-4">
                 <div class="flex items-center space-x-3">
-                    <img src="https://placehold.co/32x32" alt="Logo" class="w-8 h-8 rounded">
+                    <img src="https://placeholds.co/32x32" alt="Logo" class="w-8 h-8 rounded">
                     <span class="text-xl font-semibold text-orange-400">Shop Ever</span>
                 </div>
                 <p class="text-gray-400 text-sm">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do
@@ -32,17 +30,17 @@
             <div>
                 <h3 class="text-white font-semibold mb-4">Quick Links</h3>
                 <ul class="space-y-2">
-                    <li><a href="#"
-                            class="text-gray-400 hover:text-orange-400 transition-colors text-sm">About Us</a></li>
-                    <li><a href="#"
-                            class="text-gray-400 hover:text-orange-400 transition-colors text-sm">Contact Us</a>
+                    <li><a href="#" class="text-gray-400 hover:text-orange-400 transition-colors text-sm">About
+                            Us</a></li>
+                    <li><a href="#" class="text-gray-400 hover:text-orange-400 transition-colors text-sm">Contact
+                            Us</a>
                     </li>
                     <li><a href="#"
                             class="text-gray-400 hover:text-orange-400 transition-colors text-sm">Products</a></li>
                     <li><a href="#"
                             class="text-gray-400 hover:text-orange-400 transition-colors text-sm">Login</a></li>
-                    <li><a href="#"
-                            class="text-gray-400 hover:text-orange-400 transition-colors text-sm">Sign Up</a></li>
+                    <li><a href="#" class="text-gray-400 hover:text-orange-400 transition-colors text-sm">Sign
+                            Up</a></li>
                 </ul>
             </div>
 
@@ -50,8 +48,7 @@
             <div>
                 <h3 class="text-white font-semibold mb-4">Customer Service</h3>
                 <ul class="space-y-2">
-                    <li><a href="#"
-                            class="text-gray-400 hover:text-orange-400 transition-colors text-sm">Payment
+                    <li><a href="#" class="text-gray-400 hover:text-orange-400 transition-colors text-sm">Payment
                             Methods</a></li>
                     <li><a href="#"
                             class="text-gray-400 hover:text-orange-400 transition-colors text-sm">Money-back
@@ -60,8 +57,8 @@
                             class="text-gray-400 hover:text-orange-400 transition-colors text-sm">Returns</a></li>
                     <li><a href="#"
                             class="text-gray-400 hover:text-orange-400 transition-colors text-sm">Shipping</a></li>
-                    <li><a href="#"
-                            class="text-gray-400 hover:text-orange-400 transition-colors text-sm">Terms and
+                    <li><a href="#" class="text-gray-400 hover:text-orange-400 transition-colors text-sm">Terms
+                            and
                             conditions</a></li>
                 </ul>
             </div>
@@ -114,14 +111,14 @@
                 </div>
                 <!-- Payment Methods -->
                 {{-- <div class="flex items-center space-x-4">
-                    <img src="https://placehold.co/40x25" alt="Visa" class="h-6">
-                    <img src="https://placehold.co/40x25" alt="Mastercard" class="h-6">
-                    <img src="https://placehold.co/40x25" alt="PayPal" class="h-6">
-                    <img src="https://placehold.co/40x25" alt="American Express" class="h-6">
+                    <img src="https://placeholds.co/40x25" alt="Visa" class="h-6">
+                    <img src="https://placeholds.co/40x25" alt="Mastercard" class="h-6">
+                    <img src="https://placeholds.co/40x25" alt="PayPal" class="h-6">
+                    <img src="https://placeholds.co/40x25" alt="American Express" class="h-6">
                 </div> --}}
                 <div class="text-gray-400 text-sm">
-                   
-                  Design and Develop by ❤️ Tech Ever IT
+
+                    Design and Develop by ❤️ Tech Ever IT
                 </div>
             </div>
         </div>

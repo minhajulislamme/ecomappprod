@@ -16,6 +16,7 @@ use App\Http\Controllers\Backend\FlashSales\FlashSaleController;
 use App\Http\Controllers\Frontend\HomeController;
 use App\Http\Controllers\Frontend\CartController;
 use App\Http\Controllers\Frontend\WishlistController;
+use App\Http\Controllers\Frontend\CheckoutController;
 
 use Illuminate\Support\Facades\Route;
 
@@ -43,6 +44,12 @@ Route::post('/cart/remove', [CartController::class, 'removeFromCart'])->name('ca
 Route::get('/cart', [CartController::class, 'viewCart'])->name('cart.view');
 Route::post('/cart/apply-coupon', [CartController::class, 'applyCoupon'])->name('cart.apply-coupon');
 Route::post('/cart/remove-coupon', [CartController::class, 'removeCoupon'])->name('cart.remove-coupon');
+
+// Checkout Routes
+Route::get('/checkout', [CheckoutController::class, 'checkout'])->name('checkout');
+Route::post('/checkout/place-order', [CheckoutController::class, 'placeOrder'])->name('checkout.store');
+Route::get('/checkout/success/{order_number}', [CheckoutController::class, 'checkoutSuccess'])->name('checkout.success');
+Route::post('/checkout/validate', [CheckoutController::class, 'validateCheckoutForm'])->name('checkout.validate');
 
 // Wishlist Routes
 Route::post('/wishlist/add', [WishlistController::class, 'addToWishlist'])->name('wishlist.add');

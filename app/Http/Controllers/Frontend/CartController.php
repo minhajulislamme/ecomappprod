@@ -124,20 +124,74 @@ class CartController extends Controller
         $cart = Session::get('cart', []);
 
         if (isset($cart[$request->product_id])) {
+            // Store item details before removal for response
+            $removedItem = $cart[$request->product_id];
+
+            // Remove the item
             unset($cart[$request->product_id]);
             Session::put('cart', $cart);
 
+            // Calculate updated totals
+            $subtotal = 0;
+            foreach ($cart as $item) {
+                $subtotal += $item['price'] * $item['quantity'];
+            }
+
+            // Get shipping charge
+            $shippingCharge = \App\Models\ShippingCharge::where('status', 'active')->first();
+            $shippingAmount = $shippingCharge ? $shippingCharge->charge : 0;
+
+            // Calculate discount if coupon exists
+            $discount = 0;
+            $couponCode = '';
+            if (Session::has('coupon')) {
+                $couponCode = Session::get('coupon')['code'];
+                $coupon = Coupon::where('coupon_name', $couponCode)
+                    ->where('status', 'active')
+                    ->first();
+
+                if ($coupon) {
+                    $discount = ($subtotal * $coupon->coupon_discount) / 100;
+                    Session::put('coupon', [
+                        'code' => $couponCode,
+                        'discount' => $discount,
+                        'subtotal' => $subtotal,
+                        'new_total' => $subtotal - $discount + $shippingAmount,
+                        'discount_percentage' => $coupon->coupon_discount
+                    ]);
+                }
+            }
+
+            // If cart is empty after removal, remove coupon
+            if (count($cart) === 0) {
+                Session::forget('coupon');
+            }
+
+            $total = $subtotal - $discount + $shippingAmount;
+
             return response()->json([
                 'success' => true,
-                'message' => 'Product removed from cart!',
-                'cart_count' => count($cart)
+                'message' => 'Product removed from cart successfully',
+                'cart_count' => count($cart),
+                'cart' => $cart,
+                'removed_item' => [
+                    'id' => $request->product_id,
+                    'name' => $removedItem['name'],
+                    'price' => $removedItem['price'],
+                    'quantity' => $removedItem['quantity']
+                ],
+                'subtotal' => $subtotal,
+                'discount' => $discount,
+                'shipping_charge' => $shippingAmount,
+                'total' => $total,
+                'empty' => count($cart) === 0
             ]);
         }
 
         return response()->json([
             'success' => false,
-            'message' => 'Product not found in cart!'
-        ]);
+            'message' => 'Product not found in cart'
+        ], 404);
     }
 
     public function viewCart()
@@ -166,11 +220,24 @@ class CartController extends Controller
             'coupon_code' => 'required|string'
         ]);
 
-        // Only accept "MINHAZ" as valid coupon code with 25% discount
-        if ($request->coupon_code !== 'MINHAZ') {
+        // Get coupon from database
+        $coupon = Coupon::where('coupon_name', $request->coupon_code)
+            ->where('status', 'active')
+            ->first();
+
+        // Check if coupon exists and is valid
+        if (!$coupon) {
             return response()->json([
                 'success' => false,
                 'message' => 'Invalid coupon code.'
+            ]);
+        }
+
+        // Check if coupon is expired
+        if ($coupon->coupon_validity && Carbon::now()->greaterThan(Carbon::parse($coupon->coupon_validity))) {
+            return response()->json([
+                'success' => false,
+                'message' => 'This coupon has expired.'
             ]);
         }
 
@@ -181,21 +248,22 @@ class CartController extends Controller
             $subtotal += $item['price'] * $item['quantity'];
         }
 
-        // Fixed 25% discount
-        $discount = ($subtotal * 25) / 100;
+        // Calculate discount based on coupon percentage
+        $discount = ($subtotal * $coupon->coupon_discount) / 100;
         $newTotal = $subtotal - $discount;
 
         // Store coupon info in session
         Session::put('coupon', [
-            'code' => 'MINHAZ',
+            'code' => $coupon->coupon_name,
             'discount' => $discount,
             'subtotal' => $subtotal,
-            'new_total' => $newTotal
+            'new_total' => $newTotal,
+            'discount_percentage' => $coupon->coupon_discount
         ]);
 
         return response()->json([
             'success' => true,
-            'message' => 'Coupon MINHAZ applied successfully! (25% off)',
+            'message' => 'Coupon ' . $coupon->coupon_name . ' applied successfully! (' . $coupon->coupon_discount . '% off)',
             'discount' => $discount,
             'new_total' => $newTotal
         ]);

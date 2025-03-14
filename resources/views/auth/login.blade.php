@@ -6,7 +6,7 @@
             <!-- Logo and Title -->
             <div class="text-center">
                 <div class="flex items-center justify-center space-x-3 mb-4">
-                    <img src="https://placehold.co/32x32" class="w-10 h-10 rounded-md" alt="">
+                    <img src="https://placeholds.co/32x32" class="w-10 h-10 rounded-md" alt="">
                     <h2 class="text-2xl text-orange-400 font-semibold">Shop Ever</h2>
                 </div>
                 <h2 class="text-2xl font-bold text-gray-900">Sign in to your account</h2>

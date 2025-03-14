@@ -2,7 +2,7 @@
     <!-- Desktop View -->
     <div class="max-w-7xl mx-auto hidden lg:flex items-center py-2 px-4">
         <div class="flex items-center space-x-4">
-            <img src="https://placehold.co/32x32" class="w-10 h-10 object-cover rounded-md" alt="">
+            <img src="https://placeholds.co/32x32" class="w-10 h-10 object-cover rounded-md" alt="">
             <a href="{{ route('home') }}" class="text-2xl text-orange-400 font-semibold">Shop Ever</a>
         </div>
         <div class="flex-1 mx-8 relative">

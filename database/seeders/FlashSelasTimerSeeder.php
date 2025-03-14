@@ -12,7 +12,7 @@ class FlashSelasTimerSeeder extends Seeder
         FlashSelasTimer::create([
             'start_time' => now(),
             'end_time' => now()->addDays(7),
-            'status' => 'inactive'
+            'status' => 'active'
         ]);
     }
 }

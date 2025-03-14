@@ -4,7 +4,7 @@
 <div
     class="fixed left-0 top-0 w-64 h-full bg-gray-900 p-4 z-50 sidebar-menu transition-transform duration-300 -translate-x-full lg:translate-x-0">
     <a href="{{ route('admin.dashboard') }}" class="flex items-center pb-4 border-b border-b-gray-800">
-        <img src="{{ !empty(Auth::user()->photo) ? url('upload/admin_images/' . Auth::user()->photo) : url('https://placehold.co/600x600') }}"
+        <img src="{{ !empty(Auth::user()->photo) ? url('upload/admin_images/' . Auth::user()->photo) : url('https://placeholds.co/600x600') }}"
             alt="" class="w-8 h-8 rounded object-cover">
         <span class="text-lg font-bold text-white ml-3"> Admin </span>
     </a>
@@ -216,8 +216,8 @@
             </ul>
         </li>
 
-         {{-- flash sale menu  --}}
-         <li class="mb-1 group {{ request()->is('flash*') ? 'selected active' : '' }}">
+        {{-- flash sale menu  --}}
+        <li class="mb-1 group {{ request()->is('flash*') ? 'selected active' : '' }}">
             <a href="javascript:void()"
                 class="flex items-center py-2 px-4 text-gray-300 hover:bg-gray-800 hover:text-orange-500 rounded-md sidebar-link sidebar-dropdown-toggle {{ request()->is('flash*') ? 'bg-gray-800 text-orange-500' : '' }}">
                 <i class="ri-file-copy-2-line mr-3 text-lg"></i>

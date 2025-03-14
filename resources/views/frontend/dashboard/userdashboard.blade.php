@@ -9,7 +9,7 @@
                         <img src="{{ asset('upload/user_images/' . $user->photo) }}" alt="{{ $user->name }}"
                             class="w-full h-full object-cover">
                     @else
-                        <img src="https://placehold.co/600x600" alt="Default Avatar" class="w-full h-full object-cover">
+                        <img src="https://placeholds.co/600x600" alt="Default Avatar" class="w-full h-full object-cover">
                     @endif
                 </div>
                 <div class="flex-1 text-center md:text-left">
@@ -17,7 +17,7 @@
                     <p class="text-gray-500">{{ $user->email }}</p>
                     <p class="text-gray-500">Member since: {{ $user->created_at->format('F Y') }}</p>
                 </div>
-                
+
             </div>
         </div>
 
@@ -219,7 +219,7 @@
                                     <button class="absolute top-2 right-2 text-gray-400 hover:text-red-500">
                                         <i class="ri-delete-bin-line"></i>
                                     </button>
-                                    <img src="https://placehold.co/200x200" alt="Product"
+                                    <img src="https://placeholds.co/200x200" alt="Product"
                                         class="w-full h-48 object-cover rounded-md mb-4">
                                     <h3 class="font-semibold text-gray-800 mb-2">Product Name</h3>
                                     <p class="text-orange-500 font-semibold mb-3">$99.99</p>
