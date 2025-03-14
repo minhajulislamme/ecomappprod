@@ -26,19 +26,26 @@ class CheckoutController extends Controller
         }
 
         $total = 0;
+        $hasOnlyFreeShipping = true; // Flag to check if all items have free shipping
+
         foreach ($cart as $item) {
             $total += $item['price'] * $item['quantity'];
+            // If any item doesn't have free shipping, set flag to false
+            if (!isset($item['free_shipping']) || $item['free_shipping'] !== true) {
+                $hasOnlyFreeShipping = false;
+            }
         }
 
-        $shippingCharges = ShippingCharge::where('status', 'active')->get();
+        // Only get shipping charges if there are items without free shipping
+        $shippingCharges = $hasOnlyFreeShipping ? [] : ShippingCharge::where('status', 'active')->get();
 
-        return view('frontend.cart.checkout', compact('cart', 'total', 'shippingCharges'));
+        return view('frontend.cart.checkout', compact('cart', 'total', 'shippingCharges', 'hasOnlyFreeShipping'));
     }
 
     public function placeOrder(Request $request)
     {
         // Validate the request
-        $request->validate([
+        $validationRules = [
             'first_name' => 'required|string|max:255',
             'last_name' => 'required|string|max:255',
             'email' => 'required|email|max:255',
@@ -46,11 +53,24 @@ class CheckoutController extends Controller
             'address' => 'required|string|max:255',
             'city' => 'required|string|max:255',
             'postal_code' => 'required|string|max:20',
-            'shipping_charge_id' => 'required|exists:shipping_charges,id',
             'payment_type' => 'required|in:online,cod'
-        ]);
+        ];
 
+        // Only require shipping_charge_id if not all items have free shipping
         $cart = Session::get('cart', []);
+        $hasOnlyFreeShipping = true;
+        foreach ($cart as $item) {
+            if (!isset($item['free_shipping']) || $item['free_shipping'] !== true) {
+                $hasOnlyFreeShipping = false;
+                break;
+            }
+        }
+
+        if (!$hasOnlyFreeShipping) {
+            $validationRules['shipping_charge_id'] = 'required|exists:shipping_charges,id';
+        }
+
+        $request->validate($validationRules);
 
         // Check if cart is empty
         if (count($cart) == 0) {
@@ -66,7 +86,7 @@ class CheckoutController extends Controller
 
         try {
             // Start database transaction
-            return DB::transaction(function () use ($request, $cart) {
+            return DB::transaction(function () use ($request, $cart, $hasOnlyFreeShipping) {
                 // Calculate total
                 $subtotal = 0;
                 foreach ($cart as $item) {
@@ -80,10 +100,13 @@ class CheckoutController extends Controller
                 }
 
                 // Get shipping charge
-                $shippingCharge = ShippingCharge::findOrFail($request->shipping_charge_id);
+                $shippingCharge = 0;
+                if (!$hasOnlyFreeShipping) {
+                    $shippingCharge = ShippingCharge::findOrFail($request->shipping_charge_id)->charge;
+                }
 
                 // Calculate final amount
-                $amount = $subtotal - $couponDiscount + $shippingCharge->charge;
+                $amount = $subtotal - $couponDiscount + $shippingCharge;
 
                 // Generate order number and invoice
                 $orderNumber = 'ORD-' . strtoupper(Str::random(10));
@@ -104,7 +127,7 @@ class CheckoutController extends Controller
                 $order->currency = 'BDT';
                 $order->amount = $amount;
                 $order->coupon_discount = $couponDiscount > 0 ? $couponDiscount : null;
-                $order->shipping_charge = $shippingCharge->charge;
+                $order->shipping_charge = $shippingCharge;
                 $order->order_number = $orderNumber;
                 $order->invoice_no = $invoice;
                 $order->order_date = Carbon::now()->format('d F Y');

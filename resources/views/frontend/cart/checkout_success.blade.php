@@ -81,7 +81,11 @@
                             @endif
                             <div class="flex justify-between text-gray-600">
                                 <span>Shipping</span>
-                                <span>৳{{ number_format($order->shipping_charge ?? 0, 2) }}</span>
+                                @if ($order->shipping_charge > 0)
+                                    <span>৳{{ number_format($order->shipping_charge, 2) }}</span>
+                                @else
+                                    <span class="text-green-600 font-medium">Free</span>
+                                @endif
                             </div>
                             <div class="flex justify-between font-semibold text-gray-800 text-lg pt-2 border-t">
                                 <span>Total</span>

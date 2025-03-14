@@ -67,24 +67,37 @@
                     </div>
 
                     <!-- Shipping Charge -->
-                    <div class="bg-white p-6 rounded-lg shadow-sm">
-                        <h2 class="text-xl font-semibold mb-4">Shipping Charge</h2>
-                        <div class="space-y-4">
-                            @foreach ($shippingCharges as $charge)
-                                <div class="flex items-center space-x-3 p-4 border border-gray-200 rounded-md">
-                                    <input type="radio" name="shipping_charge_id" id="shipping_{{ $charge->id }}"
-                                        value="{{ $charge->id }}" data-charge="{{ $charge->charge }}"
-                                        {{ $loop->first ? 'checked' : '' }} required class="shipping-method-radio">
-                                    <label for="shipping_{{ $charge->id }}" class="flex-1">
-                                        <span class="font-medium">{{ $charge->name }}</span>
-                                        <div class="text-sm text-gray-500 mt-1">৳{{ number_format($charge->charge, 2) }}
-                                        </div>
-                                    </label>
-                                </div>
-                            @endforeach
-                            <span class="text-red-500 text-xs error-message" id="error-shipping_charge_id"></span>
+                    @if (!$hasOnlyFreeShipping)
+                        <div class="bg-white p-6 rounded-lg shadow-sm">
+                            <h2 class="text-xl font-semibold mb-4">Shipping Charge</h2>
+                            <div class="space-y-4">
+                                @foreach ($shippingCharges as $charge)
+                                    <div class="flex items-center space-x-3 p-4 border border-gray-200 rounded-md">
+                                        <input type="radio" name="shipping_charge_id" id="shipping_{{ $charge->id }}"
+                                            value="{{ $charge->id }}" data-charge="{{ $charge->charge }}"
+                                            {{ $loop->first ? 'checked' : '' }} required class="shipping-method-radio">
+                                        <label for="shipping_{{ $charge->id }}" class="flex-1">
+                                            <span class="font-medium">{{ $charge->name }}</span>
+                                            <div class="text-sm text-gray-500 mt-1">
+                                                ৳{{ number_format($charge->charge, 2) }}</div>
+                                        </label>
+                                    </div>
+                                @endforeach
+                                <span class="text-red-500 text-xs error-message" id="error-shipping_charge_id"></span>
+                            </div>
                         </div>
-                    </div>
+                    @else
+                        <div class="bg-white p-6 rounded-lg shadow-sm">
+                            <h2 class="text-xl font-semibold mb-4">Shipping</h2>
+                            <div class="flex items-center space-x-3 p-4 border border-gray-200 rounded-md bg-green-50">
+                                <i class="ri-truck-line text-green-500 text-xl"></i>
+                                <div class="flex-1">
+                                    <span class="font-medium text-green-600">Free Shipping</span>
+                                    <div class="text-sm text-green-500 mt-1">Your order qualifies for free shipping!</div>
+                                </div>
+                            </div>
+                        </div>
+                    @endif
 
                     <!-- Payment Method -->
                     <div class="bg-white p-6 rounded-lg shadow-sm">
@@ -206,17 +219,26 @@
                                         </span>
                                     </div>
                                 @endif
-                                <div class="flex justify-between text-sm">
-                                    <span class="text-gray-600">Shipping</span>
-                                    <span class="font-medium" id="shipping">
-                                        ৳{{ number_format($shippingCharges->first()->charge, 2) }}
-                                    </span>
-                                </div>
+                                @if (!$hasOnlyFreeShipping)
+                                    <div class="flex justify-between text-sm">
+                                        <span class="text-gray-600">Shipping</span>
+                                        <span class="font-medium" id="shipping">
+                                            ৳{{ number_format($shippingCharges->first()->charge ?? 0, 2) }}
+                                        </span>
+                                    </div>
+                                @else
+                                    <div class="flex justify-between text-sm">
+                                        <span class="text-gray-600">Shipping</span>
+                                        <span class="font-medium text-green-600">Free</span>
+                                    </div>
+                                @endif
                                 <div class="flex justify-between font-semibold text-lg pt-2 border-t border-gray-200">
                                     <span>Total</span>
                                     <span class="text-orange-500" id="total">
                                         ৳{{ number_format(
-                                            $total - (Session::has('coupon') ? Session::get('coupon')['discount'] : 0) + $shippingCharges->first()->charge,
+                                            $total -
+                                                (Session::has('coupon') ? Session::get('coupon')['discount'] : 0) +
+                                                (!$hasOnlyFreeShipping ? $shippingCharges->first()->charge ?? 0 : 0),
                                             2,
                                         ) }}
                                     </span>
@@ -329,17 +351,26 @@
                                 </span>
                             </div>
                         @endif
-                        <div class="flex justify-between text-sm">
-                            <span class="text-gray-600">Shipping</span>
-                            <span class="font-medium" id="shipping">
-                                ৳{{ number_format($shippingCharges->first()->charge, 2) }}
-                            </span>
-                        </div>
+                        @if (!$hasOnlyFreeShipping)
+                            <div class="flex justify-between text-sm">
+                                <span class="text-gray-600">Shipping</span>
+                                <span class="font-medium" id="shipping">
+                                    ৳{{ number_format($shippingCharges->first()->charge ?? 0, 2) }}
+                                </span>
+                            </div>
+                        @else
+                            <div class="flex justify-between text-sm">
+                                <span class="text-gray-600">Shipping</span>
+                                <span class="font-medium text-green-600">Free</span>
+                            </div>
+                        @endif
                         <div class="flex justify-between font-semibold text-lg pt-2 border-t border-gray-200">
                             <span>Total</span>
                             <span class="text-orange-500" id="total">
                                 ৳{{ number_format(
-                                    $total - (Session::has('coupon') ? Session::get('coupon')['discount'] : 0) + $shippingCharges->first()->charge,
+                                    $total -
+                                        (Session::has('coupon') ? Session::get('coupon')['discount'] : 0) +
+                                        (!$hasOnlyFreeShipping ? $shippingCharges->first()->charge ?? 0 : 0),
                                     2,
                                 ) }}
                             </span>
@@ -361,11 +392,13 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Initial update of shipping charge
-            const initialShipping = document.querySelector('input[name="shipping_charge_id"]:checked');
-            if (initialShipping) {
-                const initialCharge = parseFloat(initialShipping.getAttribute('data-charge'));
-                updateShippingAndTotal(initialCharge);
-            }
+            @if (!$hasOnlyFreeShipping)
+                const initialShipping = document.querySelector('input[name="shipping_charge_id"]:checked');
+                if (initialShipping) {
+                    const initialCharge = parseFloat(initialShipping.getAttribute('data-charge'));
+                    updateShippingAndTotal(initialCharge);
+                }
+            @endif
 
             // Handle item removal
             const removeButtons = document.querySelectorAll('.remove-item');
@@ -377,13 +410,15 @@
             });
 
             // Update shipping method handler
-            const shippingRadios = document.querySelectorAll('.shipping-method-radio');
-            shippingRadios.forEach(radio => {
-                radio.addEventListener('change', function() {
-                    const shippingCharge = parseFloat(this.getAttribute('data-charge'));
-                    updateShippingAndTotal(shippingCharge);
+            @if (!$hasOnlyFreeShipping)
+                const shippingRadios = document.querySelectorAll('.shipping-method-radio');
+                shippingRadios.forEach(radio => {
+                    radio.addEventListener('change', function() {
+                        const shippingCharge = parseFloat(this.getAttribute('data-charge'));
+                        updateShippingAndTotal(shippingCharge);
+                    });
                 });
-            });
+            @endif
 
             // Form submission handler
             const checkoutForm = document.getElementById('checkout-form');
@@ -475,16 +510,23 @@
                     discount = parseFloat(discountElement.textContent.replace('-৳', '').replace(/,/g, ''));
                 }
 
-                // Update shipping display in all summaries
-                const shippingElements = document.querySelectorAll('#shipping');
-                shippingElements.forEach(element => {
-                    if (element) {
-                        element.textContent = '৳' + shippingCharge.toFixed(2);
-                    }
-                });
+                @if (!$hasOnlyFreeShipping)
+                    // Update shipping display in all summaries
+                    const shippingElements = document.querySelectorAll('#shipping');
+                    shippingElements.forEach(element => {
+                        if (element) {
+                            element.textContent = '৳' + shippingCharge.toFixed(2);
+                        }
+                    });
+                @endif
 
                 // Calculate and update total in all summaries
-                const total = subtotal - discount + shippingCharge;
+                const total = subtotal - discount + (
+                    @if (!$hasOnlyFreeShipping)
+                        shippingCharge
+                    @else
+                        0
+                    @endif );
                 const totalElements = document.querySelectorAll('#total');
                 totalElements.forEach(element => {
                     if (element) {

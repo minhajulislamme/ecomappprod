@@ -99,10 +99,15 @@ class CartController extends Controller
             $cart[$request->product_id]['quantity'] = $request->quantity;
             Session::put('cart', $cart);
 
-            // Calculate subtotal and item total
+            // Calculate subtotal and check for free shipping
             $subtotal = 0;
+            $hasOnlyFreeShipping = true;
+
             foreach ($cart as $item) {
                 $subtotal += $item['price'] * $item['quantity'];
+                if (!isset($item['free_shipping']) || $item['free_shipping'] !== true) {
+                    $hasOnlyFreeShipping = false;
+                }
             }
 
             $itemTotal = $cart[$request->product_id]['price'] * $request->quantity;
@@ -114,9 +119,12 @@ class CartController extends Controller
                 $discount = ($subtotal * $coupon['discount_percentage']) / 100;
             }
 
-            // Get shipping charge
-            $shippingCharge = \App\Models\ShippingCharge::where('status', 'active')->first();
-            $shippingAmount = $shippingCharge ? $shippingCharge->charge : 0;
+            // Get shipping charge only if not all items have free shipping
+            $shippingAmount = 0;
+            if (!$hasOnlyFreeShipping) {
+                $shippingCharge = \App\Models\ShippingCharge::where('status', 'active')->first();
+                $shippingAmount = $shippingCharge ? $shippingCharge->charge : 0;
+            }
 
             // Calculate total
             $total = $subtotal - $discount + $shippingAmount;
@@ -128,7 +136,8 @@ class CartController extends Controller
                 'subtotal' => $subtotal,
                 'discount' => $discount,
                 'shipping_charge' => $shippingAmount,
-                'total' => $total
+                'total' => $total,
+                'has_only_free_shipping' => $hasOnlyFreeShipping
             ]);
         }
 
@@ -150,15 +159,23 @@ class CartController extends Controller
             unset($cart[$request->product_id]);
             Session::put('cart', $cart);
 
-            // Calculate updated totals
+            // Calculate updated totals and check for free shipping
             $subtotal = 0;
+            $hasOnlyFreeShipping = true;
+
             foreach ($cart as $item) {
                 $subtotal += $item['price'] * $item['quantity'];
+                if (!isset($item['free_shipping']) || $item['free_shipping'] !== true) {
+                    $hasOnlyFreeShipping = false;
+                }
             }
 
-            // Get shipping charge
-            $shippingCharge = \App\Models\ShippingCharge::where('status', 'active')->first();
-            $shippingAmount = $shippingCharge ? $shippingCharge->charge : 0;
+            // Get shipping charge only if not all items have free shipping
+            $shippingAmount = 0;
+            if (!$hasOnlyFreeShipping && count($cart) > 0) {
+                $shippingCharge = \App\Models\ShippingCharge::where('status', 'active')->first();
+                $shippingAmount = $shippingCharge ? $shippingCharge->charge : 0;
+            }
 
             // Calculate discount if coupon exists
             $discount = 0;
@@ -203,7 +220,8 @@ class CartController extends Controller
                 'discount' => $discount,
                 'shipping_charge' => $shippingAmount,
                 'total' => $total,
-                'empty' => count($cart) === 0
+                'empty' => count($cart) === 0,
+                'has_only_free_shipping' => $hasOnlyFreeShipping
             ]);
         }
 
@@ -262,14 +280,26 @@ class CartController extends Controller
 
         $cart = Session::get('cart', []);
         $subtotal = 0;
+        $hasOnlyFreeShipping = true;
 
         foreach ($cart as $item) {
             $subtotal += $item['price'] * $item['quantity'];
+            if (!isset($item['free_shipping']) || $item['free_shipping'] !== true) {
+                $hasOnlyFreeShipping = false;
+            }
         }
 
         // Calculate discount based on coupon percentage
         $discount = ($subtotal * $coupon->coupon_discount) / 100;
-        $newTotal = $subtotal - $discount;
+
+        // Get shipping charge only if not all items have free shipping
+        $shippingAmount = 0;
+        if (!$hasOnlyFreeShipping) {
+            $shippingCharge = \App\Models\ShippingCharge::where('status', 'active')->first();
+            $shippingAmount = $shippingCharge ? $shippingCharge->charge : 0;
+        }
+
+        $newTotal = $subtotal - $discount + $shippingAmount;
 
         // Store coupon info in session
         Session::put('coupon', [
@@ -284,7 +314,9 @@ class CartController extends Controller
             'success' => true,
             'message' => 'Coupon ' . $coupon->coupon_name . ' applied successfully! (' . $coupon->coupon_discount . '% off)',
             'discount' => $discount,
-            'new_total' => $newTotal
+            'new_total' => $newTotal,
+            'shipping_charge' => $shippingAmount,
+            'has_only_free_shipping' => $hasOnlyFreeShipping
         ]);
     }
 
@@ -294,14 +326,30 @@ class CartController extends Controller
 
         $cart = Session::get('cart', []);
         $total = 0;
+        $hasOnlyFreeShipping = true;
+
         foreach ($cart as $item) {
             $total += $item['price'] * $item['quantity'];
+            if (!isset($item['free_shipping']) || $item['free_shipping'] !== true) {
+                $hasOnlyFreeShipping = false;
+            }
         }
+
+        // Get shipping charge only if not all items have free shipping
+        $shippingAmount = 0;
+        if (!$hasOnlyFreeShipping) {
+            $shippingCharge = \App\Models\ShippingCharge::where('status', 'active')->first();
+            $shippingAmount = $shippingCharge ? $shippingCharge->charge : 0;
+        }
+
+        $total += $shippingAmount;
 
         return response()->json([
             'success' => true,
             'message' => 'Coupon removed successfully!',
-            'new_total' => $total
+            'new_total' => $total,
+            'shipping_charge' => $shippingAmount,
+            'has_only_free_shipping' => $hasOnlyFreeShipping
         ]);
     }
 }
