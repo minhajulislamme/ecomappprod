@@ -336,25 +336,18 @@
                 });
             });
 
-            // Initialize the first selected shipping method's charge to the total
-            const selectedShipping = document.querySelector('input[name="shipping_charge_id"]:checked');
-            if (selectedShipping) {
-                const shippingCharge = parseFloat(selectedShipping.getAttribute('data-charge'));
-                updateTotal(shippingCharge);
-            } else {
-                // Select first shipping method if none is selected
-                const firstShippingMethod = document.querySelector('input[name="shipping_charge_id"]');
-                if (firstShippingMethod) {
-                    firstShippingMethod.checked = true;
-                    const shippingCharge = parseFloat(firstShippingMethod.getAttribute('data-charge'));
-                    updateTotal(shippingCharge);
-                }
-            }
-
-            // Handle form submission with AJAX
+            // Form submission handler
             const checkoutForm = document.getElementById('checkout-form');
+            let isSubmitting = false; // Add flag to prevent double submission
+
             checkoutForm.addEventListener('submit', function(e) {
                 e.preventDefault();
+
+                // Prevent double submission
+                if (isSubmitting) {
+                    return;
+                }
+                isSubmitting = true;
 
                 // Clear previous errors
                 document.querySelectorAll('.error-message').forEach(el => {
@@ -365,12 +358,9 @@
                 document.getElementById('place-order-btn').classList.add('hidden');
                 document.getElementById('loading-indicator').classList.remove('hidden');
 
-                const formData = new FormData(checkoutForm);
-
-                // Process the order
                 fetch('{{ route('checkout.store') }}', {
                         method: 'POST',
-                        body: formData,
+                        body: new FormData(this),
                         headers: {
                             'X-CSRF-TOKEN': '{{ csrf_token() }}',
                             'Accept': 'application/json'
@@ -394,18 +384,32 @@
                                     }
                                 });
                             }
-
-                            if (data.redirect) {
-                                window.location.href = data.redirect;
-                            }
                         }
                     })
                     .catch(error => {
                         console.error('Error:', error);
                         document.getElementById('place-order-btn').classList.remove('hidden');
                         document.getElementById('loading-indicator').classList.add('hidden');
+                    })
+                    .finally(() => {
+                        isSubmitting = false; // Reset submission flag
                     });
             });
+
+            // Initialize the first selected shipping method's charge to the total
+            const selectedShipping = document.querySelector('input[name="shipping_charge_id"]:checked');
+            if (selectedShipping) {
+                const shippingCharge = parseFloat(selectedShipping.getAttribute('data-charge'));
+                updateTotal(shippingCharge);
+            } else {
+                // Select first shipping method if none is selected
+                const firstShippingMethod = document.querySelector('input[name="shipping_charge_id"]');
+                if (firstShippingMethod) {
+                    firstShippingMethod.checked = true;
+                    const shippingCharge = parseFloat(firstShippingMethod.getAttribute('data-charge'));
+                    updateTotal(shippingCharge);
+                }
+            }
 
             // New function to update shipping and total
             function updateShippingAndTotal(shippingCharge) {
@@ -508,10 +512,10 @@
 
                                     if (data.discount > 0) {
                                         document.querySelectorAll('#discount-amount').forEach(
-                                        element => {
-                                            element.textContent = '-৳' + data.discount.toFixed(
-                                                2);
-                                        });
+                                            element => {
+                                                element.textContent = '-৳' + data.discount.toFixed(
+                                                    2);
+                                            });
                                     }
 
                                     document.querySelectorAll('#shipping').forEach(element => {

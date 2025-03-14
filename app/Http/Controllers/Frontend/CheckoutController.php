@@ -11,6 +11,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 class CheckoutController extends Controller
@@ -64,99 +65,94 @@ class CheckoutController extends Controller
         }
 
         try {
-            // Calculate total
-            $subtotal = 0;
-            foreach ($cart as $item) {
-                $subtotal += $item['price'] * $item['quantity'];
-            }
-
-            // Get coupon discount if any
-            $couponDiscount = 0;
-            if (Session::has('coupon')) {
-                $couponDiscount = Session::get('coupon')['discount'];
-            }
-
-            // Get shipping charge
-            $shippingCharge = ShippingCharge::findOrFail($request->shipping_charge_id);
-
-            // Calculate final amount
-            $amount = $subtotal - $couponDiscount + $shippingCharge->charge;
-
-            // Generate order number
-            $orderNumber = 'ORD-' . strtoupper(Str::random(10));
-            $invoice = 'INV-' . strtoupper(Str::random(10));
-
-            // Create order
-            $order = new Orders();
-            $order->user_id = Auth::check() ? Auth::id() : null;
-            $order->name = $request->first_name . ' ' . $request->last_name;
-            $order->email = $request->email;
-            $order->phone = $request->phone;
-            $order->address = $request->address;
-            $order->city = $request->city;
-            $order->postal_code = $request->postal_code;
-            $order->payment_type = $request->payment_type;
-            $order->payment_method = $request->payment_type == 'online' ? 'Card/Online' : 'Cash On Delivery';
-            $order->transaction_id = $request->payment_type == 'online' ? 'Online Payment' : null;
-            $order->currency = 'BDT';
-            $order->amount = $amount;
-            $order->coupon_discount = $couponDiscount > 0 ? $couponDiscount : null;
-            $order->shipping_charge = $shippingCharge->charge;
-            $order->order_number = $orderNumber;
-            $order->invoice_no = $invoice;
-            $order->order_date = Carbon::now()->format('d F Y');
-            $order->order_month = Carbon::now()->format('F');
-            $order->order_year = Carbon::now()->year;
-            $order->status = 'pending';
-            $order->save();
-
-            // Save order items
-            foreach ($cart as $key => $item) {
-                $orderItem = new OrderItems();
-                $orderItem->order_id = $order->id;
-                $orderItem->product_id = $item['id'];
-                $orderItem->quantity = $item['quantity'];
-                $orderItem->price = $item['price'];
-                $orderItem->thumbnail_image = $item['image'];
-
-                // Check if there are attributes and save them
-                if (!empty($item['attributes'])) {
-                    $orderItem->attribute_values = json_encode($item['attributes']);
+            // Start database transaction
+            return DB::transaction(function () use ($request, $cart) {
+                // Calculate total
+                $subtotal = 0;
+                foreach ($cart as $item) {
+                    $subtotal += $item['price'] * $item['quantity'];
                 }
 
-                $orderItem->save();
-
-                // Update product quantity
-                $product = Product::find($item['id']);
-                if ($product) {
-                    $product->stock = max(0, ($product->stock ?? 0) - $item['quantity']);
-                    $product->save();
+                // Get coupon discount if any
+                $couponDiscount = 0;
+                if (Session::has('coupon')) {
+                    $couponDiscount = Session::get('coupon')['discount'];
                 }
-            }
 
-            // Clear cart and coupon after successful order
-            Session::forget(['cart', 'coupon']);
+                // Get shipping charge
+                $shippingCharge = ShippingCharge::findOrFail($request->shipping_charge_id);
 
-            if ($request->ajax()) {
+                // Calculate final amount
+                $amount = $subtotal - $couponDiscount + $shippingCharge->charge;
+
+                // Generate order number and invoice
+                $orderNumber = 'ORD-' . strtoupper(Str::random(10));
+                $invoice = 'INV-' . strtoupper(Str::random(10));
+
+                // Create order
+                $order = new Orders();
+                $order->user_id = Auth::check() ? Auth::id() : null;
+                $order->name = $request->first_name . ' ' . $request->last_name;
+                $order->email = $request->email;
+                $order->phone = $request->phone;
+                $order->address = $request->address;
+                $order->city = $request->city;
+                $order->postal_code = $request->postal_code;
+                $order->payment_type = $request->payment_type;
+                $order->payment_method = $request->payment_type == 'online' ? 'Card/Online' : 'Cash On Delivery';
+                $order->transaction_id = $request->payment_type == 'online' ? 'Online Payment' : null;
+                $order->currency = 'BDT';
+                $order->amount = $amount;
+                $order->coupon_discount = $couponDiscount > 0 ? $couponDiscount : null;
+                $order->shipping_charge = $shippingCharge->charge;
+                $order->order_number = $orderNumber;
+                $order->invoice_no = $invoice;
+                $order->order_date = Carbon::now()->format('d F Y');
+                $order->order_month = Carbon::now()->format('F');
+                $order->order_year = Carbon::now()->year;
+                $order->status = 'pending';
+                $order->save();
+
+                // Save order items and update product stock
+                foreach ($cart as $key => $item) {
+                    $orderItem = new OrderItems();
+                    $orderItem->order_id = $order->id;
+                    $orderItem->product_id = $item['id'];
+                    $orderItem->quantity = $item['quantity'];
+                    $orderItem->price = $item['price'];
+                    $orderItem->thumbnail_image = $item['image'];
+
+                    if (!empty($item['attributes'])) {
+                        $orderItem->attribute_values = json_encode($item['attributes']);
+                    }
+
+                    $orderItem->save();
+
+                    // Update product stock with lock to prevent race conditions
+                    $product = Product::lockForUpdate()->find($item['id']);
+                    if ($product) {
+                        if ($product->stock < $item['quantity']) {
+                            throw new \Exception('Insufficient stock for product: ' . $product->name);
+                        }
+                        $product->stock = max(0, $product->stock - $item['quantity']);
+                        $product->save();
+                    }
+                }
+
+                // Clear cart and coupon after successful order
+                Session::forget(['cart', 'coupon']);
+
                 return response()->json([
                     'success' => true,
                     'message' => 'Order placed successfully',
-                    'order' => $order,
                     'redirect' => route('checkout.success', ['order_number' => $order->order_number])
                 ]);
-            }
-
-            return redirect()->route('checkout.success', ['order_number' => $order->order_number]);
+            });
         } catch (\Exception $e) {
-            if ($request->ajax()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Failed to place order. Please try again.',
-                    'error' => $e->getMessage()
-                ], 500);
-            }
-
-            return redirect()->back()->with('error', 'Failed to place order. Please try again.');
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to place order. ' . $e->getMessage(),
+            ], 500);
         }
     }
 

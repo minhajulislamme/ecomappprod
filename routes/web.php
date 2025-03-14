@@ -47,7 +47,7 @@ Route::post('/cart/remove-coupon', [CartController::class, 'removeCoupon'])->nam
 
 // Checkout Routes
 Route::get('/checkout', [CheckoutController::class, 'checkout'])->name('checkout');
-Route::post('/checkout/place-order', [CheckoutController::class, 'placeOrder'])->name('checkout.store');
+Route::post('/checkout/store', [CheckoutController::class, 'placeOrder'])->name('checkout.store');
 Route::get('/checkout/success/{order_number}', [CheckoutController::class, 'checkoutSuccess'])->name('checkout.success');
 Route::post('/checkout/validate', [CheckoutController::class, 'validateCheckoutForm'])->name('checkout.validate');
 
