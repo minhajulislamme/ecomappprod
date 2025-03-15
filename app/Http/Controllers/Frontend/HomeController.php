@@ -38,7 +38,17 @@ class HomeController extends Controller
 
         $Categories = Category::where('status', 'active')->latest()->get();
         $Subcategories = Subcategory::where('status', 'active')->latest()->get();
-        return view('frontend.product.product_details', compact('product', 'Categories', 'Subcategories'));
+
+        // Prepare Meta Pixel ViewContent event data
+        $pixelEvent = "fbq('track', 'ViewContent', {
+            content_name: '" . addslashes($product->name) . "',
+            content_ids: ['" . $product->id . "'],
+            content_type: 'product',
+            value: " . ($product->discount_price ?? $product->price) . ",
+            currency: 'BDT'
+        });";
+
+        return view('frontend.product.product_details', compact('product', 'Categories', 'Subcategories', 'pixelEvent'));
     }
 
     public function ProductCategory($id, $slug)
@@ -54,7 +64,17 @@ class HomeController extends Controller
         $Categories = Category::where('status', 'active')->latest()->get();
         $Subcategories = Subcategory::where('status', 'active')->latest()->get();
 
-        return view('frontend.product.category_wise_products', compact('category', 'products', 'Categories', 'Subcategories'));
+        // Get product IDs for ViewCategory event
+        $productIds = $products->pluck('id')->toArray();
+
+        // Prepare Facebook Pixel event for category page
+        $pixelEvent = "fbq('track', 'ViewCategory', {
+            content_ids: " . json_encode($productIds) . ",
+            content_type: 'product',
+            content_category: '" . addslashes($category->category_name) . "'
+        });";
+
+        return view('frontend.product.category_wise_products', compact('category', 'products', 'Categories', 'Subcategories', 'pixelEvent'));
     }
 
     public function ProductSubCategory($id, $slug = null)
@@ -70,15 +90,35 @@ class HomeController extends Controller
         $Categories = Category::where('status', 'active')->latest()->get();
         $Subcategories = Subcategory::where('status', 'active')->latest()->get();
 
-        return view('frontend.product.sub_category_wise_products', compact('subcategory', 'products', 'Categories', 'Subcategories'));
+        // Get product IDs for ViewCategory event
+        $productIds = $products->pluck('id')->toArray();
+
+        // Prepare Facebook Pixel event for subcategory page
+        $pixelEvent = "fbq('track', 'ViewCategory', {
+            content_ids: " . json_encode($productIds) . ",
+            content_type: 'product',
+            content_category: '" . addslashes($subcategory->subcategory_name) . "'
+        });";
+
+        return view('frontend.product.sub_category_wise_products', compact('subcategory', 'products', 'Categories', 'Subcategories', 'pixelEvent'));
     }
 
     public function Shop()
     {
-        $products = Product::where('status', 'active')->latest()->paginate(2); // Changed to paginate 12 products per page
+        $products = Product::where('status', 'active')->latest()->paginate(12);
         $Categories = Category::where('status', 'active')->latest()->get();
         $Subcategories = Subcategory::where('status', 'active')->latest()->get();
 
-        return view('frontend.product.shop', compact('products', 'Categories', 'Subcategories'));
+        // Get product IDs for ViewContent event
+        $productIds = $products->pluck('id')->toArray();
+
+        // Prepare enhanced Facebook Pixel event for shop page
+        $pixelEvent = "fbq('track', 'ViewCategory', {
+            content_ids: " . json_encode($productIds) . ",
+            content_type: 'product',
+            content_category: 'Shop'
+        });";
+
+        return view('frontend.product.shop', compact('products', 'Categories', 'Subcategories', 'pixelEvent'));
     }
 }

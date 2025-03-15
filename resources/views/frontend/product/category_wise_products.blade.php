@@ -1,5 +1,14 @@
 @extends('frontend.frontend')
 @section('content')
+    <!-- Facebook Pixel ViewCategory event -->
+    @if (isset($pixelEvent))
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                {!! $pixelEvent !!}
+            });
+        </script>
+    @endif
+
     <!-- Main Content -->
     <main class="max-w-7xl mx-auto px-4 py-4 pb-20 lg:pb-8">
         <!-- Breadcrumb -->

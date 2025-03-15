@@ -35,4 +35,8 @@ return [
         ],
     ],
 
+    'facebook' => [
+        'pixel_id' => env('FACEBOOK_PIXEL_ID'),
+    ],
+
 ];
