@@ -560,120 +560,67 @@
 
             // Handle item removal from Order Summary
             function removeCartItem(cartKey) {
-                Swal.fire({
-                    title: 'Remove Item?',
-                    text: "Are you sure you want to remove this item?",
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#ef4444',
-                    cancelButtonColor: '#6b7280',
-                    confirmButtonText: 'Yes, remove it!'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        // Add loading state
-                        const items = document.querySelectorAll(`.cart-item[data-item-key="${cartKey}"]`);
-                        items.forEach(item => item.style.opacity = '0.5');
-
-                        fetch("{{ route('cart.remove') }}", {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                    'Accept': 'application/json',
-                                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                                },
-                                body: JSON.stringify({
-                                    product_id: cartKey
-                                })
-                            })
-                            .then(response => {
-                                if (!response.ok) {
-                                    throw new Error('Network response was not ok');
-                                }
-                                return response.json();
-                            })
-                            .then(data => {
-                                if (data.success) {
-                                    // Remove item from DOM with fade effect
-                                    items.forEach(item => {
-                                        item.style.transition = 'all 0.3s ease';
-                                        item.style.opacity = '0';
-                                        setTimeout(() => item.remove(), 300);
-
-                                    });
-
-                                    // Update cart count
-                                    document.querySelectorAll('.cart-count').forEach(counter => {
-                                        counter.textContent = data.cart_count;
-                                    });
-
-                                    // Update totals
-                                    document.querySelectorAll('#subtotal').forEach(element => {
-                                        element.textContent = '৳' + data.subtotal.toFixed(2);
-                                    });
-
-                                    if (data.discount > 0) {
-                                        document.querySelectorAll('#discount-amount').forEach(
-                                            element => {
-                                                element.textContent = '-৳' + data.discount.toFixed(
-                                                    2);
-                                            });
-                                    }
-
-                                    document.querySelectorAll('#shipping').forEach(element => {
-                                        element.textContent = '৳' + data.shipping_charge
-                                            .toFixed(2);
-                                    });
-
-                                    document.querySelectorAll('#total').forEach(element => {
-                                        element.textContent = '৳' + data.total.toFixed(2);
-                                    });
-
-                                    // Show success toast
-                                    const Toast = Swal.mixin({
-                                        toast: true,
-                                        position: 'top-end',
-                                        showConfirmButton: false,
-                                        timer: 3000,
-                                        timerProgressBar: true
-                                    });
-
-                                    Toast.fire({
-                                        icon: 'success',
-                                        title: 'Item removed successfully'
-                                    });
-
-                                    // Redirect to shop if cart is empty
-                                    if (data.empty) {
-                                        setTimeout(() => {
-                                            window.location.href = "{{ route('shop') }}";
-                                        }, 2000);
-                                    }
-                                } else {
-                                    throw new Error(data.message || 'Failed to remove item');
-                                }
-                            })
-                            .catch(error => {
-                                console.error('Error:', error);
-                                // Restore item opacity
-                                items.forEach(item => item.style.opacity = '1');
-
-                                // Show error toast
-                                const Toast = Swal.mixin({
-                                    toast: true,
-                                    position: 'top-end',
-                                    showConfirmButton: false,
-                                    timer: 3000,
-                                    timerProgressBar: true
-                                });
-
-                                Toast.fire({
-                                    icon: 'success',
-                                    title: 'Item removed successfully',
-                                    // text: 'Please try again'
-                                });
+                fetch("{{ route('cart.remove') }}", {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        body: JSON.stringify({
+                            product_id: cartKey
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Remove item from DOM
+                            const items = document.querySelectorAll(
+                                `.cart-item[data-item-key="${cartKey}"]`);
+                            items.forEach(item => {
+                                item.style.transition = 'all 0.3s ease';
+                                item.style.opacity = '0';
+                                setTimeout(() => item.remove(), 300);
                             });
-                    }
-                });
+
+                            // Update cart count
+                            document.querySelectorAll('.cart-count').forEach(counter => {
+                                counter.textContent = data.cart_count;
+                            });
+
+                            // Update totals
+                            document.querySelectorAll('#subtotal').forEach(element => {
+                                element.textContent = '৳' + data.subtotal.toFixed(2);
+                            });
+
+                            if (data.discount > 0) {
+                                document.querySelectorAll('#discount-amount').forEach(element => {
+                                    element.textContent = '-৳' + data.discount.toFixed(2);
+                                });
+                            }
+
+                            document.querySelectorAll('#shipping').forEach(element => {
+                                element.textContent = '৳' + data.shipping_charge.toFixed(2);
+                            });
+
+                            document.querySelectorAll('#total').forEach(element => {
+                                element.textContent = '৳' + data.total.toFixed(2);
+                            });
+
+                            // Redirect to shop if cart is empty
+                            if (data.empty) {
+                                setTimeout(() => {
+                                    window.location.href = "{{ route('shop') }}";
+                                }, 1000);
+                            }
+                        } else {
+                            alert(data.message || 'Failed to remove item');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('Something went wrong! Please try again.');
+                    });
             }
 
             // Remove all duplicate removeCartItem functions
