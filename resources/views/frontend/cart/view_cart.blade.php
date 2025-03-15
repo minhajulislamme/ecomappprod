@@ -1,149 +1,339 @@
 @extends('frontend.frontend')
 @section('content')
-    <!-- Facebook Pixel ViewCart event -->
-    @if (isset($pixelEvent))
-        <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                {!! $pixelEvent !!}
-            });
-        </script>
-    @endif
 
+ <!-- Facebook Pixel ViewCart event -->
+ @if (isset($pixelEvent))
+ <script>
+     document.addEventListener('DOMContentLoaded', function() {
+         {!! $pixelEvent !!}
+     });
+ </script>
+@endif
     <div class="max-w-7xl mx-auto px-4 py-8">
-        <!-- Cart Items Section -->
-        <div class="flex flex-col lg:flex-row gap-8">
-            <div class="flex-1">
-                <h1 class="text-2xl font-semibold mb-6">Shopping Cart</h1>
+        <h1 class="text-2xl font-bold text-gray-800 mb-8">Shopping Cart</h1>
 
+        @if (count($cart) > 0)
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 <!-- Cart Items -->
-                <div class="space-y-4" id="cart-items">
-                    @forelse ($cart as $key => $item)
-                        <div class="bg-white p-4 rounded-lg shadow-sm cart-item" data-item-key="{{ $key }}">
-                            <!-- Cart item content -->
-                            <div class="flex items-center space-x-4">
-                                <img src="{{ $item['image'] }}" alt="{{ $item['name'] }}"
-                                    class="w-24 h-24 object-cover rounded-md">
-                                <div class="flex-1">
-                                    <div class="flex justify-between">
-                                        <h3 class="font-medium text-lg text-gray-800">{{ $item['name'] }}</h3>
-                                        <button type="button" class="text-gray-400 hover:text-red-500"
-                                            onclick="removeCartItem('{{ $key }}')">
-                                            <i class="ri-delete-bin-line"></i>
-                                        </button>
-                                    </div>
+                <div class="lg:col-span-2">
+                    <div class="bg-white rounded-lg shadow-sm">
+                        @foreach ($cart as $cartKey => $item)
+                            <div class="p-6 border-b last:border-b-0" id="cart-item-{{ $cartKey }}">
+                                <div class="flex gap-4">
+                                    <img src="{{ $item['image'] }}" alt="{{ $item['name'] }}"
+                                        class="w-24 h-24 object-cover rounded-lg">
 
-                                    <!-- Product Attributes -->
-                                    @if (!empty($item['attributes']))
-                                        <div class="flex flex-wrap gap-2 mt-2">
-                                            @foreach ($item['attributes'] as $attribute)
-                                                <span
-                                                    class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                                                    {{ $attribute['name'] }}: {{ $attribute['value'] }}
-                                                </span>
-                                            @endforeach
+                                    <div class="flex-1">
+                                        <div class="flex justify-between mb-2">
+                                            <h3 class="font-medium text-gray-800">{{ $item['name'] }}</h3>
+                                            <button onclick="removeFromCart('{{ $cartKey }}')"
+                                                class="text-gray-400 hover:text-red-500">
+                                                <i class="ri-delete-bin-line"></i>
+                                            </button>
                                         </div>
-                                    @endif
 
-                                    <div class="flex items-center justify-between mt-4">
-                                        <div class="flex items-center space-x-2">
-                                            <span class="text-gray-600">Quantity:</span>
-                                            <div class="flex items-center border rounded-lg">
-                                                <button type="button" class="px-3 py-1 hover:bg-gray-100 rounded-l"
-                                                    onclick="updateQuantity('{{ $key }}', 'decrease')">-</button>
-                                                <input type="number" value="{{ $item['quantity'] }}" min="1"
-                                                    class="w-16 text-center border-x py-1"
-                                                    onchange="updateQuantity('{{ $key }}', 'input', this.value)">
-                                                <button type="button" class="px-3 py-1 hover:bg-gray-100 rounded-r"
-                                                    onclick="updateQuantity('{{ $key }}', 'increase')">+</button>
+                                        <!-- Product Attributes -->
+                                        @if (!empty($item['attributes']))
+                                            <div class="flex flex-wrap gap-2 mb-3">
+                                                @foreach ($item['attributes'] as $attribute)
+                                                    <div
+                                                        class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                                        @if (strtolower($attribute['name']) === 'color')
+                                                            <span class="w-3 h-3 rounded-full mr-1.5"
+                                                                style="background-color: {{ $attribute['value'] }}"></span>
+                                                        @endif
+                                                        {{ $attribute['name'] }}: {{ $attribute['value'] }}
+                                                    </div>
+                                                @endforeach
+                                            </div>
+                                        @endif
+
+                                        <div class="flex items-center justify-between mt-4">
+                                            <div class="flex items-center border rounded">
+                                                <button type="button"
+                                                    onclick="updateQuantity('{{ $cartKey }}', {{ $item['quantity'] - 1 }})"
+                                                    class="p-2 hover:bg-gray-50">
+                                                    <i class="ri-subtract-line"></i>
+                                                </button>
+                                                <span class="px-4 py-2">{{ $item['quantity'] }}</span>
+                                                <button type="button"
+                                                    onclick="updateQuantity('{{ $cartKey }}', {{ $item['quantity'] + 1 }})"
+                                                    class="p-2 hover:bg-gray-50">
+                                                    <i class="ri-add-line"></i>
+                                                </button>
+                                            </div>
+                                            <div class="text-right">
+                                                <div class="text-orange-500 font-medium">
+                                                    ৳{{ number_format($item['price'] * $item['quantity'], 2) }}
+                                                </div>
+                                                @if ($item['quantity'] > 1)
+                                                    <div class="text-sm text-gray-500">
+                                                        ৳{{ number_format($item['price'], 2) }} each
+                                                    </div>
+                                                @endif
+                                                @if ($item['free_shipping'])
+                                                    <div class="text-sm text-green-600 flex items-center justify-end mt-1">
+                                                        <i class="ri-truck-line mr-1"></i>
+                                                        Free Shipping
+                                                    </div>
+                                                @endif
                                             </div>
                                         </div>
-                                        <span
-                                            class="text-orange-500 font-semibold">৳{{ number_format($item['price'] * $item['quantity'], 2) }}</span>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    @empty
-                        <div class="text-center py-12">
-                            <div class="mb-4">
-                                <i class="ri-shopping-cart-line text-5xl text-gray-300"></i>
-                            </div>
-                            <h2 class="text-2xl font-semibold text-gray-800 mb-2">Your cart is empty</h2>
-                            <p class="text-gray-600 mb-6">Looks like you haven't added anything to your cart yet.</p>
-                            <a href="{{ route('shop') }}"
-                                class="inline-block bg-orange-500 text-white px-6 py-3 rounded-lg hover:bg-orange-600 transition-colors">
-                                Start Shopping
-                            </a>
-                        </div>
-                    @endforelse
+                        @endforeach
+                    </div>
                 </div>
-            </div>
 
-            <!-- Order Summary -->
-            @if (count($cart) > 0)
-                <div class="lg:w-96">
-                    <div class="bg-white p-6 rounded-lg shadow-sm sticky top-20">
-                        <h2 class="text-xl font-semibold mb-4">Order Summary</h2>
+                <!-- Order Summary -->
+                <div class="lg:col-span-1">
+                    <div class="bg-white rounded-lg shadow-sm p-6 sticky top-4">
+                        <h2 class="text-lg font-medium text-gray-800 mb-4">Order Summary</h2>
 
-                        <!-- Coupon Section -->
-                        <div class="mb-6">
-                            <div class="flex space-x-2">
-                                <input type="text" id="coupon-code" placeholder="Enter coupon code"
-                                    class="flex-1 px-4 py-2 border rounded-lg focus:outline-none focus:border-orange-500">
-                                <button onclick="applyCoupon()"
-                                    class="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors">
-                                    Apply
-                                </button>
-                            </div>
-                        </div>
-
-                        <!-- Summary Details -->
-                        <div class="space-y-3 text-sm">
+                        <div class="space-y-4">
                             <div class="flex justify-between">
                                 <span class="text-gray-600">Subtotal</span>
                                 <span class="font-medium">৳{{ number_format($total, 2) }}</span>
                             </div>
 
+                            <!-- Coupon Section -->
+                            <div class="border-t pt-4">
+                                <div class="flex gap-2">
+                                    <input type="text" id="coupon-code"
+                                        class="flex-1 border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                                        placeholder="Enter coupon code" {{ Session::has('coupon') ? 'disabled' : '' }}>
+                                    @if (!Session::has('coupon'))
+                                        <button onclick="applyCoupon()"
+                                            class="px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700">
+                                            Apply
+                                        </button>
+                                    @else
+                                        <button onclick="removeCoupon()"
+                                            class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600">
+                                            Remove
+                                        </button>
+                                    @endif
+                                </div>
+                                <div id="coupon-message" class="mt-2 text-sm"></div>
+                            </div>
+
                             @if (Session::has('coupon'))
-                                <div class="flex justify-between text-green-600">
-                                    <span>Coupon ({{ Session::get('coupon')['code'] }})</span>
-                                    <span>-৳{{ number_format(Session::get('coupon')['discount'], 2) }}</span>
+                                <div class="flex justify-between" id="discount-row">
+                                    <span class="text-gray-600">
+                                        Coupon ({{ Session::get('coupon')['code'] }} -
+                                        {{ Session::get('coupon')['discount_percentage'] }}% off)
+                                    </span>
+                                    <span class="font-medium text-green-600" id="discount-amount">
+                                        -৳{{ number_format(Session::get('coupon')['discount'], 2) }}
+                                    </span>
                                 </div>
                             @endif
 
-                            <div class="flex justify-between pt-3 border-t text-lg font-semibold">
-                                <span>Total</span>
-                                <span class="text-orange-500">
-                                    ৳{{ number_format($total - (Session::has('coupon') ? Session::get('coupon')['discount'] : 0), 2) }}
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Shipping</span>
+                                <span class="text-gray-500">Calculated at checkout</span>
+                            </div>
+                            <div class="border-t pt-4 flex justify-between">
+                                <span class="text-gray-800 font-medium">Total</span>
+                                <span class="text-xl font-bold text-orange-500" id="final-total">
+                                    ৳{{ number_format(Session::has('coupon') ? Session::get('coupon')['new_total'] : $total, 2) }}
                                 </span>
                             </div>
                         </div>
 
-                        <!-- Checkout Button -->
                         <a href="{{ route('checkout') }}"
-                            class="block w-full text-center bg-orange-500 text-white px-6 py-3 rounded-lg mt-6 hover:bg-orange-600 transition-colors">
+                            class="block w-full mt-6 bg-orange-500 text-white py-3 px-4 rounded-lg hover:bg-orange-600 transition-colors text-center">
                             Proceed to Checkout
+                        </a>
+
+                        <a href="{{ route('shop') }}" class="block text-center mt-4 text-orange-500 hover:text-orange-600">
+                            Continue Shopping
                         </a>
                     </div>
                 </div>
-            @endif
-        </div>
+            </div>
+        @else
+            <div class="text-center py-12">
+                <div class="text-gray-500 mb-6">Your cart is empty</div>
+                <a href="{{ route('shop') }}"
+                    class="inline-flex items-center px-6 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors">
+                    <i class="ri-shopping-cart-line mr-2"></i>
+                    Start Shopping
+                </a>
+            </div>
+        @endif
     </div>
 
     <script>
-        // Handle removing items from cart
-        function removeCartItem(cartKey) {
-            // Remove item implementation
+        function updateQuantity(cartKey, quantity) {
+            if (quantity < 1) return;
+
+            fetch("{{ route('cart.update') }}", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    body: JSON.stringify({
+                        product_id: cartKey,
+                        quantity: quantity
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        location.reload();
+                    } else {
+                        Swal.fire({
+                            title: 'Error',
+                            text: data.message,
+                            icon: 'error',
+                            toast: true,
+                            position: 'top-end',
+                            showConfirmButton: false,
+                            timer: 3000
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
         }
 
-        // Handle quantity updates
-        function updateQuantity(cartKey, action, value = null) {
-            // Update quantity implementation
+        function removeFromCart(cartKey) {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "This item will be removed from your cart",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ef4444',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: 'Yes, remove it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    fetch("{{ route('cart.remove') }}", {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json',
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                            },
+                            body: JSON.stringify({
+                                product_id: cartKey
+                            })
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                location.reload();
+                            } else {
+                                Swal.fire({
+                                    title: 'Error',
+                                    text: data.message,
+                                    icon: 'error',
+                                    toast: true,
+                                    position: 'top-end',
+                                    showConfirmButton: false,
+                                    timer: 3000
+                                });
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                        });
+                }
+            });
         }
 
-        // Handle coupon application
         function applyCoupon() {
-            // Apply coupon implementation
+            const couponCode = document.getElementById('coupon-code').value;
+            const messageDiv = document.getElementById('coupon-message');
+
+            if (!couponCode.trim()) {
+                messageDiv.className = 'mt-2 text-sm text-red-600';
+                messageDiv.textContent = 'Please enter a coupon code';
+                return;
+            }
+
+            // Show loading state
+            messageDiv.className = 'mt-2 text-sm text-gray-600';
+            messageDiv.textContent = 'Applying coupon...';
+
+            fetch("{{ route('cart.apply-coupon') }}", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    body: JSON.stringify({
+                        coupon_code: couponCode
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        messageDiv.className = 'mt-2 text-sm text-green-600';
+                        messageDiv.textContent = data.message;
+
+                        // Short delay before refresh to show success message
+                        setTimeout(() => {
+                            location.reload();
+                        }, 1000);
+                    } else {
+                        messageDiv.className = 'mt-2 text-sm text-red-600';
+                        messageDiv.textContent = data.message;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    messageDiv.className = 'mt-2 text-sm text-red-600';
+                    messageDiv.textContent = 'An error occurred while applying the coupon.';
+                });
         }
+
+        function removeCoupon() {
+            const messageDiv = document.getElementById('coupon-message');
+
+            // Show loading state
+            messageDiv.className = 'mt-2 text-sm text-gray-600';
+            messageDiv.textContent = 'Removing coupon...';
+
+            fetch("{{ route('cart.remove-coupon') }}", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        messageDiv.className = 'mt-2 text-sm text-green-600';
+                        messageDiv.textContent = data.message;
+
+                        // Short delay before refresh to show success message
+                        setTimeout(() => {
+                            location.reload();
+                        }, 1000);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    messageDiv.className = 'mt-2 text-sm text-red-600';
+                    messageDiv.textContent = 'An error occurred while removing the coupon.';
+                });
+        }
+
+        // Add event listener for Enter key in the coupon input field
+        document.getElementById('coupon-code').addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                applyCoupon();
+            }
+        });
     </script>
 @endsection
