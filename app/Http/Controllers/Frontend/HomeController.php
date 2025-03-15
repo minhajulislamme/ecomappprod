@@ -17,14 +17,20 @@ class HomeController extends Controller
 {
     public function index()
     {
-
         $MainSliders = MainSlider::where('status', 'active')->latest()->get();
         $Banners = Banner::where('status', 'active')->latest()->get();
         $Categories = Category::where('status', 'active')->latest()->get();
         $Subcategories = Subcategory::where('status', 'active')->latest()->get();
         $Products = Product::where('status', 'active')->latest()->get();
         $flashSaleTimer = FlashSelasTimer::where('status', 'active')->first();
-        return view('frontend.index', compact('MainSliders', 'Banners', 'Categories', 'Subcategories', 'Products', 'flashSaleTimer'));
+
+        // Add Facebook Pixel ViewContent event
+        $pixelEvent = "fbq('track', 'ViewContent', {
+            content_type: 'home',
+            content_name: 'Homepage'
+        });";
+
+        return view('frontend.index', compact('MainSliders', 'Banners', 'Categories', 'Subcategories', 'Products', 'flashSaleTimer', 'pixelEvent'));
     }
 
     public function ProductDetails($id, $slug)
@@ -39,7 +45,7 @@ class HomeController extends Controller
         $Categories = Category::where('status', 'active')->latest()->get();
         $Subcategories = Subcategory::where('status', 'active')->latest()->get();
 
-        // Prepare Meta Pixel ViewContent event data
+        // Add Facebook Pixel ViewContent event
         $pixelEvent = "fbq('track', 'ViewContent', {
             content_name: '" . addslashes($product->name) . "',
             content_ids: ['" . $product->id . "'],
@@ -67,7 +73,7 @@ class HomeController extends Controller
         // Get product IDs for ViewCategory event
         $productIds = $products->pluck('id')->toArray();
 
-        // Prepare Facebook Pixel event for category page
+        // Add Facebook Pixel ViewCategory event
         $pixelEvent = "fbq('track', 'ViewCategory', {
             content_ids: " . json_encode($productIds) . ",
             content_type: 'product',

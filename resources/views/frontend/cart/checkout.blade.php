@@ -1,5 +1,14 @@
 @extends('frontend.frontend')
 @section('content')
+    <!-- Facebook Pixel event handler -->
+    @if (isset($pixelEvent))
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                {!! $pixelEvent !!}
+            });
+        </script>
+    @endif
+
     <div class="max-w-7xl mx-auto px-4 py-8">
         <div class="grid lg:grid-cols-3 gap-8">
             <!-- Checkout Form Section -->

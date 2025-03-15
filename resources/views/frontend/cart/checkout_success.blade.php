@@ -1,5 +1,28 @@
 @extends('frontend.frontend')
 @section('content')
+    <!-- Facebook Pixel Purchase Event -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            fbq('track', 'Purchase', {
+                content_ids: {!! json_encode($order->orderItems->pluck('product_id')->toArray()) !!},
+                content_type: 'product',
+                value: {{ $order->amount }},
+                currency: 'BDT',
+                num_items: {{ $order->orderItems->sum('quantity') }},
+                contents: {!! json_encode(
+                    $order->orderItems->map(function ($item) {
+                        return [
+                            'id' => $item->product_id,
+                            'quantity' => $item->quantity,
+                            'item_price' => $item->price,
+                        ];
+                    }),
+                ) !!},
+                order_id: '{{ $order->order_number }}'
+            });
+        });
+    </script>
+
     <div class="max-w-7xl mx-auto px-4 py-8 md:py-12">
         <div class="bg-white rounded-lg shadow-sm p-6 md:p-8">
             <!-- Success Icon -->

@@ -62,11 +62,25 @@ class CartController extends Controller
 
         Session::put('cart', $cart);
 
+        // Add Facebook Pixel Event
+        $pixelEvent = "fbq('track', 'AddToCart', {
+            content_name: '" . addslashes($product->name) . "',
+            content_ids: ['" . $product->id . "'],
+            content_type: 'product',
+            value: " . ($product->discount_price ?? $product->price) . ",
+            currency: 'BDT',
+            contents: [{
+                id: '" . $product->id . "',
+                quantity: " . $quantity . "
+            }]
+        });";
+
         return response()->json([
             'success' => true,
             'message' => 'Product added to cart successfully!',
             'cart_count' => count($cart),
-            'cart' => $cart
+            'cart' => $cart,
+            'pixelEvent' => $pixelEvent
         ]);
     }
 
@@ -237,6 +251,8 @@ class CartController extends Controller
         $total = 0;
         $Categories = Category::where('status', 'active')->latest()->get();
         $Subcategories = SubCategory::where('status', 'active')->latest()->get();
+        $contentIds = [];
+        $contents = [];
 
         // Ensure each cart item has a quantity
         foreach ($cart as $key => $item) {
@@ -246,9 +262,25 @@ class CartController extends Controller
                 Session::put('cart', $cart);
             }
             $total += $item['price'] * $cart[$key]['quantity'];
+
+            // Collect data for pixel event
+            $contentIds[] = $item['id'];
+            $contents[] = [
+                'id' => $item['id'],
+                'quantity' => $cart[$key]['quantity']
+            ];
         }
 
-        return view('frontend.cart.view_cart', compact('cart', 'total', 'Categories', 'Subcategories'));
+        // Add Facebook Pixel Event for ViewCart
+        $pixelEvent = "fbq('track', 'ViewCart', {
+            content_ids: " . json_encode($contentIds) . ",
+            content_type: 'product',
+            value: " . $total . ",
+            currency: 'BDT',
+            contents: " . json_encode($contents) . "
+        });";
+
+        return view('frontend.cart.view_cart', compact('cart', 'total', 'Categories', 'Subcategories', 'pixelEvent'));
     }
 
     public function applyCoupon(Request $request)

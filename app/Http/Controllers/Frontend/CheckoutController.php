@@ -20,26 +20,41 @@ class CheckoutController extends Controller
     {
         $cart = Session::get('cart', []);
 
-        // Redirect to shop if cart is empty
-        if (count($cart) == 0) {
+        if (count($cart) === 0) {
             return redirect()->route('shop');
         }
 
         $total = 0;
-        $hasOnlyFreeShipping = true; // Flag to check if all items have free shipping
+        $contentIds = [];
+        $contents = [];
+        $hasOnlyFreeShipping = true;
 
         foreach ($cart as $item) {
             $total += $item['price'] * $item['quantity'];
-            // If any item doesn't have free shipping, set flag to false
-            if (!isset($item['free_shipping']) || $item['free_shipping'] !== true) {
+            $contentIds[] = $item['id'];
+            $contents[] = [
+                'id' => $item['id'],
+                'quantity' => $item['quantity'],
+                'item_price' => $item['price']
+            ];
+            if (!isset($item['free_shipping']) || !$item['free_shipping']) {
                 $hasOnlyFreeShipping = false;
             }
         }
 
-        // Only get shipping charges if there are items without free shipping
-        $shippingCharges = $hasOnlyFreeShipping ? [] : ShippingCharge::where('status', 'active')->get();
+        // Add Facebook Pixel InitiateCheckout event
+        $pixelEvent = "fbq('track', 'InitiateCheckout', {
+            content_ids: " . json_encode($contentIds) . ",
+            content_type: 'product',
+            value: " . $total . ",
+            currency: 'BDT',
+            num_items: " . array_sum(array_column($cart, 'quantity')) . ",
+            contents: " . json_encode($contents) . "
+        });";
 
-        return view('frontend.cart.checkout', compact('cart', 'total', 'shippingCharges', 'hasOnlyFreeShipping'));
+        $shippingCharges = \App\Models\ShippingCharge::where('status', 'active')->get();
+
+        return view('frontend.cart.checkout', compact('cart', 'total', 'shippingCharges', 'hasOnlyFreeShipping', 'pixelEvent'));
     }
 
     public function placeOrder(Request $request)
@@ -162,6 +177,40 @@ class CheckoutController extends Controller
                     }
                 }
 
+                // Build address info for pixel tracking
+                $addressInfo = [
+                    'first_name' => $request->first_name,
+                    'last_name' => $request->last_name,
+                    'email' => $request->email,
+                    'phone' => $request->phone,
+                    'address' => $request->address,
+                    'city' => $request->city,
+                    'postal_code' => $request->postal_code
+                ];
+
+                $contentIds = [];
+                $contents = [];
+
+                foreach ($cart as $item) {
+                    $contentIds[] = $item['id'];
+                    $contents[] = [
+                        'id' => $item['id'],
+                        'quantity' => $item['quantity']
+                    ];
+                }
+
+                // Enhanced Facebook Pixel Event for Purchase with customer data
+                $pixelEvent = "fbq('track', 'Purchase', {
+                    content_ids: " . json_encode($contentIds) . ",
+                    contents: " . json_encode($contents) . ",
+                    value: " . $order->amount . ",
+                    currency: 'BDT',
+                    num_items: " . array_sum(array_column($cart, 'quantity')) . ",
+                    shipping_tier: '" . ($hasOnlyFreeShipping ? 'Free Shipping' : 'Standard Shipping') . "',
+                    payment_type: '" . $request->payment_type . "',
+                    customer_type: '" . (Auth::check() ? 'Registered' : 'Guest') . "'
+                });";
+
                 // Clear cart and coupon after successful order
                 Session::forget(['cart', 'coupon']);
 
@@ -179,13 +228,13 @@ class CheckoutController extends Controller
         }
     }
 
-    public function checkoutSuccess($order_number)
+    public function checkoutSuccess($orderNumber)
     {
-        $order = Orders::where('order_number', $order_number)->first();
+        $order = Orders::with(['orderItems.product'])->where('order_number', $orderNumber)->firstOrFail();
 
-        if (!$order) {
-            return redirect()->route('home');
-        }
+        // Clear cart after successful order
+        Session::forget('cart');
+        Session::forget('coupon');
 
         return view('frontend.cart.checkout_success', compact('order'));
     }
