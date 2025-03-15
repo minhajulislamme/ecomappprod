@@ -560,6 +560,20 @@
 
             // Handle item removal from Order Summary
             function removeCartItem(cartKey) {
+                // Show loading toast
+                const loadingToast = Swal.mixin({
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    didOpen: (toast) => {
+                        toast.showLoading();
+                    }
+                });
+
+                loadingToast.fire({
+                    title: 'Removing item...'
+                });
+
                 fetch("{{ route('cart.remove') }}", {
                         method: 'POST',
                         headers: {
@@ -607,19 +621,43 @@
                                 element.textContent = '৳' + data.total.toFixed(2);
                             });
 
+                            // Show success notification
+                            Swal.fire({
+                                toast: true,
+                                position: 'top-end',
+                                icon: 'success',
+                                title: 'Item removed successfully',
+                                showConfirmButton: false,
+                                timer: 1500
+                            });
+
                             // Redirect to shop if cart is empty
                             if (data.empty) {
                                 setTimeout(() => {
                                     window.location.href = "{{ route('shop') }}";
-                                }, 1000);
+                                }, 1500);
                             }
                         } else {
-                            alert(data.message || 'Failed to remove item');
+                            Swal.fire({
+                                toast: true,
+                                position: 'top-end',
+                                icon: 'error',
+                                title: data.message || 'Failed to remove item',
+                                showConfirmButton: false,
+                                timer: 1500
+                            });
                         }
                     })
                     .catch(error => {
                         console.error('Error:', error);
-                        alert('Something went wrong! Please try again.');
+                        Swal.fire({
+                            toast: true,
+                            position: 'top-end',
+                            icon: 'error',
+                            title: 'Something went wrong! Please try again.',
+                            showConfirmButton: false,
+                            timer: 1500
+                        });
                     });
             }
 
