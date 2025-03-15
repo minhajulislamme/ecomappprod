@@ -200,4 +200,73 @@
                 });
             });
     }
+
+    function handleWishlistClick(productId) {
+        const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+        fetch("{{ route('wishlist.add') }}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': token
+                },
+                body: JSON.stringify({
+                    product_id: productId
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Update counts
+                    document.querySelectorAll('.wishlist-count').forEach(counter => {
+                        counter.textContent = data.wishlist_count;
+                    });
+
+                    // Execute Facebook Pixel event if available
+                    if (data.pixelEvent) {
+                        eval(data.pixelEvent);
+                    }
+
+                    // Update wishlist sidebar content
+                    updateWishlistDrawer();
+
+                    // Show success notification
+                    Swal.fire({
+                        title: 'Success!',
+                        text: data.message,
+                        icon: 'success',
+                        toast: true,
+                        position: 'top-end',
+                        showConfirmButton: false,
+                        timer: 3000,
+                        timerProgressBar: true
+                    });
+                } else if (data.exists) {
+                    Swal.fire({
+                        title: 'Already in Wishlist',
+                        text: data.message,
+                        icon: 'info',
+                        toast: true,
+                        position: 'top-end',
+                        showConfirmButton: false,
+                        timer: 3000,
+                        timerProgressBar: true
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                Swal.fire({
+                    title: 'Error!',
+                    text: 'Failed to update wishlist',
+                    icon: 'error',
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 3000,
+                    timerProgressBar: true
+                });
+            });
+    }
 </script>

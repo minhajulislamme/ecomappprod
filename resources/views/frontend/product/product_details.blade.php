@@ -998,14 +998,14 @@
             return `
             <div class="flex flex-wrap gap-2 mt-1">
                 ${Object.values(attributes).map(attr => `
-                                                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                                                                        ${attr.name}: ${attr.value}
-                                                                    </span>
-                                                                `).join('')}
+                                                                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                                                            ${attr.name}: ${attr.value}
+                                                                        </span>
+                                                                    `).join('')}
             </div>`;
         }
 
-        function handleWishlistClick(productId) {
+        function handleWishlistClick(productId, event) {
             const wishlistBtn = event.currentTarget;
             const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
@@ -1031,6 +1031,11 @@
                             counter.textContent = data.wishlist_count;
                         });
 
+                        // Execute Facebook Pixel event if available
+                        if (data.pixelEvent) {
+                            eval(data.pixelEvent);
+                        }
+
                         // Update wishlist sidebar content immediately
                         updateWishlistDrawer();
 
@@ -1045,32 +1050,17 @@
                             timer: 3000,
                             timerProgressBar: true
                         });
-                    } else {
-                        // Show error/info message for existing item
-                        if (data.exists) {
-                            Swal.fire({
-                                title: 'Already in Wishlist',
-                                text: data.message,
-                                icon: 'info',
-                                toast: true,
-                                position: 'top-end',
-                                showConfirmButton: false,
-                                timer: 3000,
-                                timerProgressBar: true
-                            });
-                        } else {
-                            // Show other error messages
-                            Swal.fire({
-                                title: 'Error!',
-                                text: data.message,
-                                icon: 'error',
-                                toast: true,
-                                position: 'top-end',
-                                showConfirmButton: false,
-                                timer: 3000,
-                                timerProgressBar: true
-                            });
-                        }
+                    } else if (data.exists) {
+                        Swal.fire({
+                            title: 'Already in Wishlist',
+                            text: data.message,
+                            icon: 'info',
+                            toast: true,
+                            position: 'top-end',
+                            showConfirmButton: false,
+                            timer: 3000,
+                            timerProgressBar: true
+                        });
                     }
                 })
                 .catch(error => {
@@ -1116,7 +1106,7 @@
                                     <div class="mt-1">
                                         ${item.discount_price && item.discount_price < item.price ?
                                             `<span class="text-orange-500 font-medium">৳${item.discount_price}</span>
-                                                                                 <span class="text-gray-400 text-sm line-through ml-2">৳${item.price}</span>` :
+                                                                                     <span class="text-gray-400 text-sm line-through ml-2">৳${item.price}</span>` :
                                             `<span class="text-orange-500 font-medium">৳${item.price}</span>`
                                         }
                                     </div>
@@ -1145,10 +1135,10 @@
                             View Wishlist
                         </a>
                         ${Object.keys(data.wishlist).length > 0 ? `
-                                                                <button onclick="moveAllWishlistToCart()" class="w-full mt-2 py-2 px-4 border border-orange-400 text-orange-500 text-center rounded-md hover:bg-orange-50 transition-colors">
-                                                                    Move All to Cart
-                                                                </button>
-                                                            ` : ''}
+                                                                    <button onclick="moveAllWishlistToCart()" class="w-full mt-2 py-2 px-4 border border-orange-400 text-orange-500 text-center rounded-md hover:bg-orange-50 transition-colors">
+                                                                        Move All to Cart
+                                                                    </button>
+                                                                ` : ''}
                     `;
                         }
                     }

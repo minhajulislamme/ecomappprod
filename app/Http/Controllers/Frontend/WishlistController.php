@@ -40,11 +40,21 @@ class WishlistController extends Controller
 
             Session::put('wishlist', $wishlist);
 
+            // Add Facebook Pixel Event for AddToWishlist
+            $pixelEvent = "fbq('track', 'AddToWishlist', {
+                content_name: '" . addslashes($product->name) . "',
+                content_ids: ['" . $product->id . "'],
+                content_type: 'product',
+                value: " . ($product->discount_price ?? $product->price) . ",
+                currency: 'BDT'
+            });";
+
             return response()->json([
                 'success' => true,
                 'message' => 'Product added to wishlist',
                 'wishlist_count' => count($wishlist),
-                'added' => true
+                'added' => true,
+                'pixelEvent' => $pixelEvent
             ]);
         } catch (\Exception $e) {
             return response()->json([
