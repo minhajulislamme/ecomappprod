@@ -10,6 +10,7 @@ use App\Models\Category;
 use App\Models\Product;
 use App\Models\SubCategory;
 use App\Models\FlashSelasTimer;
+use App\Models\Setting;
 
 use function Ramsey\Uuid\v1;
 
@@ -24,11 +25,14 @@ class HomeController extends Controller
         $Products = Product::where('status', 'active')->latest()->get();
         $flashSaleTimer = FlashSelasTimer::where('status', 'active')->first();
 
-        // Add Facebook Pixel ViewContent event
-        $pixelEvent = "fbq('track', 'ViewContent', {
-            content_type: 'home',
-            content_name: 'Homepage'
-        });";
+        // Add Facebook Pixel ViewContent event (only if pixel ID is set)
+        $pixelEvent = null;
+        if (Setting::getValue('facebook_pixel_id')) {
+            $pixelEvent = "fbq('track', 'ViewContent', {
+                content_type: 'home',
+                content_name: 'Homepage'
+            });";
+        }
 
         return view('frontend.index', compact('MainSliders', 'Banners', 'Categories', 'Subcategories', 'Products', 'flashSaleTimer', 'pixelEvent'));
     }
@@ -45,14 +49,17 @@ class HomeController extends Controller
         $Categories = Category::where('status', 'active')->latest()->get();
         $Subcategories = Subcategory::where('status', 'active')->latest()->get();
 
-        // Add Facebook Pixel ViewContent event
-        $pixelEvent = "fbq('track', 'ViewContent', {
-            content_name: '" . addslashes($product->name) . "',
-            content_ids: ['" . $product->id . "'],
-            content_type: 'product',
-            value: " . ($product->discount_price ?? $product->price) . ",
-            currency: 'BDT'
-        });";
+        // Add Facebook Pixel ViewContent event (only if pixel ID is set)
+        $pixelEvent = null;
+        if (Setting::getValue('facebook_pixel_id')) {
+            $pixelEvent = "fbq('track', 'ViewContent', {
+                content_name: '" . addslashes($product->name) . "',
+                content_ids: ['" . $product->id . "'],
+                content_type: 'product',
+                value: " . ($product->discount_price ?? $product->price) . ",
+                currency: 'BDT'
+            });";
+        }
 
         return view('frontend.product.product_details', compact('product', 'Categories', 'Subcategories', 'pixelEvent'));
     }
@@ -73,12 +80,15 @@ class HomeController extends Controller
         // Get product IDs for ViewCategory event
         $productIds = $products->pluck('id')->toArray();
 
-        // Add Facebook Pixel ViewCategory event
-        $pixelEvent = "fbq('track', 'ViewCategory', {
-            content_ids: " . json_encode($productIds) . ",
-            content_type: 'product',
-            content_category: '" . addslashes($category->category_name) . "'
-        });";
+        // Add Facebook Pixel ViewCategory event (only if pixel ID is set)
+        $pixelEvent = null;
+        if (Setting::getValue('facebook_pixel_id')) {
+            $pixelEvent = "fbq('track', 'ViewCategory', {
+                content_ids: " . json_encode($productIds) . ",
+                content_type: 'product',
+                content_category: '" . addslashes($category->category_name) . "'
+            });";
+        }
 
         return view('frontend.product.category_wise_products', compact('category', 'products', 'Categories', 'Subcategories', 'pixelEvent'));
     }
@@ -99,12 +109,15 @@ class HomeController extends Controller
         // Get product IDs for ViewCategory event
         $productIds = $products->pluck('id')->toArray();
 
-        // Prepare Facebook Pixel event for subcategory page
-        $pixelEvent = "fbq('track', 'ViewCategory', {
-            content_ids: " . json_encode($productIds) . ",
-            content_type: 'product',
-            content_category: '" . addslashes($subcategory->subcategory_name) . "'
-        });";
+        // Prepare Facebook Pixel event for subcategory page (only if pixel ID is set)
+        $pixelEvent = null;
+        if (Setting::getValue('facebook_pixel_id')) {
+            $pixelEvent = "fbq('track', 'ViewCategory', {
+                content_ids: " . json_encode($productIds) . ",
+                content_type: 'product',
+                content_category: '" . addslashes($subcategory->subcategory_name) . "'
+            });";
+        }
 
         return view('frontend.product.sub_category_wise_products', compact('subcategory', 'products', 'Categories', 'Subcategories', 'pixelEvent'));
     }
@@ -118,12 +131,15 @@ class HomeController extends Controller
         // Get product IDs for ViewContent event
         $productIds = $products->pluck('id')->toArray();
 
-        // Prepare enhanced Facebook Pixel event for shop page
-        $pixelEvent = "fbq('track', 'ViewCategory', {
-            content_ids: " . json_encode($productIds) . ",
-            content_type: 'product',
-            content_category: 'Shop'
-        });";
+        // Prepare enhanced Facebook Pixel event for shop page (only if pixel ID is set)
+        $pixelEvent = null;
+        if (Setting::getValue('facebook_pixel_id')) {
+            $pixelEvent = "fbq('track', 'ViewCategory', {
+                content_ids: " . json_encode($productIds) . ",
+                content_type: 'product',
+                content_category: 'Shop'
+            });";
+        }
 
         return view('frontend.product.shop', compact('products', 'Categories', 'Subcategories', 'pixelEvent'));
     }

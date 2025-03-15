@@ -7,6 +7,7 @@ use App\Models\Product;
 use App\Models\Category;
 use App\Models\SubCategory;
 use App\Models\Coupon;
+use App\Models\Setting;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
@@ -62,18 +63,21 @@ class CartController extends Controller
 
         Session::put('cart', $cart);
 
-        // Add Facebook Pixel Event
-        $pixelEvent = "fbq('track', 'AddToCart', {
-            content_name: '" . addslashes($product->name) . "',
-            content_ids: ['" . $product->id . "'],
-            content_type: 'product',
-            value: " . ($product->discount_price ?? $product->price) . ",
-            currency: 'BDT',
-            contents: [{
-                id: '" . $product->id . "',
-                quantity: " . $quantity . "
-            }]
-        });";
+        // Add Facebook Pixel Event only if Pixel ID is set in settings
+        $pixelEvent = null;
+        if (Setting::getValue('facebook_pixel_id')) {
+            $pixelEvent = "fbq('track', 'AddToCart', {
+                content_name: '" . addslashes($product->name) . "',
+                content_ids: ['" . $product->id . "'],
+                content_type: 'product',
+                value: " . ($product->discount_price ?? $product->price) . ",
+                currency: 'BDT',
+                contents: [{
+                    id: '" . $product->id . "',
+                    quantity: " . $quantity . "
+                }]
+            });";
+        }
 
         return response()->json([
             'success' => true,
@@ -271,14 +275,17 @@ class CartController extends Controller
             ];
         }
 
-        // Add Facebook Pixel Event for ViewCart
-        $pixelEvent = "fbq('track', 'ViewCart', {
-            content_ids: " . json_encode($contentIds) . ",
-            content_type: 'product',
-            value: " . $total . ",
-            currency: 'BDT',
-            contents: " . json_encode($contents) . "
-        });";
+        // Add Facebook Pixel Event for ViewCart only if Pixel ID is set in settings
+        $pixelEvent = null;
+        if (Setting::getValue('facebook_pixel_id')) {
+            $pixelEvent = "fbq('track', 'ViewCart', {
+                content_ids: " . json_encode($contentIds) . ",
+                content_type: 'product',
+                value: " . $total . ",
+                currency: 'BDT',
+                contents: " . json_encode($contents) . "
+            });";
+        }
 
         return view('frontend.cart.view_cart', compact('cart', 'total', 'Categories', 'Subcategories', 'pixelEvent'));
     }

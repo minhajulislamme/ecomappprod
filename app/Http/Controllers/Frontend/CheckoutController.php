@@ -7,6 +7,7 @@ use App\Models\Orders;
 use App\Models\OrderItems;
 use App\Models\ShippingCharge;
 use App\Models\Product;
+use App\Models\Setting;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -42,15 +43,18 @@ class CheckoutController extends Controller
             }
         }
 
-        // Add Facebook Pixel InitiateCheckout event
-        $pixelEvent = "fbq('track', 'InitiateCheckout', {
-            content_ids: " . json_encode($contentIds) . ",
-            content_type: 'product',
-            value: " . $total . ",
-            currency: 'BDT',
-            num_items: " . array_sum(array_column($cart, 'quantity')) . ",
-            contents: " . json_encode($contents) . "
-        });";
+        // Add Facebook Pixel InitiateCheckout event only if pixel ID is set in settings
+        $pixelEvent = null;
+        if (Setting::getValue('facebook_pixel_id')) {
+            $pixelEvent = "fbq('track', 'InitiateCheckout', {
+                content_ids: " . json_encode($contentIds) . ",
+                content_type: 'product',
+                value: " . $total . ",
+                currency: 'BDT',
+                num_items: " . array_sum(array_column($cart, 'quantity')) . ",
+                contents: " . json_encode($contents) . "
+            });";
+        }
 
         $shippingCharges = \App\Models\ShippingCharge::where('status', 'active')->get();
 
@@ -199,17 +203,20 @@ class CheckoutController extends Controller
                     ];
                 }
 
-                // Enhanced Facebook Pixel Event for Purchase with customer data
-                $pixelEvent = "fbq('track', 'Purchase', {
-                    content_ids: " . json_encode($contentIds) . ",
-                    contents: " . json_encode($contents) . ",
-                    value: " . $order->amount . ",
-                    currency: 'BDT',
-                    num_items: " . array_sum(array_column($cart, 'quantity')) . ",
-                    shipping_tier: '" . ($hasOnlyFreeShipping ? 'Free Shipping' : 'Standard Shipping') . "',
-                    payment_type: '" . $request->payment_type . "',
-                    customer_type: '" . (Auth::check() ? 'Registered' : 'Guest') . "'
-                });";
+                // Enhanced Facebook Pixel Event for Purchase with customer data (only if pixel ID is set in settings)
+                $pixelEvent = null;
+                if (Setting::getValue('facebook_pixel_id')) {
+                    $pixelEvent = "fbq('track', 'Purchase', {
+                        content_ids: " . json_encode($contentIds) . ",
+                        contents: " . json_encode($contents) . ",
+                        value: " . $order->amount . ",
+                        currency: 'BDT',
+                        num_items: " . array_sum(array_column($cart, 'quantity')) . ",
+                        shipping_tier: '" . ($hasOnlyFreeShipping ? 'Free Shipping' : 'Standard Shipping') . "',
+                        payment_type: '" . $request->payment_type . "',
+                        customer_type: '" . (Auth::check() ? 'Registered' : 'Guest') . "'
+                    });";
+                }
 
                 // Clear cart and coupon after successful order
                 Session::forget(['cart', 'coupon']);
@@ -217,7 +224,8 @@ class CheckoutController extends Controller
                 return response()->json([
                     'success' => true,
                     'message' => 'Order placed successfully',
-                    'redirect' => route('checkout.success', ['order_number' => $order->order_number])
+                    'redirect' => route('checkout.success', ['order_number' => $order->order_number]),
+                    'pixelEvent' => $pixelEvent
                 ]);
             });
         } catch (\Exception $e) {

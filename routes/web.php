@@ -13,6 +13,7 @@ use App\Http\Controllers\Backend\Product\ProductController;
 use App\Http\Controllers\Backend\Product\ProductVariationController;
 use App\Http\Controllers\Backend\ShippingCharge\ShippingChargeController;
 use App\Http\Controllers\Backend\FlashSales\FlashSaleController;
+use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Frontend\HomeController;
 use App\Http\Controllers\Frontend\CartController;
 use App\Http\Controllers\Frontend\WishlistController;
@@ -79,6 +80,10 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
     Route::post('/admin/profile/update', [AdminController::class, 'AdminProfileUpdate'])->name('admin.profile.update');
     Route::get('/admin/password', [AdminController::class, 'AdminPassword'])->name('admin.password');
     Route::post('/admin/password/update', [AdminController::class, 'AdminPasswordUpdate'])->name('admin.password.update');
+
+    // Settings Routes
+    Route::get('/admin/settings', [SettingsController::class, 'index'])->name('admin.settings.index');
+    Route::put('/admin/settings', [SettingsController::class, 'update'])->name('admin.settings.update');
 
     // All Category Routes
     Route::controller(CategoryController::class)->group(function () {
