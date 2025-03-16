@@ -218,7 +218,18 @@ class CheckoutController extends Controller
                         'tax' => 0,
                         'shipping' => $shippingCharge,
                         'transaction_id' => $orderNumber,
-                        'items' => $gtmItems
+                        'affiliation' => 'Shop Ever Store',
+                        'coupon' => Session::has('coupon') ? Session::get('coupon')['code'] : '',
+                        'items' => array_map(function ($item) {
+                            return [
+                                'item_id' => $item['id'],
+                                'item_name' => $item['name'],
+                                'price' => $item['price'],
+                                'quantity' => $item['quantity'],
+                                'currency' => 'BDT',
+                                'discount' => isset($item['discount_price']) ? $item['price'] - $item['discount_price'] : 0
+                            ];
+                        }, $cart)
                     ]
                 ];
 
@@ -256,12 +267,13 @@ class CheckoutController extends Controller
     public function checkoutSuccess($orderNumber)
     {
         $order = Orders::with(['orderItems.product'])->where('order_number', $orderNumber)->firstOrFail();
+        $pixelId = Setting::getValue('facebook_pixel_id');
 
         // Clear cart after successful order
         Session::forget('cart');
         Session::forget('coupon');
 
-        return view('frontend.cart.checkout_success', compact('order'));
+        return view('frontend.cart.checkout_success', compact('order', 'pixelId'));
     }
 
     public function validateCheckoutForm(Request $request)

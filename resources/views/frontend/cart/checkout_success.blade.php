@@ -3,43 +3,63 @@
     <!-- GTM Data Layer -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            if (window.gtmData) {
-                window.dataLayer = window.dataLayer || [];
-                dataLayer.push({
-                    ecommerce: null
-                }); // Clear previous ecommerce object
-                dataLayer.push(window.gtmData);
-            }
-
-            // Handle Facebook Pixel event if available
-            if (window.pixelEvent) {
-                eval(window.pixelEvent);
-            }
+            window.dataLayer = window.dataLayer || [];
+            dataLayer.push({
+                ecommerce: null // Clear previous ecommerce object
+            });
+            dataLayer.push({
+                event: 'purchase',
+                ecommerce: {
+                    currency: 'BDT',
+                    value: {{ $order->amount }},
+                    tax: 0,
+                    shipping: {{ $order->shipping_charge }},
+                    transaction_id: '{{ $order->order_number }}',
+                    affiliation: 'Shop Ever Store',
+                    coupon: '{{ $order->coupon_discount ? Session::get('coupon')['code'] ?? '' : '' }}',
+                    items: {!! json_encode(
+                        $order->orderItems->map(function ($item) {
+                            return [
+                                'item_id' => $item->product_id,
+                                'item_name' => $item->product->name,
+                                'price' => $item->price,
+                                'quantity' => $item->quantity,
+                                'currency' => 'BDT',
+                                'discount' => $item->product->discount_price ? $item->product->price - $item->product->discount_price : 0,
+                                'item_category' => $item->product->category->category_name ?? '',
+                                'item_category2' => $item->product->subcategory->subcategory_name ?? '',
+                            ];
+                        }),
+                    ) !!}
+                }
+            });
         });
     </script>
 
     <!-- Facebook Pixel Purchase Event -->
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            fbq('track', 'Purchase', {
-                content_ids: {!! json_encode($order->orderItems->pluck('product_id')->toArray()) !!},
-                content_type: 'product',
-                value: {{ $order->amount }},
-                currency: 'BDT',
-                num_items: {{ $order->orderItems->sum('quantity') }},
-                contents: {!! json_encode(
-                    $order->orderItems->map(function ($item) {
-                        return [
-                            'id' => $item->product_id,
-                            'quantity' => $item->quantity,
-                            'item_price' => $item->price,
-                        ];
-                    }),
-                ) !!},
-                order_id: '{{ $order->order_number }}'
+    @if ($pixelId)
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                fbq('track', 'Purchase', {
+                    content_ids: {!! json_encode($order->orderItems->pluck('product_id')->toArray()) !!},
+                    content_type: 'product',
+                    value: {{ $order->amount }},
+                    currency: 'BDT',
+                    num_items: {{ $order->orderItems->sum('quantity') }},
+                    contents: {!! json_encode(
+                        $order->orderItems->map(function ($item) {
+                            return [
+                                'id' => $item->product_id,
+                                'quantity' => $item->quantity,
+                                'item_price' => $item->price,
+                            ];
+                        }),
+                    ) !!},
+                    order_id: '{{ $order->order_number }}'
+                });
             });
-        });
-    </script>
+        </script>
+    @endif
 
     <div class="max-w-7xl mx-auto px-4 py-8 md:py-12">
         <div class="bg-white rounded-lg shadow-sm p-6 md:p-8">
