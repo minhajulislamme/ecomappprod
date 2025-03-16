@@ -1,6 +1,6 @@
 @extends('frontend.frontend')
 @section('content')
-    <!-- GTM Data Layer -->
+    <!-- GTM Data Layer Event -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             window.dataLayer = window.dataLayer || [];
