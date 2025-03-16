@@ -3,6 +3,8 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\View;
+use App\Http\Controllers\Admin\SettingsController;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -19,6 +21,12 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        // Share tracking IDs with all views
+        View::composer('*', function ($view) {
+            $view->with([
+                'gtm_id' => SettingsController::getGTMId(),
+                'pixel_id' => SettingsController::getPixelId(),
+            ]);
+        });
     }
 }

@@ -1,13 +1,22 @@
 @extends('frontend.frontend')
 @section('content')
- <!-- Facebook Pixel ViewCart event -->
- @if (isset($pixelEvent))
- <script>
-     document.addEventListener('DOMContentLoaded', function() {
-         {!! $pixelEvent !!}
-     });
- </script>
-@endif
+    <!-- GTM Data Layer -->
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        dataLayer.push({
+            ecommerce: null
+        }); // Clear previous ecommerce object
+        dataLayer.push({!! json_encode($gtmData) !!});
+    </script>
+
+    <!-- Facebook Pixel ViewCart event -->
+    @if (isset($pixelEvent))
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                {!! $pixelEvent !!}
+            });
+        </script>
+    @endif
     <div class="max-w-7xl mx-auto px-4 py-8">
         <h1 class="text-2xl font-bold text-gray-800 mb-8">Shopping Cart</h1>
 

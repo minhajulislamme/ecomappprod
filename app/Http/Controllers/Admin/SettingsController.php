@@ -51,4 +51,24 @@ class SettingsController extends Controller
 
         return redirect()->route('admin.settings.index')->with('success', 'Settings updated successfully');
     }
+
+    /**
+     * Get Google Tag Manager ID.
+     *
+     * @return string|null
+     */
+    public static function getGTMId()
+    {
+        return Setting::getValue('google_tag_manager_id');
+    }
+
+    /**
+     * Get Facebook Pixel ID.
+     *
+     * @return string|null
+     */
+    public static function getPixelId()
+    {
+        return Setting::getValue('facebook_pixel_id');
+    }
 }

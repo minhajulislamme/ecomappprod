@@ -63,6 +63,23 @@ class CartController extends Controller
 
         Session::put('cart', $cart);
 
+        // Create GTM data layer for add to cart event
+        $gtmData = [
+            'event' => 'add_to_cart',
+            'ecommerce' => [
+                'currency' => 'BDT',
+                'value' => ($product->discount_price ?? $product->price) * $quantity,
+                'items' => [[
+                    'item_id' => $product->id,
+                    'item_name' => $product->name,
+                    'price' => $product->discount_price ?? $product->price,
+                    'item_category' => $product->category->category_name ?? '',
+                    'item_category2' => $product->subcategory->subcategory_name ?? '',
+                    'quantity' => $quantity
+                ]]
+            ]
+        ];
+
         // Add Facebook Pixel Event only if Pixel ID is set in settings
         $pixelEvent = null;
         if (Setting::getValue('facebook_pixel_id')) {
@@ -84,7 +101,8 @@ class CartController extends Controller
             'message' => 'Product added to cart successfully!',
             'cart_count' => count($cart),
             'cart' => $cart,
-            'pixelEvent' => $pixelEvent
+            'pixelEvent' => $pixelEvent,
+            'gtmData' => $gtmData
         ]);
     }
 
@@ -257,10 +275,10 @@ class CartController extends Controller
         $Subcategories = SubCategory::where('status', 'active')->latest()->get();
         $contentIds = [];
         $contents = [];
+        $gtmItems = [];
 
-        // Ensure each cart item has a quantity
+        // Build cart data for tracking
         foreach ($cart as $key => $item) {
-            // Set default quantity to 1 if not set
             if (!isset($item['quantity'])) {
                 $cart[$key]['quantity'] = 1;
                 Session::put('cart', $cart);
@@ -273,7 +291,25 @@ class CartController extends Controller
                 'id' => $item['id'],
                 'quantity' => $cart[$key]['quantity']
             ];
+
+            // Build GTM item data
+            $gtmItems[] = [
+                'item_id' => $item['id'],
+                'item_name' => $item['name'],
+                'price' => $item['price'],
+                'quantity' => $cart[$key]['quantity']
+            ];
         }
+
+        // Add GTM view_cart event
+        $gtmData = [
+            'event' => 'view_cart',
+            'ecommerce' => [
+                'currency' => 'BDT',
+                'value' => $total,
+                'items' => $gtmItems
+            ]
+        ];
 
         // Add Facebook Pixel Event for ViewCart only if Pixel ID is set in settings
         $pixelEvent = null;
@@ -287,7 +323,7 @@ class CartController extends Controller
             });";
         }
 
-        return view('frontend.cart.view_cart', compact('cart', 'total', 'Categories', 'Subcategories', 'pixelEvent'));
+        return view('frontend.cart.view_cart', compact('cart', 'total', 'Categories', 'Subcategories', 'pixelEvent', 'gtmData'));
     }
 
     public function applyCoupon(Request $request)

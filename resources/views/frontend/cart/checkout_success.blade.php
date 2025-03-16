@@ -1,5 +1,23 @@
 @extends('frontend.frontend')
 @section('content')
+    <!-- GTM Data Layer -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            if (window.gtmData) {
+                window.dataLayer = window.dataLayer || [];
+                dataLayer.push({
+                    ecommerce: null
+                }); // Clear previous ecommerce object
+                dataLayer.push(window.gtmData);
+            }
+
+            // Handle Facebook Pixel event if available
+            if (window.pixelEvent) {
+                eval(window.pixelEvent);
+            }
+        });
+    </script>
+
     <!-- Facebook Pixel Purchase Event -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {

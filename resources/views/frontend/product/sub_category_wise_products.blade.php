@@ -1,5 +1,14 @@
 @extends('frontend.frontend')
 @section('content')
+    <!-- GTM Data Layer -->
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        dataLayer.push({
+            ecommerce: null
+        }); // Clear previous ecommerce object
+        dataLayer.push({!! json_encode($gtmData) !!});
+    </script>
+
     <!-- Facebook Pixel ViewCategory event -->
     @if (isset($pixelEvent))
         <script>

@@ -6,10 +6,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Shop Ever Store</title>
 
+    <!-- Initialize Data Layer -->
+    <script>
+        window.dataLayer = window.dataLayer || [];
+
+        function gtag() {
+            dataLayer.push(arguments);
+        }
+        gtag('js', new Date());
+        gtag('config', '{{ $gtm_id }}');
+    </script>
+
     <!-- Google Tag Manager -->
-    @php
-        $gtm_id = App\Models\Setting::getValue('google_tag_manager_id');
-    @endphp
     @if ($gtm_id)
         <script>
             (function(w, d, s, l, i) {
@@ -41,9 +49,6 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <!-- Facebook Meta Pixel Code -->
-    @php
-        $pixel_id = App\Models\Setting::getValue('facebook_pixel_id');
-    @endphp
     @if ($pixel_id)
         <script>
             ! function(f, b, e, v, n, t, s) {
@@ -259,6 +264,27 @@
         @endif
     </script>
 
+    <!-- GTM Data Layer Helper -->
+    <script>
+        // Helper function to safely push to data layer
+        function pushToDataLayer(data) {
+            window.dataLayer = window.dataLayer || [];
+            // Clear previous ecommerce object
+            dataLayer.push({
+                ecommerce: null
+            });
+            // Push new data
+            dataLayer.push(data);
+        }
+
+        // Helper function for ecommerce events
+        function pushEcommerceEvent(eventName, ecommerceData) {
+            pushToDataLayer({
+                event: eventName,
+                ecommerce: ecommerceData
+            });
+        }
+    </script>
 
     @yield('scripts')
 </body>

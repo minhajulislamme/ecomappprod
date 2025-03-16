@@ -1,5 +1,14 @@
 @extends('frontend.frontend')
 @section('content')
+    <!-- GTM Data Layer -->
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        dataLayer.push({
+            ecommerce: null
+        }); // Clear previous ecommerce object
+        dataLayer.push({!! json_encode($gtmData) !!});
+    </script>
+
     <!-- Facebook Pixel ViewContent event -->
     @if (isset($pixelEvent))
         <script>
@@ -901,6 +910,15 @@
                             counter.textContent = data.cart_count;
                         });
 
+                        // Push GTM data layer event
+                        if (data.gtmData) {
+                            window.dataLayer = window.dataLayer || [];
+                            dataLayer.push({
+                                ecommerce: null
+                            }); // Clear previous ecommerce object
+                            dataLayer.push(data.gtmData);
+                        }
+
                         // Track AddToCart event with Facebook Pixel
                         if (data.pixelEvent) {
                             eval(data.pixelEvent);
@@ -998,10 +1016,10 @@
             return `
             <div class="flex flex-wrap gap-2 mt-1">
                 ${Object.values(attributes).map(attr => `
-                                                                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                                                                            ${attr.name}: ${attr.value}
-                                                                        </span>
-                                                                    `).join('')}
+                                                                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                                                                ${attr.name}: ${attr.value}
+                                                                            </span>
+                                                                        `).join('')}
             </div>`;
         }
 
@@ -1106,7 +1124,7 @@
                                     <div class="mt-1">
                                         ${item.discount_price && item.discount_price < item.price ?
                                             `<span class="text-orange-500 font-medium">৳${item.discount_price}</span>
-                                                                                     <span class="text-gray-400 text-sm line-through ml-2">৳${item.price}</span>` :
+                                                                                         <span class="text-gray-400 text-sm line-through ml-2">৳${item.price}</span>` :
                                             `<span class="text-orange-500 font-medium">৳${item.price}</span>`
                                         }
                                     </div>
@@ -1135,10 +1153,10 @@
                             View Wishlist
                         </a>
                         ${Object.keys(data.wishlist).length > 0 ? `
-                                                                    <button onclick="moveAllWishlistToCart()" class="w-full mt-2 py-2 px-4 border border-orange-400 text-orange-500 text-center rounded-md hover:bg-orange-50 transition-colors">
-                                                                        Move All to Cart
-                                                                    </button>
-                                                                ` : ''}
+                                                                        <button onclick="moveAllWishlistToCart()" class="w-full mt-2 py-2 px-4 border border-orange-400 text-orange-500 text-center rounded-md hover:bg-orange-50 transition-colors">
+                                                                            Move All to Cart
+                                                                        </button>
+                                                                    ` : ''}
                     `;
                         }
                     }

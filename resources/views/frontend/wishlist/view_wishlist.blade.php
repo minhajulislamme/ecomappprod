@@ -1,5 +1,25 @@
 @extends('frontend.frontend')
 @section('content')
+    <!-- GTM Data Layer -->
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        dataLayer.push({
+            ecommerce: null
+        }); // Clear previous ecommerce object
+        dataLayer.push({
+            event: 'view_wishlist',
+            ecommerce: {
+                currency: 'BDT',
+                value: {{ array_sum(array_map(function ($item) {return $item['discount_price'] ?? $item['price'];}, Session::get('wishlist', []))) }},
+                items: Object.entries({{ json_encode(Session::get('wishlist', [])) }}).map(([id, item]) => ({
+                    item_id: id,
+                    item_name: item.name,
+                    price: item.discount_price || item.price
+                }))
+            }
+        });
+    </script>
+
     <div class="max-w-7xl mx-auto px-4 py-8">
         <h1 class="text-2xl font-bold mb-6">My Wishlist</h1>
 

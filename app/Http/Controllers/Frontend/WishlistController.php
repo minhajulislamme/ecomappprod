@@ -7,6 +7,7 @@ use App\Models\Product;
 use App\Models\Category;
 use App\Models\SubCategory;
 use Illuminate\Http\Request;
+use App\Models\Setting;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Str;
 
@@ -34,32 +35,50 @@ class WishlistController extends Controller
                 'name' => $product->name,
                 'price' => (float)$product->price,
                 'discount_price' => (float)$product->discount_price,
-                'image' => $product->thumbnail_image,
-                'slug' => Str::slug($product->name)
+                'image' => asset($product->thumbnail_image)
             ];
 
             Session::put('wishlist', $wishlist);
 
-            // Add Facebook Pixel Event for AddToWishlist
-            $pixelEvent = "fbq('track', 'AddToWishlist', {
-                content_name: '" . addslashes($product->name) . "',
-                content_ids: ['" . $product->id . "'],
-                content_type: 'product',
-                value: " . ($product->discount_price ?? $product->price) . ",
-                currency: 'BDT'
-            });";
+            // Create GTM data layer for add_to_wishlist event
+            $gtmData = [
+                'event' => 'add_to_wishlist',
+                'ecommerce' => [
+                    'currency' => 'BDT',
+                    'value' => $product->discount_price ?? $product->price,
+                    'items' => [[
+                        'item_id' => $product->id,
+                        'item_name' => $product->name,
+                        'price' => $product->discount_price ?? $product->price,
+                        'item_category' => $product->category->category_name ?? '',
+                        'item_category2' => $product->subcategory->subcategory_name ?? ''
+                    ]]
+                ]
+            ];
+
+            // Add Facebook Pixel Event only if Pixel ID is set
+            $pixelEvent = null;
+            if (Setting::getValue('facebook_pixel_id')) {
+                $pixelEvent = "fbq('track', 'AddToWishlist', {
+                    content_name: '" . addslashes($product->name) . "',
+                    content_ids: ['" . $product->id . "'],
+                    content_type: 'product',
+                    value: " . ($product->discount_price ?? $product->price) . ",
+                    currency: 'BDT'
+                });";
+            }
 
             return response()->json([
                 'success' => true,
-                'message' => 'Product added to wishlist',
+                'message' => 'Product added to wishlist successfully!',
                 'wishlist_count' => count($wishlist),
-                'added' => true,
+                'gtmData' => $gtmData,
                 'pixelEvent' => $pixelEvent
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Error processing request: ' . $e->getMessage()
+                'message' => 'Failed to add product to wishlist'
             ], 500);
         }
     }

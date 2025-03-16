@@ -29,6 +29,7 @@ class CheckoutController extends Controller
         $contentIds = [];
         $contents = [];
         $hasOnlyFreeShipping = true;
+        $gtmItems = [];
 
         foreach ($cart as $item) {
             $total += $item['price'] * $item['quantity'];
@@ -41,7 +42,25 @@ class CheckoutController extends Controller
             if (!isset($item['free_shipping']) || !$item['free_shipping']) {
                 $hasOnlyFreeShipping = false;
             }
+
+            // Build GTM item data
+            $gtmItems[] = [
+                'item_id' => $item['id'],
+                'item_name' => $item['name'],
+                'price' => $item['price'],
+                'quantity' => $item['quantity']
+            ];
         }
+
+        // Add GTM begin_checkout event
+        $gtmData = [
+            'event' => 'begin_checkout',
+            'ecommerce' => [
+                'currency' => 'BDT',
+                'value' => $total,
+                'items' => $gtmItems
+            ]
+        ];
 
         // Add Facebook Pixel InitiateCheckout event only if pixel ID is set in settings
         $pixelEvent = null;
@@ -58,7 +77,7 @@ class CheckoutController extends Controller
 
         $shippingCharges = \App\Models\ShippingCharge::where('status', 'active')->get();
 
-        return view('frontend.cart.checkout', compact('cart', 'total', 'shippingCharges', 'hasOnlyFreeShipping', 'pixelEvent'));
+        return view('frontend.cart.checkout', compact('cart', 'total', 'shippingCharges', 'hasOnlyFreeShipping', 'pixelEvent', 'gtmData'));
     }
 
     public function placeOrder(Request $request)
@@ -156,6 +175,7 @@ class CheckoutController extends Controller
                 $order->save();
 
                 // Save order items and update product stock
+                $gtmItems = [];
                 foreach ($cart as $key => $item) {
                     $orderItem = new OrderItems();
                     $orderItem->order_id = $order->id;
@@ -179,42 +199,38 @@ class CheckoutController extends Controller
                         $product->stock = max(0, $product->stock - $item['quantity']);
                         $product->save();
                     }
-                }
 
-                // Build address info for pixel tracking
-                $addressInfo = [
-                    'first_name' => $request->first_name,
-                    'last_name' => $request->last_name,
-                    'email' => $request->email,
-                    'phone' => $request->phone,
-                    'address' => $request->address,
-                    'city' => $request->city,
-                    'postal_code' => $request->postal_code
-                ];
-
-                $contentIds = [];
-                $contents = [];
-
-                foreach ($cart as $item) {
-                    $contentIds[] = $item['id'];
-                    $contents[] = [
-                        'id' => $item['id'],
+                    // Build GTM item data
+                    $gtmItems[] = [
+                        'item_id' => $item['id'],
+                        'item_name' => $item['name'],
+                        'price' => $item['price'],
                         'quantity' => $item['quantity']
                     ];
                 }
 
-                // Enhanced Facebook Pixel Event for Purchase with customer data (only if pixel ID is set in settings)
+                // Prepare GTM purchase event data
+                $gtmData = [
+                    'event' => 'purchase',
+                    'ecommerce' => [
+                        'currency' => 'BDT',
+                        'value' => $amount - $couponDiscount + $shippingCharge,
+                        'tax' => 0,
+                        'shipping' => $shippingCharge,
+                        'transaction_id' => $orderNumber,
+                        'items' => $gtmItems
+                    ]
+                ];
+
+                // Add Facebook Pixel Purchase event only if pixel ID is set
                 $pixelEvent = null;
                 if (Setting::getValue('facebook_pixel_id')) {
                     $pixelEvent = "fbq('track', 'Purchase', {
-                        content_ids: " . json_encode($contentIds) . ",
-                        contents: " . json_encode($contents) . ",
-                        value: " . $order->amount . ",
+                        content_ids: " . json_encode(array_column($cart, 'id')) . ",
+                        content_type: 'product',
+                        value: " . ($amount - $couponDiscount + $shippingCharge) . ",
                         currency: 'BDT',
-                        num_items: " . array_sum(array_column($cart, 'quantity')) . ",
-                        shipping_tier: '" . ($hasOnlyFreeShipping ? 'Free Shipping' : 'Standard Shipping') . "',
-                        payment_type: '" . $request->payment_type . "',
-                        customer_type: '" . (Auth::check() ? 'Registered' : 'Guest') . "'
+                        num_items: " . array_sum(array_column($cart, 'quantity')) . "
                     });";
                 }
 
@@ -225,7 +241,8 @@ class CheckoutController extends Controller
                     'success' => true,
                     'message' => 'Order placed successfully',
                     'redirect' => route('checkout.success', ['order_number' => $order->order_number]),
-                    'pixelEvent' => $pixelEvent
+                    'pixelEvent' => $pixelEvent,
+                    'gtmData' => $gtmData
                 ]);
             });
         } catch (\Exception $e) {
