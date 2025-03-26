@@ -5,7 +5,7 @@
             <!-- Company Info -->
             <div class="space-y-4">
                 <div class="flex items-center space-x-3">
-                    <img src="https://placeholds.co/32x32" alt="Logo" class="w-8 h-8 rounded">
+                    <img src="https://placehold.co/32x32" alt="Logo" class="w-8 h-8 rounded">
                     <span class="text-xl font-semibold text-orange-400">Shop Ever</span>
                 </div>
                 <p class="text-gray-400 text-sm">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do
@@ -111,10 +111,10 @@
                 </div>
                 <!-- Payment Methods -->
                 {{-- <div class="flex items-center space-x-4">
-                    <img src="https://placeholds.co/40x25" alt="Visa" class="h-6">
-                    <img src="https://placeholds.co/40x25" alt="Mastercard" class="h-6">
-                    <img src="https://placeholds.co/40x25" alt="PayPal" class="h-6">
-                    <img src="https://placeholds.co/40x25" alt="American Express" class="h-6">
+                    <img src="https://placehold.co/40x25" alt="Visa" class="h-6">
+                    <img src="https://placehold.co/40x25" alt="Mastercard" class="h-6">
+                    <img src="https://placehold.co/40x25" alt="PayPal" class="h-6">
+                    <img src="https://placehold.co/40x25" alt="American Express" class="h-6">
                 </div> --}}
                 <div class="text-gray-400 text-sm">
 

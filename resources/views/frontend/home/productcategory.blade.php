@@ -23,7 +23,7 @@
 
         {{-- <a href="#" class="flex flex-col items-center group p-2 bg-white rounded-lg hover:shadow-md transition-all duration-300">
             <div class="w-full aspect-square rounded-lg overflow-hidden mb-1">
-                <img src="https://placeholds.co/200x200"
+                <img src="https://placehold.co/200x200"
                      class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-300"
                      alt="Category">
             </div>
@@ -33,7 +33,7 @@
         </a>
         <a href="#" class="flex flex-col items-center group p-2 bg-white rounded-lg hover:shadow-md transition-all duration-300">
             <div class="w-full aspect-square rounded-lg overflow-hidden mb-1">
-                <img src="https://placeholds.co/200x200"
+                <img src="https://placehold.co/200x200"
                      class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-300"
                      alt="Category">
             </div>
@@ -43,7 +43,7 @@
         </a>
         <a href="#" class="flex flex-col items-center group p-2 bg-white rounded-lg hover:shadow-md transition-all duration-300">
             <div class="w-full aspect-square rounded-lg overflow-hidden mb-1">
-                <img src="https://placeholds.co/200x200"
+                <img src="https://placehold.co/200x200"
                      class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-300"
                      alt="Category">
             </div>
@@ -53,7 +53,7 @@
         </a>
         <a href="#" class="flex flex-col items-center group p-2 bg-white rounded-lg hover:shadow-md transition-all duration-300">
             <div class="w-full aspect-square rounded-lg overflow-hidden mb-1">
-                <img src="https://placeholds.co/200x200"
+                <img src="https://placehold.co/200x200"
                      class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-300"
                      alt="Category">
             </div>
@@ -64,7 +64,7 @@
 
         <a href="#" class="flex flex-col items-center group p-2 bg-white rounded-lg hover:shadow-md transition-all duration-300">
             <div class="w-full aspect-square rounded-lg overflow-hidden mb-1">
-                <img src="https://placeholds.co/200x200"
+                <img src="https://placehold.co/200x200"
                      class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-300"
                      alt="Category">
             </div>
@@ -75,7 +75,7 @@
 
         <a href="#" class="flex flex-col items-center group p-2 bg-white rounded-lg hover:shadow-md transition-all duration-300">
             <div class="w-full aspect-square rounded-lg overflow-hidden mb-1">
-                <img src="https://placeholds.co/200x200"
+                <img src="https://placehold.co/200x200"
                      class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-300"
                      alt="Category">
             </div>
@@ -86,7 +86,7 @@
 
         <a href="#" class="flex flex-col items-center group p-2 bg-white rounded-lg hover:shadow-md transition-all duration-300">
             <div class="w-full aspect-square rounded-lg overflow-hidden mb-1">
-                <img src="https://placeholds.co/200x200"
+                <img src="https://placehold.co/200x200"
                      class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-300"
                      alt="Category">
             </div>
@@ -97,7 +97,7 @@
 
         <a href="#" class="flex flex-col items-center group p-2 bg-white rounded-lg hover:shadow-md transition-all duration-300">
             <div class="w-full aspect-square rounded-lg overflow-hidden mb-1">
-                <img src="https://placeholds.co/200x200"
+                <img src="https://placehold.co/200x200"
                      class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-300"
                      alt="Category">
             </div>
@@ -107,7 +107,7 @@
         </a>
         <a href="#" class="flex flex-col items-center group p-2 bg-white rounded-lg hover:shadow-md transition-all duration-300">
             <div class="w-full aspect-square rounded-lg overflow-hidden mb-1">
-                <img src="https://placeholds.co/200x200"
+                <img src="https://placehold.co/200x200"
                      class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-300"
                      alt="Category">
             </div>

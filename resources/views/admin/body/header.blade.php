@@ -30,7 +30,7 @@
                     <ul class="max-h-64 overflow-y-auto">
                         <li class="">
                             <a href="javascript:void()" class="py-2 px-4 flex items-center hover:bg-gray-50 group">
-                                <img src="https://placeholds.co/32x32"
+                                <img src="https://placehold.co/32x32"
                                     class="w-8 h-8 rounded block object-cover align-middle" alt="">
                                 <div class="ml-2">
                                     <div
@@ -42,7 +42,7 @@
                         </li>
                         <li class="">
                             <a href="javascript:void()" class="py-2 px-4 flex items-center hover:bg-gray-50 group">
-                                <img src="https://placeholds.co/32x32"
+                                <img src="https://placehold.co/32x32"
                                     class="w-8 h-8 rounded block object-cover align-middle" alt="">
                                 <div class="ml-2">
                                     <div
@@ -54,7 +54,7 @@
                         </li>
                         <li class="">
                             <a href="javascript:void()" class="py-2 px-4 flex items-center hover:bg-gray-50 group">
-                                <img src="https://placeholds.co/32x32"
+                                <img src="https://placehold.co/32x32"
                                     class="w-8 h-8 rounded block object-cover align-middle" alt="">
                                 <div class="ml-2">
                                     <div
@@ -66,7 +66,7 @@
                         </li>
                         <li class="">
                             <a href="javascript:void()" class="py-2 px-4 flex items-center hover:bg-gray-50 group">
-                                <img src="https://placeholds.co/32x32"
+                                <img src="https://placehold.co/32x32"
                                     class="w-8 h-8 rounded block object-cover align-middle" alt="">
                                 <div class="ml-2">
                                     <div
@@ -78,7 +78,7 @@
                         </li>
                         <li class="">
                             <a href="javascript:void()" class="py-2 px-4 flex items-center hover:bg-gray-50 group">
-                                <img src="https://placeholds.co/32x32"
+                                <img src="https://placehold.co/32x32"
                                     class="w-8 h-8 rounded block object-cover align-middle" alt="">
                                 <div class="ml-2">
                                     <div
@@ -90,7 +90,7 @@
                         </li>
                         <li class="">
                             <a href="javascript:void()" class="py-2 px-4 flex items-center hover:bg-gray-50 group">
-                                <img src="https://placeholds.co/32x32"
+                                <img src="https://placehold.co/32x32"
                                     class="w-8 h-8 rounded block object-cover align-middle" alt="">
                                 <div class="ml-2">
                                     <div
@@ -123,7 +123,7 @@
                     <ul class="max-h-64 overflow-y-auto" data-tab-for="notification" data-page="notifications">
                         <li>
                             <a href="#" class="py-2 px-4 flex items-center hover:bg-gray-50 group">
-                                <img src="https://placeholds.co/32x32" alt=""
+                                <img src="https://placehold.co/32x32" alt=""
                                     class="w-8 h-8 rounded block object-cover align-middle">
                                 <div class="ml-2">
                                     <div
@@ -135,7 +135,7 @@
                         </li>
                         <li>
                             <a href="#" class="py-2 px-4 flex items-center hover:bg-gray-50 group">
-                                <img src="https://placeholds.co/32x32" alt=""
+                                <img src="https://placehold.co/32x32" alt=""
                                     class="w-8 h-8 rounded block object-cover align-middle">
                                 <div class="ml-2">
                                     <div
@@ -147,7 +147,7 @@
                         </li>
                         <li>
                             <a href="#" class="py-2 px-4 flex items-center hover:bg-gray-50 group">
-                                <img src="https://placeholds.co/32x32" alt=""
+                                <img src="https://placehold.co/32x32" alt=""
                                     class="w-8 h-8 rounded block object-cover align-middle">
                                 <div class="ml-2">
                                     <div
@@ -159,7 +159,7 @@
                         </li>
                         <li>
                             <a href="#" class="py-2 px-4 flex items-center hover:bg-gray-50 group">
-                                <img src="https://placeholds.co/32x32" alt=""
+                                <img src="https://placehold.co/32x32" alt=""
                                     class="w-8 h-8 rounded block object-cover align-middle">
                                 <div class="ml-2">
                                     <div
@@ -171,7 +171,7 @@
                         </li>
                         <li>
                             <a href="#" class="py-2 px-4 flex items-center hover:bg-gray-50 group">
-                                <img src="https://placeholds.co/32x32" alt=""
+                                <img src="https://placehold.co/32x32" alt=""
                                     class="w-8 h-8 rounded block object-cover align-middle">
                                 <div class="ml-2">
                                     <div
@@ -185,7 +185,7 @@
                     <ul class="max-h-64 overflow-y-auto hidden" data-tab-for="notification" data-page="messages">
                         <li>
                             <a href="#" class="py-2 px-4 flex items-center hover:bg-gray-50 group">
-                                <img src="https://placeholds.co/32x32" alt=""
+                                <img src="https://placehold.co/32x32" alt=""
                                     class="w-8 h-8 rounded block object-cover align-middle">
                                 <div class="ml-2">
                                     <div
@@ -197,7 +197,7 @@
                         </li>
                         <li>
                             <a href="#" class="py-2 px-4 flex items-center hover:bg-gray-50 group">
-                                <img src="https://placeholds.co/32x32" alt=""
+                                <img src="https://placehold.co/32x32" alt=""
                                     class="w-8 h-8 rounded block object-cover align-middle">
                                 <div class="ml-2">
                                     <div
@@ -209,7 +209,7 @@
                         </li>
                         <li>
                             <a href="#" class="py-2 px-4 flex items-center hover:bg-gray-50 group">
-                                <img src="https://placeholds.co/32x32" alt=""
+                                <img src="https://placehold.co/32x32" alt=""
                                     class="w-8 h-8 rounded block object-cover align-middle">
                                 <div class="ml-2">
                                     <div
@@ -221,7 +221,7 @@
                         </li>
                         <li>
                             <a href="#" class="py-2 px-4 flex items-center hover:bg-gray-50 group">
-                                <img src="https://placeholds.co/32x32" alt=""
+                                <img src="https://placehold.co/32x32" alt=""
                                     class="w-8 h-8 rounded block object-cover align-middle">
                                 <div class="ml-2">
                                     <div
@@ -233,7 +233,7 @@
                         </li>
                         <li>
                             <a href="#" class="py-2 px-4 flex items-center hover:bg-gray-50 group">
-                                <img src="https://placeholds.co/32x32" alt=""
+                                <img src="https://placehold.co/32x32" alt=""
                                     class="w-8 h-8 rounded block object-cover align-middle">
                                 <div class="ml-2">
                                     <div
@@ -250,7 +250,7 @@
         <li class="dropdown ml-3">
             <button type="button"
                 class="dropdown-toggle text-gray-400 w-8 h-8 rounded flex items-center justify-center hover:bg-gray-50 hover:text-gray-600">
-                <img src="{{ !empty(Auth::user()->photo) ? url('upload/admin_images/' . Auth::user()->photo) : url('https://placeholds.co/600x600') }}"
+                <img src="{{ !empty(Auth::user()->photo) ? url('upload/admin_images/' . Auth::user()->photo) : url('https://placehold.co/600x600') }}"
                     alt="" class="w-8 h-8 rounded block object-cover align-middle">
             </button>
 

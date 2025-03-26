@@ -12,7 +12,7 @@
 
         {{-- <!-- Second Promo Banner -->
         <a href="#" class="block rounded-lg overflow-hidden hover:opacity-95 transition-opacity shadow-md">
-            <img src="https://placeholds.co/800x300"
+            <img src="https://placehold.co/800x300"
                  alt="Promo Banner 2"
                  class="w-full h-full object-cover">
         </a> --}}
